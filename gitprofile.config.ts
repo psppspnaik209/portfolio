@@ -14,21 +14,21 @@ const CONFIG = {
     github: {
       display: true, // Display GitHub projects?
       header: 'Github Projects',
-      mode: 'automatic', // Mode can be: 'automatic' or 'manual'
+      mode: 'manual', // Mode can be: 'automatic' or 'manual'
       automatic: {
-        sortBy: 'stars', // Sort projects by 'stars' or 'updated'
+        sortBy: 'updated', // Sort projects by 'stars' or 'updated'
         limit: 8, // How many projects to display.
         exclude: {
-          forks: false, // Forked projects will not be displayed if set to true.
+          forks: true, // Forked projects will not be displayed if set to true.
           projects: [], // These projects will not be displayed. example: ['arifszn/my-project1', 'arifszn/my-project2']
         },
       },
       manual: {
         // Properties for manually specifying projects
-        projects: ['arifszn/gitprofile', 'arifszn/pandora'], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
+        projects: [/*'arifszn/gitprofile',*/ 'psppspnaik209/LibMngSys' ,'psppspnaik209/M5-Assignment', 'psppspnaik209/arrow_K-game_py'], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
       },
     },
-    external: {
+    /*external: {
       header: 'My Projects',
       // To hide the `External Projects` section, keep it empty.
       projects: [
@@ -49,17 +49,17 @@ const CONFIG = {
           link: 'https://example.com',
         },
       ],
-    },
+    },*/
   },
   seo: {
-    title: 'Portfolio of Ariful Alam',
+    title: 'Portfolio of Kaushik Naik',
     description: '',
     imageURL: '',
   },
   social: {
-    linkedin: 'ariful-alam',
-    x: 'arif_szn',
-    mastodon: 'arifszn@mastodon.social',
+    linkedin: 'g-k-n',
+    ///x: 'arif_szn',
+    ///mastodon: 'arifszn@mastodon.social',
     researchGate: '',
     facebook: '',
     instagram: '',
@@ -69,36 +69,57 @@ const CONFIG = {
     udemy: '',
     dribbble: '',
     behance: '',
-    medium: 'arifszn',
-    dev: 'arifszn',
+    ///medium: 'arifszn',
+    ///dev: 'arifszn',
     stackoverflow: '', // example: '1/jeff-atwood'
     skype: '',
     telegram: '',
-    website: 'https://www.arifszn.com',
-    phone: '',
-    email: 'arifulalamszn@gmail.com',
+    ///website: 'x',
+    phone: '(940)-278-8260',
+    email: 'koushikguguloth290@gmail.com',
   },
   resume: {
     fileUrl:
-      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', // Empty fileUrl will hide the `Download Resume` button.
+      'https://drive.google.com/file/d/1fPVjJK2_WwKpGAG72MIUrIKNqM37DyCH/view?usp=sharing', // Empty fileUrl will hide the `Download Resume` button.
   },
   skills: [
-    'PHP',
-    'Laravel',
-    'JavaScript',
-    'React.js',
-    'Node.js',
-    'Nest.js',
-    'MySQL',
-    'PostgreSQL',
-    'Git',
-    'Docker',
-    'PHPUnit',
+    'C/C++',
+    'Python',
+    'HTML',
     'CSS',
-    'Antd',
-    'Tailwind',
+    'JavaScript',
+    'React',
+    'SQL',
+    'UML',
+    'Artificial Intelligence',
+    'Machine Learning',
+    'Deep Learning',
+    'Neural Networks',
+    'LLM’s',
+    'Prompt Engineering',
+    'Automation',
+    'Software Management',
+    'Computer Networks',
+    'Microsoft Office',
+    'Technical Assistance',
+    'Troubleshooting',
+    'Leadership',
+    'Time Management',
+    'Communication',
+    'Problem-Solving',
+    'Critical Thinking',
+    'Multitasking',
+    'Active Listening',
+    'Adaptability',
+    'Attention to Detail',
+    'Analytical Thinking',
+    'Interpersonal Skills',
+    'Punctuality',
+    'Reliability',
+    'Fast Typing',
+    'Multilingual (English, Hindi, Telugu)'
   ],
-  experiences: [
+  /*experiences: [
     {
       company: 'Company Name',
       position: 'Position',
@@ -113,30 +134,30 @@ const CONFIG = {
       to: 'August 2021',
       companyLink: 'https://example.com',
     },
-  ],
+  ],*/
   certifications: [
     {
-      name: 'Lorem ipsum',
+      name: 'UNT Artifical Intelligence Certificate',
       body: 'Lorem ipsum dolor sit amet',
-      year: 'March 2022',
-      link: 'https://example.com',
+      year: 'May 20206',
+      link: 'https://www.unt.edu/academics/programs/artificial-intelligence-certificate.html',
     },
   ],
   educations: [
     {
-      institution: 'Institution Name',
-      degree: 'Degree',
-      from: '2015',
-      to: '2019',
+      institution: 'University of North Texas',
+      degree: 'Computer Science',
+      from: '2023',
+      to: '2026',
     },
-    {
+    /*{
       institution: 'Institution Name',
       degree: 'Degree',
       from: '2012',
       to: '2014',
-    },
+    },*/
   ],
-  publications: [
+  /*publications: [
     {
       title: 'Publication Title',
       conferenceName: '',
@@ -155,9 +176,9 @@ const CONFIG = {
       description:
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
     },
-  ],
+  ],*/
   // Display articles from your medium or dev account. (Optional)
-  blog: {
+  /*blog: {
     source: 'dev', // medium | dev
     username: 'arifszn', // to hide blog section, keep it empty
     limit: 2, // How many articles to display. Max is 10.
@@ -169,9 +190,9 @@ const CONFIG = {
   hotjar: {
     id: '',
     snippetVersion: 6,
-  },
-  themeConfig: {
-    defaultTheme: 'lofi',
+  },*/  
+  themeConfig: { 
+    defaultTheme: 'Halloween',
 
     // Hides the switch in the navbar
     // Useful if you want to support a single color mode
