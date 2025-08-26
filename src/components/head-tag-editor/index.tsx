@@ -1,27 +1,23 @@
 import { Helmet } from 'react-helmet-async';
-import { isDarkishTheme } from '../../utils';
 
 type HeadTagEditorProps = {
   googleAnalyticsId?: string;
-  appliedTheme: string;
 };
 
 /**
  * Renders the head tag editor component.
  *
  * @param {HeadTagEditorProps} googleAnalyticsId - The Google Analytics ID.
- * @param {HeadTagEditorProps} appliedTheme - The applied theme.
  * @return {React.ReactElement} The head tag editor component.
  */
 const HeadTagEditor: React.FC<HeadTagEditorProps> = ({
   googleAnalyticsId,
-  appliedTheme,
 }) => {
   return (
     <Helmet>
       <meta
         name="theme-color"
-        content={isDarkishTheme(appliedTheme) ? '#000000' : '#ffffff'}
+        content={'#000000'}
       />
       {googleAnalyticsId && (
         <>

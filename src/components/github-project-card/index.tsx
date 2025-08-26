@@ -1,8 +1,21 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { AiOutlineFork, AiOutlineStar } from 'react-icons/ai';
 import { MdInsertLink } from 'react-icons/md';
 import { ga, getLanguageColor, skeleton } from '../../utils';
 import { GithubProject } from '../../interfaces/github-project';
+
+const Modal = ({ project, onClose }: { project: GithubProject, onClose: () => void }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={onClose}>
+    <div className="bg-base-100 p-5 rounded-lg max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
+      <h3 className="font-semibold text-lg">{project.name}</h3>
+      <p className="py-4">{project.description}</p>
+      <div className="modal-action">
+        <a href={project.html_url} target="_blank" rel="noreferrer" className="btn">View Project</a>
+        <button onClick={onClose} className="btn">Close</button>
+      </div>
+    </div>
+  </div>
+);
 
 const GithubProjectCard = ({
   header,
@@ -19,8 +32,10 @@ const GithubProjectCard = ({
   username: string;
   googleAnalyticsId?: string;
 }) => {
+  const [modalProject, setModalProject] = useState<GithubProject | null>(null);
+
   if (!loading && githubProjects.length === 0) {
-    return;
+    return null;
   }
 
   const renderSkeleton = () => {
@@ -75,25 +90,10 @@ const GithubProjectCard = ({
 
   const renderProjects = () => {
     return githubProjects.map((item, index) => (
-      <a
+      <div
         className="card shadow-lg compact bg-base-100 cursor-pointer"
-        href={item.html_url}
         key={index}
-        onClick={(e) => {
-          e.preventDefault();
-
-          try {
-            if (googleAnalyticsId) {
-              ga.event('Click project', {
-                project: item.name,
-              });
-            }
-          } catch (error) {
-            console.error(error);
-          }
-
-          window?.open(item.html_url, '_blank');
-        }}
+        onClick={() => setModalProject(item)}
       >
         <div className="flex justify-between flex-col p-8 h-full w-full">
           <div>
@@ -103,7 +103,7 @@ const GithubProjectCard = ({
                 <span>{item.name}</span>
               </div>
             </div>
-            <p className="mb-5 mt-1 text-base-content text-opacity-60 text-sm">
+            <p className="mb-5 mt-1 text-base-content text-opacity-60 text-sm truncate">
               {item.description}
             </p>
           </div>
@@ -129,12 +129,12 @@ const GithubProjectCard = ({
             </div>
           </div>
         </div>
-      </a>
+      </div>
     ));
   };
 
   return (
-    <Fragment>
+    <>
       <div className="col-span-1 lg:col-span-2">
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
@@ -173,7 +173,8 @@ const GithubProjectCard = ({
           </div>
         </div>
       </div>
-    </Fragment>
+      {modalProject && <Modal project={modalProject} onClose={() => setModalProject(null)} />}
+    </>
   );
 };
 

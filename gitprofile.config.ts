@@ -1,6 +1,6 @@
 // gitprofile.config.ts
- 
-const CONFIG = {     
+
+const CONFIG = {
   github: {
     username: 'psppspnaik209', // Your GitHub org/user name. (This is the only required config)
   },
@@ -25,39 +25,44 @@ const CONFIG = {
       },
       manual: {
         // Properties for manually specifying projects
-        projects: [/*'arifszn/gitprofile',*/ 'psppspnaik209/LibMngSys' ,'psppspnaik209/M5-Assignment', 'psppspnaik209/arrow_K-game_py'], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
+        projects: [
+          'psppspnaik209/LibMngSys',
+          'psppspnaik209/FFLocker',
+          'psppspnaik209/arrow_K-game_py',
+        ], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
       },
     },
-    /*external: {
+    external: {
       header: 'My Projects',
       // To hide the `External Projects` section, keep it empty.
       projects: [
         {
-          title: 'Project Name',
+          title: 'Amazon Deepracer Simulation',
           description:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc ut.',
+            'Solo developed a reinforcement learning simulation on the Amazon DeepRacer platform, training an autonomous vehicle to navigate a virtual track using state-of-the-art machine learning algorithms. Designed and implemented reward functions and tuning strategies to optimize performance, showcasing a strong grasp of reinforcement learning principles in an autonomous driving context. Leveraged AWS machine learning tools and services to build a robust training pipeline, demonstrating advanced technical proficiency and innovation in applying ML to real-world scenarios.',
           imageUrl:
             'https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg',
           link: 'https://example.com',
         },
         {
-          title: 'Project Name',
+          title: 'City & Disaster Simulation',
           description:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc ut.',
+            'Solo Developed a city growth simulation in C++ that models residential, commercial, and industrial zones while incorporating pollution spread, disaster simulations, and resource allocation. Designed and implemented efficient data structures for effective zone management and region analysis. Followed modular coding practices and employed Git for version control, and design documents in UML format.',
           imageUrl:
             'https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg',
           link: 'https://example.com',
         },
       ],
-    },*/
+    },
   },
   seo: {
     title: 'Portfolio of Kaushik Naik',
-    description: '',
+    description:
+      'I am a dedicated Computer Science student at the University of North Texas, set to graduate in May 2026 from an ABET-accredited program. I specialize in C/C++, Python, AI, ML, HTML, CSS, JavaScript, and React, and I am passionate about leveraging my technical skills to drive innovative projects. With strong expertise in coding, programming, and data structures and algorithms, I am eager to contribute to exciting opportunities that challenge me to achieve tangible results in the ever-evolving world of technology.',
     imageURL: '',
   },
   social: {
-    linkedin: 'g-k-n',
+    linkedin: 'C-AL',
     ///x: 'arif_szn',
     ///mastodon: 'arifszn@mastodon.social',
     researchGate: '',
@@ -74,34 +79,42 @@ const CONFIG = {
     stackoverflow: '', // example: '1/jeff-atwood'
     skype: '',
     telegram: '',
-    ///website: 'x',
-    phone: '(940)-278-8260',
-    email: 'koushikguguloth290@gmail.com',
+    website: 'https://profile.github.io/portfolio/',
+    phone: '940.xxx.xxx',
+    email: 'email@gmail.com',
   },
   resume: {
     fileUrl:
-      'https://drive.google.com/drive/folders/1SjgwHT9ZS9VRs_iV4-aNDlhZaahzrfrc?usp=sharing', // Empty fileUrl will hide the `Download Resume` button.
+      '@tampa/ResumeNoInfo.pdf', // Empty fileUrl will hide the `Download Resume` button.
   },
   skills: [
     'C/C++',
     'Python',
+    'Java',
+    'SQL',
+    'Rust',
+    'C#',
     'HTML',
     'CSS',
     'JavaScript',
     'React',
-    'SQL',
-    'UML',
+    'TypeScript',
+    'Node.js',
+    'REST APIs',
+    'AI',
+    'ML',
     'Artificial Intelligence',
     'Machine Learning',
     'Deep Learning',
     'Neural Networks',
     'LLM’s',
     'Prompt Engineering',
-    'Automation',
+    'Visual Studio Code',
+    'Git',
+    'UML',
     'Software Management',
     'Computer Networks',
     'Microsoft Office',
-    'Technical Assistance',
     'Troubleshooting',
     'Leadership',
     'Time Management',
@@ -116,67 +129,34 @@ const CONFIG = {
     'Interpersonal Skills',
     'Punctuality',
     'Reliability',
-    'Fast Typing',
-    'Multilingual (English, Hindi, Telugu)'
+    'Multilingual (English, Hindi, Telugu)',
   ],
-  /*experiences: [
+  experiences: [
     {
-      company: 'Company Name',
-      position: 'Position',
-      from: 'September 2021',
-      to: 'Present',
-      companyLink: 'https://example.com',
+      company: 'Attenion.Ad',
+      position: 'Full Stack Developer Intern',
+      from: 'Jun 2025',
+      to: 'Aug 2025',
+      companyLink: '',
+      description: 'Collaborated on a 5-member full-stack team using TypeScript/Node.js REST APIs to refactor and create a Web 3 Crypto Prodcut. Integrated Twitter/X, Clanker, Privy, Alchemy, Stripe, Grok, OpenAl API for metadata caching, rate-limiting, trending-topic feeds, Authorizations, Payments, Base Network, Token Trading, and Image generation. Developed Uniswap modules for on-chain liquidity queries and real-time token pricing and trading. Updated front-end: token-explore pages, leaderboards, profiles, and price-history charts. Built a unified responsive user dashboard, created Franchising, Sponsorship, and Memathon tabs. Created Backend API and Front-End design docs to accelerate developer documentation.',
     },
-    {
-      company: 'Company Name',
-      position: 'Position',
-      from: 'July 2019',
-      to: 'August 2021',
-      companyLink: 'https://example.com',
-    },
-  ],*/
+  ],
   certifications: [
     {
-      name: 'UNT Artifical Intelligence Certificate',
-      body: 'Lorem ipsum dolor sit amet',
-      year: 'May 20206',
+      name: 'University of North Texas Artificial Intelligence',
+      body: 'Certification in Artificial Intelligence from the University of North Texas.',
+      year: 'Expected May 2026',
       link: 'https://www.unt.edu/academics/programs/artificial-intelligence-certificate.html',
     },
   ],
   educations: [
     {
       institution: 'University of North Texas',
-      degree: 'Computer Science',
+      degree: 'Bachelor of Science in Computer Science (ABET accredited), GPA: 3.9',
       from: '2023',
       to: '2026',
     },
-    /*{
-      institution: 'Institution Name',
-      degree: 'Degree',
-      from: '2012',
-      to: '2014',
-    },*/
   ],
-  /*publications: [
-    {
-      title: 'Publication Title',
-      conferenceName: '',
-      journalName: 'Journal Name',
-      authors: 'John Doe, Jane Smith',
-      link: 'https://example.com',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    },
-    {
-      title: 'Publication Title',
-      conferenceName: 'Conference Name',
-      journalName: '',
-      authors: 'John Doe, Jane Smith',
-      link: 'https://example.com',
-      description:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    },
-  ],*/
   // Display articles from your medium or dev account. (Optional)
   /*blog: {
     source: 'dev', // medium | dev
@@ -190,9 +170,9 @@ const CONFIG = {
   hotjar: {
     id: '',
     snippetVersion: 6,
-  },*/  
+  },*/
   themeConfig: { 
-    defaultTheme: 'Halloween',
+    defaultTheme: 'luxury',
 
     // Hides the switch in the navbar
     // Useful if you want to support a single color mode
@@ -254,12 +234,7 @@ const CONFIG = {
     },
   },
 
-  // Optional Footer. Supports plain text or HTML.
-  footer: `Made with <a 
-      class="text-primary" href="https://github.com/arifszn/gitprofile"
-      target="_blank"
-      rel="noreferrer"
-    >GitProfile</a> and ❤️`,
+  footer: `Made with ❤️ by Kaushik Naik`,
 
   enablePWA: true,
 };
