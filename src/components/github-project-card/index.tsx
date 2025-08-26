@@ -1,7 +1,7 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import { AiOutlineFork, AiOutlineStar } from 'react-icons/ai';
 import { MdInsertLink } from 'react-icons/md';
-import { ga, getLanguageColor, skeleton } from '../../utils';
+import { getLanguageColor, skeleton } from '../../utils';
 import { GithubProject } from '../../interfaces/github-project';
 
 const Modal = ({ project, onClose }: { project: GithubProject, onClose: () => void }) => (
@@ -23,14 +23,12 @@ const GithubProjectCard = ({
   loading,
   limit,
   username,
-  googleAnalyticsId,
 }: {
   header: string;
   githubProjects: GithubProject[];
   loading: boolean;
   limit: number;
   username: string;
-  googleAnalyticsId?: string;
 }) => {
   const [modalProject, setModalProject] = useState<GithubProject | null>(null);
 

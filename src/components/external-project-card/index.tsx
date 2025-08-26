@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import LazyImage from '../lazy-image';
-import { ga, skeleton } from '../../utils';
+import { skeleton } from '../../utils';
 import { SanitizedExternalProject } from '../../interfaces/sanitized-config';
 
 const Modal = ({ project, onClose }: { project: SanitizedExternalProject, onClose: () => void }) => (
@@ -20,12 +20,10 @@ const ExternalProjectCard = ({
   externalProjects,
   header,
   loading,
-  googleAnalyticId,
 }: {
   externalProjects: SanitizedExternalProject[];
   header: string;
   loading: boolean;
-  googleAnalyticId?: string;
 }) => {
   const [modalProject, setModalProject] = useState<SanitizedExternalProject | null>(null);
 
