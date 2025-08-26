@@ -3,8 +3,6 @@ import { SanitizedExperience } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
 import Modal from '../modal'; // Import the new Modal component
 
-
-
 const ListItem = ({
   experience,
   onClick,
@@ -17,7 +15,9 @@ const ListItem = ({
       className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
       style={{ left: '-4.5px' }}
     ></div>
-    <div className="my-0.5 text-xs">{experience.from} - {experience.to}</div>
+    <div className="my-0.5 text-xs">
+      {experience.from} - {experience.to}
+    </div>
     <h3 className="font-semibold">{experience.position}</h3>
     <div className="mb-4 font-normal">
       <a href={experience.companyLink} target="_blank" rel="noreferrer">
@@ -34,7 +34,8 @@ const ExperienceCard = ({
   experiences: SanitizedExperience[];
   loading: boolean;
 }) => {
-  const [modalExperience, setModalExperience] = useState<SanitizedExperience | null>(null);
+  const [modalExperience, setModalExperience] =
+    useState<SanitizedExperience | null>(null);
 
   const renderSkeleton = () => {
     const array = [];
@@ -45,10 +46,20 @@ const ExperienceCard = ({
             className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
             style={{ left: '-4.5px' }}
           ></div>
-          <div className="my-0.5 text-xs">{skeleton({ widthCls: 'w-5/12', heightCls: 'h-4' })}</div>
-          <h3 className="font-semibold">{skeleton({ widthCls: 'w-6/12', heightCls: 'h-4', className: 'my-1.5' })}</h3>
-          <div className="mb-4 font-normal">{skeleton({ widthCls: 'w-6/12', heightCls: 'h-3' })}</div>
-        </li>
+          <div className="my-0.5 text-xs">
+            {skeleton({ widthCls: 'w-5/12', heightCls: 'h-4' })}
+          </div>
+          <h3 className="font-semibold">
+            {skeleton({
+              widthCls: 'w-6/12',
+              heightCls: 'h-4',
+              className: 'my-1.5',
+            })}
+          </h3>
+          <div className="mb-4 font-normal">
+            {skeleton({ widthCls: 'w-6/12', heightCls: 'h-3' })}
+          </div>
+        </li>,
       );
     }
 
@@ -94,8 +105,12 @@ const ExperienceCard = ({
       >
         {modalExperience && (
           <>
-            <p className="text-sm text-base-content text-opacity-60">{modalExperience.company}</p>
-            <p className="text-xs text-base-content text-opacity-60">{modalExperience.from} - {modalExperience.to}</p>
+            <p className="text-sm text-base-content text-opacity-60">
+              {modalExperience.company}
+            </p>
+            <p className="text-xs text-base-content text-opacity-60">
+              {modalExperience.from} - {modalExperience.to}
+            </p>
             <p className="py-4">{modalExperience.description}</p>
           </>
         )}

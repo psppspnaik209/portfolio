@@ -45,7 +45,9 @@ const Modal: React.FC<ModalProps> = ({ children, isOpen, onClose, title }) => {
           {title && <h3 className="font-semibold text-lg mb-4">{title}</h3>}
           {children}
           <div className="modal-action mt-4">
-            <button onClick={handleClose} className="btn">Close</button>
+            <button onClick={handleClose} className="btn">
+              Close
+            </button>
           </div>
         </div>
       </div>

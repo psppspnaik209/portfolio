@@ -4,7 +4,6 @@ import { skeleton } from '../../utils';
 import { SanitizedExternalProject } from '../../interfaces/sanitized-config';
 import Modal from '../modal'; // Import the new Modal component
 
-
 const ExternalProjectCard = ({
   externalProjects,
   header,
@@ -14,7 +13,8 @@ const ExternalProjectCard = ({
   header: string;
   loading: boolean;
 }) => {
-  const [modalProject, setModalProject] = useState<SanitizedExternalProject | null>(null);
+  const [modalProject, setModalProject] =
+    useState<SanitizedExternalProject | null>(null);
 
   const renderSkeleton = () => {
     const array = [];
@@ -146,7 +146,14 @@ const ExternalProjectCard = ({
         {modalProject && (
           <>
             <p className="py-4">{modalProject.description}</p>
-            <a href={modalProject.link} target="_blank" rel="noreferrer" className="btn">View Project</a>
+            <a
+              href={modalProject.link}
+              target="_blank"
+              rel="noreferrer"
+              className="btn"
+            >
+              View Project
+            </a>
           </>
         )}
       </Modal>

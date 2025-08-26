@@ -76,7 +76,10 @@ const ListItem: React.FC<{
   };
 
   return (
-    <div className="flex justify-start py-2 px-1 items-center" onDoubleClick={handleDoubleClick}>
+    <div
+      className="flex justify-start py-2 px-1 items-center"
+      onDoubleClick={handleDoubleClick}
+    >
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
         {icon} {title}
       </div>
@@ -162,7 +165,10 @@ const OrganizationItem: React.FC<{
   };
 
   return (
-    <div className="flex justify-start py-2 px-1 items-center" onDoubleClick={handleDoubleClick}>
+    <div
+      className="flex justify-start py-2 px-1 items-center"
+      onDoubleClick={handleDoubleClick}
+    >
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
         {icon} {title}
       </div>
@@ -398,26 +404,25 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
                   link={`tel:${social.phone}`}
                 />
               )}
-              {social?.email && (
-  Array.isArray(social.email) ? (
-    social.email.map((emailItem, idx) => (
-      <ListItem
-        key={`email-${idx}`}
-        icon={<RiMailFill />}
-        title="Email:"
-        value={emailItem}
-        link={`mailto:${emailItem}`}
-      />
-    ))
-  ) : (
-    <ListItem
-      icon={<RiMailFill />}
-      title="Email:"
-      value={social.email}
-      link={`mailto:${social.email}`}
-    />
-  )
-)}
+              {social?.email &&
+                (Array.isArray(social.email) ? (
+                  social.email.map((emailItem, idx) => (
+                    <ListItem
+                      key={`email-${idx}`}
+                      icon={<RiMailFill />}
+                      title="Email:"
+                      value={emailItem}
+                      link={`mailto:${emailItem}`}
+                    />
+                  ))
+                ) : (
+                  <ListItem
+                    icon={<RiMailFill />}
+                    title="Email:"
+                    value={social.email}
+                    link={`mailto:${social.email}`}
+                  />
+                ))}
             </Fragment>
           )}
         </div>
