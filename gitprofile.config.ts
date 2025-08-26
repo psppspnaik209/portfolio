@@ -26,8 +26,9 @@ const CONFIG = {
       manual: {
         // Properties for manually specifying projects
         projects: [
-          'psppspnaik209/LibMngSys',
+          'psppspnaik209/WinTaskBarAutoHideFix',
           'psppspnaik209/FFLocker',
+          'psppspnaik209/LibMngSys',
           'psppspnaik209/arrow_K-game_py',
         ], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
       },
@@ -144,8 +145,8 @@ const CONFIG = {
   certifications: [
     {
       name: 'University of North Texas Artificial Intelligence',
-      body: 'Certification in Artificial Intelligence from the University of North Texas.',
-      year: 'Expected May 2026',
+      body: 'Certification in Artificial Intelligence',
+      //year: 'Expected May 2026',
       link: 'https://www.unt.edu/academics/programs/artificial-intelligence-certificate.html',
     },
   ],
@@ -153,8 +154,8 @@ const CONFIG = {
     {
       institution: 'University of North Texas',
       degree: 'Bachelor of Science in Computer Science (ABET accredited), GPA: 3.9',
-      from: '2023',
-      to: '2026',
+      from: 'Aug 2023',
+      to: 'May 2026',
     },
   ],
   // Display articles from your medium or dev account. (Optional)
@@ -202,7 +203,7 @@ const CONFIG = {
     },
   },
 
-  footer: `Made with ❤️ by Kaushik Naik`,
+  footer: `A TNBB Project`,
 
   enablePWA: true,
 };

@@ -1,21 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AiOutlineFork, AiOutlineStar } from 'react-icons/ai';
 import { MdInsertLink } from 'react-icons/md';
 import { getLanguageColor, skeleton } from '../../utils';
 import { GithubProject } from '../../interfaces/github-project';
+import Modal from '../modal'; // Import the new Modal component
 
-const Modal = ({ project, onClose }: { project: GithubProject, onClose: () => void }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={onClose}>
-    <div className="bg-base-100 p-5 rounded-lg max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
-      <h3 className="font-semibold text-lg">{project.name}</h3>
-      <p className="py-4">{project.description}</p>
-      <div className="modal-action">
-        <a href={project.html_url} target="_blank" rel="noreferrer" className="btn">View Project</a>
-        <button onClick={onClose} className="btn">Close</button>
-      </div>
-    </div>
-  </div>
-);
+
+
+
 
 const GithubProjectCard = ({
   header,
@@ -171,7 +163,18 @@ const GithubProjectCard = ({
           </div>
         </div>
       </div>
-      {modalProject && <Modal project={modalProject} onClose={() => setModalProject(null)} />}
+      <Modal
+        isOpen={!!modalProject}
+        onClose={() => setModalProject(null)}
+        title={modalProject?.name || ''}
+      >
+        {modalProject && (
+          <>
+            <p className="py-4">{modalProject.description}</p>
+            <a href={modalProject.html_url} target="_blank" rel="noreferrer" className="btn">View Project</a>
+          </>
+        )}
+      </Modal>
     </>
   );
 };

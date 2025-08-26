@@ -1,20 +1,9 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import LazyImage from '../lazy-image';
 import { skeleton } from '../../utils';
 import { SanitizedExternalProject } from '../../interfaces/sanitized-config';
+import Modal from '../modal'; // Import the new Modal component
 
-const Modal = ({ project, onClose }: { project: SanitizedExternalProject, onClose: () => void }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={onClose}>
-    <div className="bg-base-100 p-5 rounded-lg max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
-      <h3 className="font-semibold text-lg">{project.title}</h3>
-      <p className="py-4">{project.description}</p>
-      <div className="modal-action">
-        <a href={project.link} target="_blank" rel="noreferrer" className="btn">View Project</a>
-        <button onClick={onClose} className="btn">Close</button>
-      </div>
-    </div>
-  </div>
-);
 
 const ExternalProjectCard = ({
   externalProjects,
@@ -149,7 +138,18 @@ const ExternalProjectCard = ({
           </div>
         </div>
       </div>
-      {modalProject && <Modal project={modalProject} onClose={() => setModalProject(null)} />}
+      <Modal
+        isOpen={!!modalProject}
+        onClose={() => setModalProject(null)}
+        title={modalProject?.title || ''}
+      >
+        {modalProject && (
+          <>
+            <p className="py-4">{modalProject.description}</p>
+            <a href={modalProject.link} target="_blank" rel="noreferrer" className="btn">View Project</a>
+          </>
+        )}
+      </Modal>
     </Fragment>
   );
 };

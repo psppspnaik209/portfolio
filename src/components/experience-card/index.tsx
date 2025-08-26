@@ -1,20 +1,9 @@
 import { Fragment, useState } from 'react';
 import { SanitizedExperience } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
+import Modal from '../modal'; // Import the new Modal component
 
-const Modal = ({ experience, onClose }: { experience: SanitizedExperience, onClose: () => void }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center" onClick={onClose}>
-    <div className="bg-base-100 p-5 rounded-lg max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
-      <h3 className="font-semibold text-lg">{experience.position}</h3>
-      <p className="text-sm text-base-content text-opacity-60">{experience.company}</p>
-      <p className="text-xs text-base-content text-opacity-60">{experience.from} - {experience.to}</p>
-      <p className="py-4">{experience.description}</p>
-      <div className="modal-action">
-        <button onClick={onClose} className="btn">Close</button>
-      </div>
-    </div>
-  </div>
-);
+
 
 const ListItem = ({
   experience,
@@ -98,7 +87,19 @@ const ExperienceCard = ({
           </div>
         </div>
       </div>
-      {modalExperience && <Modal experience={modalExperience} onClose={() => setModalExperience(null)} />}
+      <Modal
+        isOpen={!!modalExperience}
+        onClose={() => setModalExperience(null)}
+        title={modalExperience?.position || ''}
+      >
+        {modalExperience && (
+          <>
+            <p className="text-sm text-base-content text-opacity-60">{modalExperience.company}</p>
+            <p className="text-xs text-base-content text-opacity-60">{modalExperience.from} - {modalExperience.to}</p>
+            <p className="py-4">{modalExperience.description}</p>
+          </>
+        )}
+      </Modal>
     </>
   );
 };
