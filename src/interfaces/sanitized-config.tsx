@@ -62,7 +62,7 @@ export interface SanitizedSocial {
   skype?: string;
   telegram?: string;
   phone?: string;
-  email?: string;
+  email?: string | string[];
 }
 
 export interface SanitizedResume {
@@ -90,6 +90,7 @@ export interface SanitizedEducation {
   degree?: string;
   from: string;
   to: string;
+  link?: string; // Added link property
 }
 
 export interface SanitizedPublication {

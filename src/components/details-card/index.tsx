@@ -58,6 +58,8 @@ const getFormattedMastodonValue = (
   }
 };
 
+import { useCopyToClipboard } from '../../utils'; // Import the hook
+
 const ListItem: React.FC<{
   icon: React.ReactNode;
   title: React.ReactNode;
@@ -65,8 +67,16 @@ const ListItem: React.FC<{
   link?: string;
   skeleton?: boolean;
 }> = ({ icon, title, value, link, skeleton = false }) => {
+  const { copy } = useCopyToClipboard();
+
+  const handleDoubleClick = () => {
+    if (typeof value === 'string') {
+      copy(value);
+    }
+  };
+
   return (
-    <div className="flex justify-start py-2 px-1 items-center">
+    <div className="flex justify-start py-2 px-1 items-center" onDoubleClick={handleDoubleClick}>
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
         {icon} {title}
       </div>
@@ -78,14 +88,20 @@ const ListItem: React.FC<{
           wordBreak: 'break-word',
         }}
       >
-        <a
-          href={link}
-          target="_blank"
-          rel="noreferrer"
-          className="flex justify-start py-2 px-1 items-center"
-        >
-          {value}
-        </a>
+        {link ? (
+          <a
+            href={link}
+            target="_blank"
+            rel="noreferrer"
+            className="flex justify-start py-2 px-1 items-center"
+          >
+            {value}
+          </a>
+        ) : (
+          <span className="flex justify-start py-2 px-1 items-center">
+            {value}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -98,6 +114,14 @@ const OrganizationItem: React.FC<{
   link?: string;
   skeleton?: boolean;
 }> = ({ icon, title, value, link, skeleton = false }) => {
+  const { copy } = useCopyToClipboard();
+
+  const handleDoubleClick = () => {
+    if (typeof value === 'string') {
+      copy(value);
+    }
+  };
+
   const renderValue = () => {
     if (typeof value === 'string') {
       return value.split(' ').map((company) => {
@@ -111,12 +135,26 @@ const OrganizationItem: React.FC<{
               target="_blank"
               rel="noreferrer"
               key={company}
+              onDoubleClick={(e) => {
+                e.stopPropagation(); // Prevent double-click on link from bubbling to parent div
+                copy(company);
+              }}
             >
               {company}
             </a>
           );
         } else {
-          return <span key={company}>{company}</span>;
+          return (
+            <span
+              key={company}
+              onDoubleClick={(e) => {
+                e.stopPropagation(); // Prevent double-click on span from bubbling to parent div
+                copy(company);
+              }}
+            >
+              {company}
+            </span>
+          );
         }
       });
     }
@@ -124,7 +162,7 @@ const OrganizationItem: React.FC<{
   };
 
   return (
-    <div className="flex justify-start py-2 px-1 items-center">
+    <div className="flex justify-start py-2 px-1 items-center" onDoubleClick={handleDoubleClick}>
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
         {icon} {title}
       </div>
@@ -361,13 +399,25 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
                 />
               )}
               {social?.email && (
-                <ListItem
-                  icon={<RiMailFill />}
-                  title="Email:"
-                  value={social.email}
-                  link={`mailto:${social.email}`}
-                />
-              )}
+  Array.isArray(social.email) ? (
+    social.email.map((emailItem, idx) => (
+      <ListItem
+        key={`email-${idx}`}
+        icon={<RiMailFill />}
+        title="Email:"
+        value={emailItem}
+        link={`mailto:${emailItem}`}
+      />
+    ))
+  ) : (
+    <ListItem
+      icon={<RiMailFill />}
+      title="Email:"
+      value={social.email}
+      link={`mailto:${social.email}`}
+    />
+  )
+)}
             </Fragment>
           )}
         </div>

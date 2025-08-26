@@ -63,7 +63,7 @@ const CONFIG = {
     imageURL: '',
   },
   social: {
-    linkedin: 'C-AL',
+    linkedin: 'g-k-n',
     ///x: 'arif_szn',
     ///mastodon: 'arifszn@mastodon.social',
     researchGate: '',
@@ -80,13 +80,13 @@ const CONFIG = {
     stackoverflow: '', // example: '1/jeff-atwood'
     skype: '',
     telegram: '',
-    website: 'https://profile.github.io/portfolio/',
-    phone: '940.xxx.xxx',
-    email: 'email@gmail.com',
+    website: 'https://psppspnaik209.github.io/portfolio/',
+    phone: '940.278.8260',
+    email: ['koushikguguloth290@gmail.com', 'KoushikNaikGuguloth@my.unt.edu'],
   },
   resume: {
     fileUrl:
-      '@tampa/ResumeNoInfo.pdf', // Empty fileUrl will hide the `Download Resume` button.
+      'https://drive.google.com/file/d/1ZfRbJiFMFWbTUlBXhWmDTQ-_bV0Su91h/view', // Empty fileUrl will hide the `Download Resume` button.
   },
   skills: [
     'C/C++',
@@ -156,6 +156,7 @@ const CONFIG = {
       degree: 'Bachelor of Science in Computer Science (ABET accredited), GPA: 3.9',
       from: 'Aug 2023',
       to: 'May 2026',
+      link: 'https://engineering.unt.edu/cse/index.html'
     },
   ],
   // Display articles from your medium or dev account. (Optional)
