@@ -139,7 +139,8 @@ const CONFIG = {
       from: 'Jun 2025',
       to: 'Aug 2025',
       companyLink: '',
-      description: 'Collaborated on a 5-member full-stack team using TypeScript/Node.js REST APIs to refactor and create a Web 3 Crypto Prodcut. Integrated Twitter/X, Clanker, Privy, Alchemy, Stripe, Grok, OpenAl API for metadata caching, rate-limiting, trending-topic feeds, Authorizations, Payments, Base Network, Token Trading, and Image generation. Developed Uniswap modules for on-chain liquidity queries and real-time token pricing and trading. Updated front-end: token-explore pages, leaderboards, profiles, and price-history charts. Built a unified responsive user dashboard, created Franchising, Sponsorship, and Memathon tabs. Created Backend API and Front-End design docs to accelerate developer documentation.',
+      description:
+        'Collaborated on a 5-member full-stack team using TypeScript/Node.js REST APIs to refactor and create a Web 3 Crypto Prodcut. Integrated Twitter/X, Clanker, Privy, Alchemy, Stripe, Grok, OpenAl API for metadata caching, rate-limiting, trending-topic feeds, Authorizations, Payments, Base Network, Token Trading, and Image generation. Developed Uniswap modules for on-chain liquidity queries and real-time token pricing and trading. Updated front-end: token-explore pages, leaderboards, profiles, and price-history charts. Built a unified responsive user dashboard, created Franchising, Sponsorship, and Memathon tabs. Created Backend API and Front-End design docs to accelerate developer documentation.',
     },
   ],
   certifications: [
@@ -153,10 +154,11 @@ const CONFIG = {
   educations: [
     {
       institution: 'University of North Texas',
-      degree: 'Bachelor of Science in Computer Science (ABET accredited), GPA: 3.9',
+      degree:
+        'Bachelor of Science in Computer Science (ABET accredited), GPA: 3.9',
       from: 'Aug 2023',
       to: 'May 2026',
-      link: 'https://engineering.unt.edu/cse/index.html'
+      link: 'https://engineering.unt.edu/cse/index.html',
     },
   ],
   // Display articles from your medium or dev account. (Optional)
@@ -188,9 +190,7 @@ const CONFIG = {
     displayAvatarRing: true,
 
     // Available themes. To remove any theme, exclude from here.
-    themes: [
-      'forest',
-    ],
+    themes: ['forest'],
 
     // Custom theme, applied to `procyon` theme
     customTheme: {

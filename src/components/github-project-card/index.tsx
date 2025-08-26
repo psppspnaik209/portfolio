@@ -1,13 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AiOutlineFork, AiOutlineStar } from 'react-icons/ai';
 import { MdInsertLink } from 'react-icons/md';
 import { getLanguageColor, skeleton } from '../../utils';
 import { GithubProject } from '../../interfaces/github-project';
 import Modal from '../modal'; // Import the new Modal component
-
-
-
-
 
 const GithubProjectCard = ({
   header,
@@ -171,7 +167,14 @@ const GithubProjectCard = ({
         {modalProject && (
           <>
             <p className="py-4">{modalProject.description}</p>
-            <a href={modalProject.html_url} target="_blank" rel="noreferrer" className="btn">View Project</a>
+            <a
+              href={modalProject.html_url}
+              target="_blank"
+              rel="noreferrer"
+              className="btn"
+            >
+              View Project
+            </a>
           </>
         )}
       </Modal>

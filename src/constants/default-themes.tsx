@@ -1,3 +1,1 @@
-export const DEFAULT_THEMES = [
-  'forest',
-];
+export const DEFAULT_THEMES = ['forest'];

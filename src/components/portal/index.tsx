@@ -13,8 +13,13 @@ function createWrapperAndAppendToBody(wrapperId: string) {
   return wrapperElement;
 }
 
-const Portal: React.FC<PortalProps> = ({ children, wrapperId = 'portal-wrapper' }) => {
-  const [wrapperElement, setWrapperElement] = useState<HTMLElement | null>(null);
+const Portal: React.FC<PortalProps> = ({
+  children,
+  wrapperId = 'portal-wrapper',
+}) => {
+  const [wrapperElement, setWrapperElement] = useState<HTMLElement | null>(
+    null,
+  );
 
   useEffect(() => {
     let element = document.getElementById(wrapperId);

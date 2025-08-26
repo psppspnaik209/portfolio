@@ -197,7 +197,6 @@ const GitProfile = ({ config }: { config: Config }) => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-box">
                 <div className="col-span-1">
                   <div className="grid grid-cols-1 gap-6">
-                    
                     <AvatarCard
                       profile={profile}
                       loading={loading}
@@ -248,7 +247,9 @@ const GitProfile = ({ config }: { config: Config }) => {
                       <div className="card-hover">
                         <GithubProjectCard
                           header={sanitizedConfig.projects.github.header}
-                          limit={sanitizedConfig.projects.github.automatic.limit}
+                          limit={
+                            sanitizedConfig.projects.github.automatic.limit
+                          }
                           githubProjects={githubProjects}
                           loading={loading}
                           username={sanitizedConfig.github.username}

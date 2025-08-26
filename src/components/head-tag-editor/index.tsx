@@ -10,15 +10,10 @@ type HeadTagEditorProps = {
  * @param {HeadTagEditorProps} googleAnalyticsId - The Google Analytics ID.
  * @return {React.ReactElement} The head tag editor component.
  */
-const HeadTagEditor: React.FC<HeadTagEditorProps> = ({
-  googleAnalyticsId,
-}) => {
+const HeadTagEditor: React.FC<HeadTagEditorProps> = ({ googleAnalyticsId }) => {
   return (
     <Helmet>
-      <meta
-        name="theme-color"
-        content={'#000000'}
-      />
+      <meta name="theme-color" content={'#000000'} />
       {googleAnalyticsId && (
         <>
           <script
