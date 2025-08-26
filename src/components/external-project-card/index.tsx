@@ -1,19 +1,21 @@
-import { Fragment } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import LazyImage from '../lazy-image';
-import { ga, skeleton } from '../../utils';
+import { skeleton } from '../../utils';
 import { SanitizedExternalProject } from '../../interfaces/sanitized-config';
+import Modal from '../modal'; // Import the new Modal component
+
 
 const ExternalProjectCard = ({
   externalProjects,
   header,
   loading,
-  googleAnalyticId,
 }: {
   externalProjects: SanitizedExternalProject[];
   header: string;
   loading: boolean;
-  googleAnalyticId?: string;
 }) => {
+  const [modalProject, setModalProject] = useState<SanitizedExternalProject | null>(null);
+
   const renderSkeleton = () => {
     const array = [];
     for (let index = 0; index < externalProjects.length; index++) {
@@ -68,25 +70,10 @@ const ExternalProjectCard = ({
 
   const renderExternalProjects = () => {
     return externalProjects.map((item, index) => (
-      <a
-        className="card shadow-lg compact bg-base-100 cursor-pointer"
+      <div
+        className="card shadow-lg compact bg-base-100 cursor-pointer card-hover"
         key={index}
-        href={item.link}
-        onClick={(e) => {
-          e.preventDefault();
-
-          try {
-            if (googleAnalyticId) {
-              ga.event('Click External Project', {
-                post: item.title,
-              });
-            }
-          } catch (error) {
-            console.error(error);
-          }
-
-          window?.open(item.link, '_blank');
-        }}
+        onClick={() => setModalProject(item)}
       >
         <div className="p-8 h-full w-full">
           <div className="flex items-center flex-col">
@@ -111,7 +98,7 @@ const ExternalProjectCard = ({
                       </div>
                     </div>
                   )}
-                  <p className="mt-2 text-base-content text-opacity-60 text-sm text-justify">
+                  <p className="mt-2 text-base-content text-opacity-60 text-sm text-justify truncate">
                     {item.description}
                   </p>
                 </div>
@@ -119,7 +106,7 @@ const ExternalProjectCard = ({
             </div>
           </div>
         </div>
-      </a>
+      </div>
     ));
   };
 
@@ -151,6 +138,18 @@ const ExternalProjectCard = ({
           </div>
         </div>
       </div>
+      <Modal
+        isOpen={!!modalProject}
+        onClose={() => setModalProject(null)}
+        title={modalProject?.title || ''}
+      >
+        {modalProject && (
+          <>
+            <p className="py-4">{modalProject.description}</p>
+            <a href={modalProject.link} target="_blank" rel="noreferrer" className="btn">View Project</a>
+          </>
+        )}
+      </Modal>
     </Fragment>
   );
 };

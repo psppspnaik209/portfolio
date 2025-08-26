@@ -235,3 +235,29 @@ export const getLanguageColor = (language: string): string => {
     return 'gray';
   }
 };
+
+import { useState, useCallback } from 'react';
+
+export const useCopyToClipboard = () => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const copy = useCallback(async (text: string) => {
+    if (!navigator?.clipboard) {
+      console.warn('Clipboard not supported');
+      return false;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 1500); // Reset after 1.5 seconds
+      return true;
+    } catch (error) {
+      console.error('Failed to copy: ', error);
+      setIsCopied(false);
+      return false;
+    }
+  }, []);
+
+  return { isCopied, copy };
+};

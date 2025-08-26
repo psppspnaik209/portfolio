@@ -15,7 +15,7 @@ import { SanitizedConfig } from '../interfaces/sanitized-config';
 import ErrorPage from './error-page';
 import HeadTagEditor from './head-tag-editor';
 import { DEFAULT_THEMES } from '../constants/default-themes';
-import ThemeChanger from './theme-changer';
+
 import { BG_COLOR } from '../constants';
 import AvatarCard from './avatar-card';
 import { Profile } from '../interfaces/profile';
@@ -192,20 +192,12 @@ const GitProfile = ({ config }: { config: Config }) => {
           <>
             <HeadTagEditor
               googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
-              appliedTheme={theme}
             />
-            <div className={`p-4 lg:p-10 min-h-full ${BG_COLOR}`}>
+            <div className={`p-4 lg:p-10 min-h-full ${BG_COLOR} bg-animation`}>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-box">
                 <div className="col-span-1">
                   <div className="grid grid-cols-1 gap-6">
-                    {!sanitizedConfig.themeConfig.disableSwitch && (
-                      <ThemeChanger
-                        theme={theme}
-                        setTheme={setTheme}
-                        loading={loading}
-                        themeConfig={sanitizedConfig.themeConfig}
-                      />
-                    )}
+                    
                     <AvatarCard
                       profile={profile}
                       loading={loading}
@@ -225,36 +217,43 @@ const GitProfile = ({ config }: { config: Config }) => {
                       />
                     )}
                     {sanitizedConfig.experiences.length !== 0 && (
-                      <ExperienceCard
-                        loading={loading}
-                        experiences={sanitizedConfig.experiences}
-                      />
+                      <div className="card-hover">
+                        <ExperienceCard
+                          loading={loading}
+                          experiences={sanitizedConfig.experiences}
+                        />
+                      </div>
                     )}
                     {sanitizedConfig.certifications.length !== 0 && (
-                      <CertificationCard
-                        loading={loading}
-                        certifications={sanitizedConfig.certifications}
-                      />
+                      <div className="card-hover">
+                        <CertificationCard
+                          loading={loading}
+                          certifications={sanitizedConfig.certifications}
+                        />
+                      </div>
                     )}
                     {sanitizedConfig.educations.length !== 0 && (
-                      <EducationCard
-                        loading={loading}
-                        educations={sanitizedConfig.educations}
-                      />
+                      <div className="card-hover">
+                        <EducationCard
+                          loading={loading}
+                          educations={sanitizedConfig.educations}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
                 <div className="lg:col-span-2 col-span-1">
                   <div className="grid grid-cols-1 gap-6">
                     {sanitizedConfig.projects.github.display && (
-                      <GithubProjectCard
-                        header={sanitizedConfig.projects.github.header}
-                        limit={sanitizedConfig.projects.github.automatic.limit}
-                        githubProjects={githubProjects}
-                        loading={loading}
-                        username={sanitizedConfig.github.username}
-                        googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
-                      />
+                      <div className="card-hover">
+                        <GithubProjectCard
+                          header={sanitizedConfig.projects.github.header}
+                          limit={sanitizedConfig.projects.github.automatic.limit}
+                          githubProjects={githubProjects}
+                          loading={loading}
+                          username={sanitizedConfig.github.username}
+                        />
+                      </div>
                     )}
                     {sanitizedConfig.publications.length !== 0 && (
                       <PublicationCard
@@ -264,14 +263,15 @@ const GitProfile = ({ config }: { config: Config }) => {
                     )}
                     {sanitizedConfig.projects.external.projects.length !==
                       0 && (
-                      <ExternalProjectCard
-                        loading={loading}
-                        header={sanitizedConfig.projects.external.header}
-                        externalProjects={
-                          sanitizedConfig.projects.external.projects
-                        }
-                        googleAnalyticId={sanitizedConfig.googleAnalytics.id}
-                      />
+                      <div className="card-hover">
+                        <ExternalProjectCard
+                          loading={loading}
+                          header={sanitizedConfig.projects.external.header}
+                          externalProjects={
+                            sanitizedConfig.projects.external.projects
+                          }
+                        />
+                      </div>
                     )}
                     {sanitizedConfig.blog.display && (
                       <BlogCard

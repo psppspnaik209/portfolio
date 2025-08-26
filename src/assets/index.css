@@ -48,19 +48,6 @@ svg {
   vertical-align: unset;
 }
 
-.z-hover {
-  transition: all ease-in-out 0.3s !important;
-}
-
-.z-hover:hover,
-.z-hover:focus,
-.z-hover:active {
-  transition: transform 0.3s !important;
-  -ms-transform: scale(1.01) !important;
-  -webkit-transform: scale(1.01) !important;
-  transform: scale(1.01) !important;
-}
-
 .pb-0-important {
   padding-bottom: 0 !important;
 }
@@ -89,4 +76,40 @@ svg {
   to {
     opacity: 1;
   }
+}
+
+.card-hover {
+  transition: all 0.3s ease-in-out;
+}
+
+.card-hover:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.bg-animation {
+  background: linear-gradient(45deg, #f3ec78, #af4261, #f3ec78, #af4261);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.skill-badge-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.skill-badge-hover:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

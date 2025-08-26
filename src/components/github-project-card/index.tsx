@@ -1,8 +1,13 @@
-import { Fragment } from 'react';
+import { useState, useEffect } from 'react';
 import { AiOutlineFork, AiOutlineStar } from 'react-icons/ai';
 import { MdInsertLink } from 'react-icons/md';
-import { ga, getLanguageColor, skeleton } from '../../utils';
+import { getLanguageColor, skeleton } from '../../utils';
 import { GithubProject } from '../../interfaces/github-project';
+import Modal from '../modal'; // Import the new Modal component
+
+
+
+
 
 const GithubProjectCard = ({
   header,
@@ -10,17 +15,17 @@ const GithubProjectCard = ({
   loading,
   limit,
   username,
-  googleAnalyticsId,
 }: {
   header: string;
   githubProjects: GithubProject[];
   loading: boolean;
   limit: number;
   username: string;
-  googleAnalyticsId?: string;
 }) => {
+  const [modalProject, setModalProject] = useState<GithubProject | null>(null);
+
   if (!loading && githubProjects.length === 0) {
-    return;
+    return null;
   }
 
   const renderSkeleton = () => {
@@ -75,25 +80,10 @@ const GithubProjectCard = ({
 
   const renderProjects = () => {
     return githubProjects.map((item, index) => (
-      <a
-        className="card shadow-lg compact bg-base-100 cursor-pointer"
-        href={item.html_url}
+      <div
+        className="card shadow-lg compact bg-base-100 cursor-pointer card-hover"
         key={index}
-        onClick={(e) => {
-          e.preventDefault();
-
-          try {
-            if (googleAnalyticsId) {
-              ga.event('Click project', {
-                project: item.name,
-              });
-            }
-          } catch (error) {
-            console.error(error);
-          }
-
-          window?.open(item.html_url, '_blank');
-        }}
+        onClick={() => setModalProject(item)}
       >
         <div className="flex justify-between flex-col p-8 h-full w-full">
           <div>
@@ -103,7 +93,7 @@ const GithubProjectCard = ({
                 <span>{item.name}</span>
               </div>
             </div>
-            <p className="mb-5 mt-1 text-base-content text-opacity-60 text-sm">
+            <p className="mb-5 mt-1 text-base-content text-opacity-60 text-sm truncate">
               {item.description}
             </p>
           </div>
@@ -129,12 +119,12 @@ const GithubProjectCard = ({
             </div>
           </div>
         </div>
-      </a>
+      </div>
     ));
   };
 
   return (
-    <Fragment>
+    <>
       <div className="col-span-1 lg:col-span-2">
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
@@ -173,7 +163,19 @@ const GithubProjectCard = ({
           </div>
         </div>
       </div>
-    </Fragment>
+      <Modal
+        isOpen={!!modalProject}
+        onClose={() => setModalProject(null)}
+        title={modalProject?.name || ''}
+      >
+        {modalProject && (
+          <>
+            <p className="py-4">{modalProject.description}</p>
+            <a href={modalProject.html_url} target="_blank" rel="noreferrer" className="btn">View Project</a>
+          </>
+        )}
+      </Modal>
+    </>
   );
 };
 
