@@ -29,7 +29,6 @@ import { GithubProject } from '../interfaces/github-project';
 import GithubProjectCard from './github-project-card';
 import ExternalProjectCard from './external-project-card';
 import BlogCard from './blog-card';
-import Footer from './footer';
 import PublicationCard from './publication-card';
 
 const containerVariants = {
@@ -160,6 +159,10 @@ const GitProfile = ({ config }: { config: Config }) => {
   useEffect(() => {
     theme && document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    window.dispatchEvent(new Event('resize'));
+  });
 
   const handleError = (error: AxiosError | Error): void => {
     console.error('Error:', error);
@@ -346,18 +349,7 @@ const GitProfile = ({ config }: { config: Config }) => {
                 </motion.div>
               </motion.div>
             </motion.div>
-            {sanitizedConfig.footer && (
-              <motion.footer
-                className={`p-4 footer bg-transparent text-base-content footer-center`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 }}
-              >
-                <div className="card compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl neon-glow liquid-card shadow">
-                  <Footer content={sanitizedConfig.footer} loading={loading} />
-                </div>
-              </motion.footer>
-            )}
+
           </>
         )}
       </div>
