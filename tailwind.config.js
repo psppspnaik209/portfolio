@@ -4,7 +4,11 @@ import CONFIG from './gitprofile.config';
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        cyber: ['Orbitron', 'monospace'],
+      },
+    },
   },
   plugins: [require('daisyui')],
   daisyui: {

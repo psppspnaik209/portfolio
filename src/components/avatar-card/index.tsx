@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { FALLBACK_IMAGE } from '../../constants';
 import { Profile } from '../../interfaces/profile';
 import { skeleton } from '../../utils';
@@ -25,10 +26,19 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
   resumeFileUrl,
 }): JSX.Element => {
   return (
-    <div className="card shadow-lg compact bg-base-100 card-hover">
+    <motion.div
+      className="card shadow-lg compact bg-base-100 card-hover"
+      whileHover={{ scale: 1.05 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="grid place-items-center py-8">
         {loading || !profile ? (
-          <div className="avatar opacity-90">
+          <motion.div
+            className="avatar opacity-90"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <div className="mb-8 rounded-full w-32 h-32">
               {skeleton({
                 widthCls: 'w-full',
@@ -36,9 +46,14 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
                 shape: '',
               })}
             </div>
-          </div>
+          </motion.div>
         ) : (
-          <div className="avatar opacity-90">
+          <motion.div
+            className="avatar opacity-90"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
             <div
               className={`mb-8 rounded-full w-32 h-32 ${
                 avatarRing
@@ -58,10 +73,15 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
                 />
               }
             </div>
-          </div>
+          </motion.div>
         )}
-        <div className="text-center mx-auto px-8">
-          <h5 className="font-bold text-2xl">
+        <motion.div
+          className="text-center mx-auto px-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <motion.h5 className="font-bold text-2xl">
             {loading || !profile ? (
               skeleton({ widthCls: 'w-48', heightCls: 'h-8' })
             ) : (
@@ -69,31 +89,38 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
                 {profile.name}
               </span>
             )}
-          </h5>
-          <div className="mt-3 text-base-content text-opacity-60 font-mono">
+          </motion.h5>
+          <motion.div className="mt-3 text-base-content text-opacity-60 font-mono">
             {loading || !profile
               ? skeleton({ widthCls: 'w-48', heightCls: 'h-5' })
               : profile.bio}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
         {resumeFileUrl &&
           (loading ? (
-            <div className="mt-6">
+            <motion.div
+              className="mt-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
               {skeleton({ widthCls: 'w-40', heightCls: 'h-8' })}
-            </div>
+            </motion.div>
           ) : (
-            <a
+            <motion.a
               href={resumeFileUrl}
               target="_blank"
               className="btn btn-outline btn-sm text-xs mt-6 opacity-50"
               download
               rel="noreferrer"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
               Download Resume
-            </a>
+            </motion.a>
           ))}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

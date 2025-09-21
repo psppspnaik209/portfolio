@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { motion, useSpring } from 'framer-motion';
 import axios, { AxiosError } from 'axios';
 import { formatDistance } from 'date-fns';
 import {
@@ -9,6 +10,9 @@ import {
   setTooManyRequestError,
 } from '../constants/errors';
 import { HelmetProvider } from 'react-helmet-async';
+import { Particles } from '@tsparticles/react';
+import { loadSlim } from '@tsparticles/slim';
+import { tsParticles } from '@tsparticles/engine';
 import '../assets/index.css';
 import { getInitialTheme, getSanitizedConfig, setupHotjar } from '../utils';
 import { SanitizedConfig } from '../interfaces/sanitized-config';
@@ -31,6 +35,116 @@ import BlogCard from './blog-card';
 import Footer from './footer';
 import PublicationCard from './publication-card';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.9 },
+  show: { opacity: 1, y: 0, scale: 1 },
+};
+
+// @ts-ignore
+const particleOptions = {
+  background: {
+    color: {
+      value: 'transparent',
+    },
+  },
+  fpsLimit: 120,
+  particles: {
+    color: {
+      value: ['#ffff00', '#ffaa00', '#ffffff'],
+    },
+    links: {
+      color: '#ffff00',
+      consent: false,
+      opacity: 0.4,
+    },
+    move: {
+      direction: 'none' as const,
+      enable: true,
+      outModes: {
+        default: 'out',
+      },
+      random: true,
+      speed: 2,
+    },
+    number: {
+      density: {
+        enable: true,
+        area: 800,
+      },
+      value: 80,
+    },
+    opacity: {
+      value: 0.5,
+    },
+    shape: {
+      type: 'circle',
+    },
+    size: {
+      value: { min: 1, max: 5 },
+    },
+  },
+  interactivity: {
+    events: {
+      onClick: {
+        enable: true,
+        mode: 'push',
+      },
+      onHover: {
+        enable: true,
+        mode: 'repulse',
+      },
+    },
+    modes: {
+      push: {
+        quantity: 4,
+      },
+      repulse: {
+        distance: 100,
+      },
+    },
+  },
+};
+
+const CustomCursor = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useSpring(0, { stiffness: 500, damping: 28 });
+  const y = useSpring(0, { stiffness: 500, damping: 28 });
+
+  const mouseMoveHandler = useCallback(
+    (e: MouseEvent) => {
+      x.set(e.clientX - 10);
+      y.set(e.clientY - 10);
+    },
+    [x, y],
+  );
+
+  useEffect(() => {
+    document.addEventListener('mousemove', mouseMoveHandler);
+    return () => document.removeEventListener('mousemove', mouseMoveHandler);
+  }, [mouseMoveHandler]);
+
+  return (
+    <motion.div
+      ref={ref}
+      className="custom-cursor"
+      style={{ x, y }}
+      drag
+      dragElastic={0}
+      dragMomentum={false}
+    />
+  );
+};
+
 /**
  * Renders the GitProfile component.
  *
@@ -46,6 +160,10 @@ const GitProfile = ({ config }: { config: Config }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [githubProjects, setGithubProjects] = useState<GithubProject[]>([]);
+
+  useEffect(() => {
+    loadSlim(tsParticles);
+  }, []);
 
   const getGithubProjects = useCallback(
     async (publicRepoCount: number): Promise<GithubProject[]> => {
@@ -181,7 +299,13 @@ const GitProfile = ({ config }: { config: Config }) => {
 
   return (
     <HelmetProvider>
-      <div className="fade-in h-screen">
+      <div className="fade-in min-h-screen relative overflow-auto">
+        <CustomCursor />
+        <Particles
+          id="tsparticles"
+          options={particleOptions as any}
+          className="absolute inset-0 z-0"
+        />
         {error ? (
           <ErrorPage
             status={error.status}
@@ -193,58 +317,95 @@ const GitProfile = ({ config }: { config: Config }) => {
             <HeadTagEditor
               googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
             />
-            <div className={`p-4 lg:p-10 min-h-full ${BG_COLOR} bg-animation`}>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-box">
-                <div className="col-span-1">
+            <motion.div
+              className={`p-6 lg:p-12 min-h-screen ${BG_COLOR} bg-animation relative z-10 glitch font-cyber`}
+              data-text="Portfolio"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <motion.div
+                className="grid grid-cols-1 lg:grid-cols-3 gap-8 rounded-box"
+                variants={containerVariants}
+                initial="hidden"
+                animate="show"
+              >
+                <motion.div className="col-span-1" variants={itemVariants}>
                   <div className="grid grid-cols-1 gap-6">
-                    <AvatarCard
-                      profile={profile}
-                      loading={loading}
-                      avatarRing={sanitizedConfig.themeConfig.displayAvatarRing}
-                      resumeFileUrl={sanitizedConfig.resume.fileUrl}
-                    />
-                    <DetailsCard
-                      profile={profile}
-                      loading={loading}
-                      github={sanitizedConfig.github}
-                      social={sanitizedConfig.social}
-                    />
-                    {sanitizedConfig.skills.length !== 0 && (
-                      <SkillCard
+                    <motion.div variants={itemVariants}>
+                      <AvatarCard
+                        profile={profile}
                         loading={loading}
-                        skills={sanitizedConfig.skills}
+                        avatarRing={
+                          sanitizedConfig.themeConfig.displayAvatarRing
+                        }
+                        resumeFileUrl={sanitizedConfig.resume.fileUrl}
                       />
+                    </motion.div>
+                    <motion.div variants={itemVariants}>
+                      <DetailsCard
+                        profile={profile}
+                        loading={loading}
+                        github={sanitizedConfig.github}
+                        social={sanitizedConfig.social}
+                      />
+                    </motion.div>
+                    {sanitizedConfig.skills.length !== 0 && (
+                      <motion.div
+                        className="card-hover"
+                        variants={itemVariants}
+                      >
+                        <SkillCard
+                          loading={loading}
+                          skills={sanitizedConfig.skills}
+                        />
+                      </motion.div>
                     )}
                     {sanitizedConfig.experiences.length !== 0 && (
-                      <div className="card-hover">
+                      <motion.div
+                        className="card-hover"
+                        variants={itemVariants}
+                      >
                         <ExperienceCard
                           loading={loading}
                           experiences={sanitizedConfig.experiences}
                         />
-                      </div>
+                      </motion.div>
                     )}
                     {sanitizedConfig.certifications.length !== 0 && (
-                      <div className="card-hover">
+                      <motion.div
+                        className="card-hover"
+                        variants={itemVariants}
+                      >
                         <CertificationCard
                           loading={loading}
                           certifications={sanitizedConfig.certifications}
                         />
-                      </div>
+                      </motion.div>
                     )}
                     {sanitizedConfig.educations.length !== 0 && (
-                      <div className="card-hover">
+                      <motion.div
+                        className="card-hover"
+                        variants={itemVariants}
+                      >
                         <EducationCard
                           loading={loading}
                           educations={sanitizedConfig.educations}
                         />
-                      </div>
+                      </motion.div>
                     )}
                   </div>
-                </div>
-                <div className="lg:col-span-2 col-span-1">
+                </motion.div>
+                <motion.div
+                  className="lg:col-span-2 col-span-1"
+                  variants={itemVariants}
+                >
                   <div className="grid grid-cols-1 gap-6">
                     {sanitizedConfig.projects.github.display && (
-                      <div className="card-hover">
+                      <motion.div
+                        className="card-hover"
+                        variants={itemVariants}
+                      >
                         <GithubProjectCard
                           header={sanitizedConfig.projects.github.header}
                           limit={
@@ -254,17 +415,22 @@ const GitProfile = ({ config }: { config: Config }) => {
                           loading={loading}
                           username={sanitizedConfig.github.username}
                         />
-                      </div>
+                      </motion.div>
                     )}
                     {sanitizedConfig.publications.length !== 0 && (
-                      <PublicationCard
-                        loading={loading}
-                        publications={sanitizedConfig.publications}
-                      />
+                      <motion.div variants={itemVariants}>
+                        <PublicationCard
+                          loading={loading}
+                          publications={sanitizedConfig.publications}
+                        />
+                      </motion.div>
                     )}
                     {sanitizedConfig.projects.external.projects.length !==
                       0 && (
-                      <div className="card-hover">
+                      <motion.div
+                        className="card-hover"
+                        variants={itemVariants}
+                      >
                         <ExternalProjectCard
                           loading={loading}
                           header={sanitizedConfig.projects.external.header}
@@ -272,27 +438,32 @@ const GitProfile = ({ config }: { config: Config }) => {
                             sanitizedConfig.projects.external.projects
                           }
                         />
-                      </div>
+                      </motion.div>
                     )}
                     {sanitizedConfig.blog.display && (
-                      <BlogCard
-                        loading={loading}
-                        googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
-                        blog={sanitizedConfig.blog}
-                      />
+                      <motion.div variants={itemVariants}>
+                        <BlogCard
+                          loading={loading}
+                          googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
+                          blog={sanitizedConfig.blog}
+                        />
+                      </motion.div>
                     )}
                   </div>
-                </div>
-              </div>
-            </div>
+                </motion.div>
+              </motion.div>
+            </motion.div>
             {sanitizedConfig.footer && (
-              <footer
+              <motion.footer
                 className={`p-4 footer ${BG_COLOR} text-base-content footer-center`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 }}
               >
                 <div className="card compact bg-base-100 shadow">
                   <Footer content={sanitizedConfig.footer} loading={loading} />
                 </div>
-              </footer>
+              </motion.footer>
             )}
           </>
         )}

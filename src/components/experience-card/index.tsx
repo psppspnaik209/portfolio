@@ -1,4 +1,5 @@
 import { Fragment, useState } from 'react';
+import { motion } from 'framer-motion';
 import { SanitizedExperience } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
 import Modal from '../modal'; // Import the new Modal component
@@ -10,7 +11,14 @@ const ListItem = ({
   experience: SanitizedExperience;
   onClick: () => void;
 }) => (
-  <li className="mb-5 ml-4 cursor-pointer" onClick={onClick}>
+  <motion.li
+    className="mb-5 ml-4 cursor-pointer"
+    onClick={onClick}
+    initial={{ opacity: 0, x: -20 }}
+    whileInView={{ opacity: 1, x: 0 }}
+    transition={{ duration: 0.5 }}
+    whileHover={{ scale: 1.02 }}
+  >
     <div
       className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
       style={{ left: '-4.5px' }}
@@ -24,7 +32,7 @@ const ListItem = ({
         {experience.company}
       </a>
     </div>
-  </li>
+  </motion.li>
 );
 
 const ExperienceCard = ({
@@ -41,7 +49,13 @@ const ExperienceCard = ({
     const array = [];
     for (let index = 0; index < 2; index++) {
       array.push(
-        <li className="mb-5 ml-4" key={index}>
+        <motion.li
+          className="mb-5 ml-4"
+          key={index}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: index * 0.2 }}
+        >
           <div
             className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
             style={{ left: '-4.5px' }}
@@ -59,7 +73,7 @@ const ExperienceCard = ({
           <div className="mb-4 font-normal">
             {skeleton({ widthCls: 'w-6/12', heightCls: 'h-3' })}
           </div>
-        </li>,
+        </motion.li>,
       );
     }
 
@@ -68,17 +82,27 @@ const ExperienceCard = ({
 
   return (
     <>
-      <div className="card shadow-lg compact bg-base-100">
+      <motion.div
+        className="card shadow-lg compact bg-base-100"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="card-body">
-          <div className="mx-3">
-            <h5 className="card-title">
+          <motion.div
+            className="mx-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.h5 className="card-title">
               {loading ? (
                 skeleton({ widthCls: 'w-32', heightCls: 'h-8' })
               ) : (
                 <span className="text-base-content opacity-70">Experience</span>
               )}
-            </h5>
-          </div>
+            </motion.h5>
+          </motion.div>
           <div className="text-base-content text-opacity-60">
             <ol className="relative border-l border-base-300 border-opacity-30 my-2 mx-4">
               {loading ? (
@@ -97,14 +121,18 @@ const ExperienceCard = ({
             </ol>
           </div>
         </div>
-      </div>
+      </motion.div>
       <Modal
         isOpen={!!modalExperience}
         onClose={() => setModalExperience(null)}
         title={modalExperience?.position || ''}
       >
         {modalExperience && (
-          <>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
             <p className="text-sm text-base-content text-opacity-60">
               {modalExperience.company}
             </p>
@@ -112,7 +140,7 @@ const ExperienceCard = ({
               {modalExperience.from} - {modalExperience.to}
             </p>
             <p className="py-4">{modalExperience.description}</p>
-          </>
+          </motion.div>
         )}
       </Modal>
     </>
