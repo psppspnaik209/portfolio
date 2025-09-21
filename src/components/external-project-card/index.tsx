@@ -1,4 +1,5 @@
 import { Fragment, useState } from 'react';
+import { motion } from 'framer-motion';
 import LazyImage from '../lazy-image';
 import { skeleton } from '../../utils';
 import { SanitizedExternalProject } from '../../interfaces/sanitized-config';
@@ -20,19 +21,29 @@ const ExternalProjectCard = ({
     const array = [];
     for (let index = 0; index < externalProjects.length; index++) {
       array.push(
-        <div className="card shadow-lg compact bg-base-100" key={index}>
+        <motion.div
+          className="card shadow-lg compact bg-base-100 "
+          key={index}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+        >
           <div className="p-8 h-full w-full">
             <div className="flex items-center flex-col">
               <div className="w-full">
                 <div className="flex items-start px-4">
                   <div className="w-full">
-                    <h2>
+                    <motion.h2
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
                       {skeleton({
                         widthCls: 'w-32',
                         heightCls: 'h-8',
                         className: 'mb-2 mx-auto',
                       })}
-                    </h2>
+                    </motion.h2>
                     <div className="avatar w-full h-full">
                       <div className="w-24 h-24 mask mask-squircle mx-auto">
                         {skeleton({
@@ -61,7 +72,7 @@ const ExternalProjectCard = ({
               </div>
             </div>
           </div>
-        </div>,
+        </motion.div>,
       );
     }
 
@@ -70,21 +81,34 @@ const ExternalProjectCard = ({
 
   const renderExternalProjects = () => {
     return externalProjects.map((item, index) => (
-      <div
-        className="card shadow-lg compact bg-base-100 cursor-pointer card-hover"
+      <motion.div
+        className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl  cursor-pointer card-hover neon-glow liquid-card"
         key={index}
         onClick={() => setModalProject(item)}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: index * 0.1 }}
+        whileHover={{
+          scale: 1.05,
+          boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
+        }}
       >
         <div className="p-8 h-full w-full">
           <div className="flex items-center flex-col">
             <div className="w-full">
               <div className="px-4">
                 <div className="text-center w-full">
-                  <h2 className="font-medium text-center opacity-60 mb-2">
+                  <motion.h2
+                    className="font-medium text-center opacity-60 mb-2"
+                    whileHover={{ color: '#3b82f6' }}
+                  >
                     {item.title}
-                  </h2>
+                  </motion.h2>
                   {item.imageUrl && (
-                    <div className="avatar opacity-90">
+                    <motion.div
+                      className="avatar opacity-90"
+                      whileHover={{ scale: 1.1 }}
+                    >
                       <div className="w-24 h-24 mask mask-squircle">
                         <LazyImage
                           src={item.imageUrl}
@@ -96,29 +120,45 @@ const ExternalProjectCard = ({
                           })}
                         />
                       </div>
-                    </div>
+                    </motion.div>
                   )}
-                  <p className="mt-2 text-base-content text-opacity-60 text-sm text-justify truncate">
+                  <motion.p
+                    className="mt-2 text-base-content text-opacity-60 text-sm text-justify truncate"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                  >
                     {item.description}
-                  </p>
+                  </motion.p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     ));
   };
 
   return (
     <Fragment>
-      <div className="col-span-1 lg:col-span-2">
+      <motion.div
+        className="col-span-1 lg:col-span-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
-            <div className="card compact bg-base-100 shadow bg-opacity-40">
+            <motion.div
+              className="card compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl  shadow neon-glow liquid-card"
+              whileHover={{ scale: 1.01 }}
+            >
               <div className="card-body">
-                <div className="mx-3 flex items-center justify-between mb-2">
-                  <h5 className="card-title">
+                <motion.div
+                  className="mx-3 flex items-center justify-between mb-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <motion.h5 className="card-title">
                     {loading ? (
                       skeleton({ widthCls: 'w-40', heightCls: 'h-8' })
                     ) : (
@@ -126,35 +166,43 @@ const ExternalProjectCard = ({
                         {header}
                       </span>
                     )}
-                  </h5>
-                </div>
+                  </motion.h5>
+                </motion.div>
                 <div className="col-span-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {loading ? renderSkeleton() : renderExternalProjects()}
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
-      </div>
+      </motion.div>
       <Modal
         isOpen={!!modalProject}
         onClose={() => setModalProject(null)}
         title={modalProject?.title || ''}
       >
         {modalProject && (
-          <>
-            <p className="py-4">{modalProject.description}</p>
-            <a
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.p className="py-4" whileHover={{ color: '#8b5cf6' }}>
+              {modalProject.description}
+            </motion.p>
+            <motion.a
               href={modalProject.link}
               target="_blank"
               rel="noreferrer"
               className="btn"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               View Project
-            </a>
-          </>
+            </motion.a>
+          </motion.div>
         )}
       </Modal>
     </Fragment>

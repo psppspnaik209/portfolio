@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { motion } from 'framer-motion';
 import {
   AiFillGithub,
   AiFillInstagram,
@@ -76,12 +77,16 @@ const ListItem: React.FC<{
   };
 
   return (
-    <div
+    <motion.div
       className="flex justify-start py-2 px-1 items-center"
       onDoubleClick={handleDoubleClick}
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ scale: 1.02, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
     >
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
-        {icon} {title}
+        <motion.div whileHover={{ scale: 1.1 }}>{icon}</motion.div> {title}
       </div>
       <div
         className={`${
@@ -92,21 +97,22 @@ const ListItem: React.FC<{
         }}
       >
         {link ? (
-          <a
+          <motion.a
             href={link}
             target="_blank"
             rel="noreferrer"
             className="flex justify-start py-2 px-1 items-center"
+            whileHover={{ color: '#3b82f6' }}
           >
             {value}
-          </a>
+          </motion.a>
         ) : (
           <span className="flex justify-start py-2 px-1 items-center">
             {value}
           </span>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -133,24 +139,25 @@ const OrganizationItem: React.FC<{
 
         if (isCompanyMention(company)) {
           return (
-            <a
+            <motion.a
               href={companyLink(company)}
               target="_blank"
               rel="noreferrer"
               key={company}
-              onDoubleClick={(e) => {
+              onDoubleClick={(e: React.MouseEvent) => {
                 e.stopPropagation(); // Prevent double-click on link from bubbling to parent div
                 copy(company);
               }}
+              whileHover={{ color: '#3b82f6' }}
             >
               {company}
-            </a>
+            </motion.a>
           );
         } else {
           return (
             <span
               key={company}
-              onDoubleClick={(e) => {
+              onDoubleClick={(e: React.MouseEvent) => {
                 e.stopPropagation(); // Prevent double-click on span from bubbling to parent div
                 copy(company);
               }}
@@ -165,12 +172,16 @@ const OrganizationItem: React.FC<{
   };
 
   return (
-    <div
+    <motion.div
       className="flex justify-start py-2 px-1 items-center"
       onDoubleClick={handleDoubleClick}
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ scale: 1.02, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
     >
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
-        {icon} {title}
+        <motion.div whileHover={{ scale: 1.1 }}>{icon}</motion.div> {title}
       </div>
       <div
         className={`${
@@ -182,7 +193,7 @@ const OrganizationItem: React.FC<{
       >
         {renderValue()}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -200,13 +211,19 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
     const array = [];
     for (let index = 0; index < 4; index++) {
       array.push(
-        <ListItem
+        <motion.div
           key={index}
-          skeleton={true}
-          icon={skeleton({ widthCls: 'w-4', heightCls: 'h-4' })}
-          title={skeleton({ widthCls: 'w-24', heightCls: 'h-4' })}
-          value={skeleton({ widthCls: 'w-full', heightCls: 'h-4' })}
-        />,
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: index * 0.1 }}
+        >
+          <ListItem
+            skeleton={true}
+            icon={skeleton({ widthCls: 'w-4', heightCls: 'h-4' })}
+            title={skeleton({ widthCls: 'w-24', heightCls: 'h-4' })}
+            value={skeleton({ widthCls: 'w-full', heightCls: 'h-4' })}
+          />
+        </motion.div>,
       );
     }
 
@@ -214,7 +231,10 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
   };
 
   return (
-    <div className="card shadow-lg compact bg-base-100 card-hover">
+    <motion.div
+      className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
+      whileHover={{ scale: 1.02 }}
+    >
       <div className="card-body">
         <div className="text-base-content text-opacity-60">
           {loading || !profile ? (
@@ -427,7 +447,7 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

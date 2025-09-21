@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import axios, { AxiosError } from 'axios';
 import { formatDistance } from 'date-fns';
 import {
@@ -9,27 +10,41 @@ import {
   setTooManyRequestError,
 } from '../constants/errors';
 import { HelmetProvider } from 'react-helmet-async';
+import AsciiBackground from './ascii-background';
 import '../assets/index.css';
 import { getInitialTheme, getSanitizedConfig, setupHotjar } from '../utils';
 import { SanitizedConfig } from '../interfaces/sanitized-config';
+import { Profile } from '../interfaces/profile';
+import { GithubProject } from '../interfaces/github-project';
 import ErrorPage from './error-page';
 import HeadTagEditor from './head-tag-editor';
 import { DEFAULT_THEMES } from '../constants/default-themes';
 
-import { BG_COLOR } from '../constants';
-import AvatarCard from './avatar-card';
-import { Profile } from '../interfaces/profile';
-import DetailsCard from './details-card';
-import SkillCard from './skill-card';
-import ExperienceCard from './experience-card';
-import EducationCard from './education-card';
-import CertificationCard from './certification-card';
-import { GithubProject } from '../interfaces/github-project';
-import GithubProjectCard from './github-project-card';
-import ExternalProjectCard from './external-project-card';
-import BlogCard from './blog-card';
-import Footer from './footer';
-import PublicationCard from './publication-card';
+const AvatarCard = lazy(() => import('./avatar-card'));
+const DetailsCard = lazy(() => import('./details-card'));
+const SkillCard = lazy(() => import('./skill-card'));
+const ExperienceCard = lazy(() => import('./experience-card'));
+const EducationCard = lazy(() => import('./education-card'));
+const CertificationCard = lazy(() => import('./certification-card'));
+const GithubProjectCard = lazy(() => import('./github-project-card'));
+const ExternalProjectCard = lazy(() => import('./external-project-card'));
+const BlogCard = lazy(() => import('./blog-card'));
+const PublicationCard = lazy(() => import('./publication-card'));
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.9 },
+  show: { opacity: 1, y: 0, scale: 1 },
+};
 
 /**
  * Renders the GitProfile component.
@@ -181,7 +196,8 @@ const GitProfile = ({ config }: { config: Config }) => {
 
   return (
     <HelmetProvider>
-      <div className="fade-in h-screen">
+      <div className="fade-in min-h-screen relative overflow-visible">
+        <AsciiBackground />
         {error ? (
           <ErrorPage
             status={error.status}
@@ -193,107 +209,148 @@ const GitProfile = ({ config }: { config: Config }) => {
             <HeadTagEditor
               googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
             />
-            <div className={`p-4 lg:p-10 min-h-full ${BG_COLOR} bg-animation`}>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-box">
-                <div className="col-span-1">
-                  <div className="grid grid-cols-1 gap-6">
-                    <AvatarCard
-                      profile={profile}
-                      loading={loading}
-                      avatarRing={sanitizedConfig.themeConfig.displayAvatarRing}
-                      resumeFileUrl={sanitizedConfig.resume.fileUrl}
-                    />
-                    <DetailsCard
-                      profile={profile}
-                      loading={loading}
-                      github={sanitizedConfig.github}
-                      social={sanitizedConfig.social}
-                    />
-                    {sanitizedConfig.skills.length !== 0 && (
-                      <SkillCard
-                        loading={loading}
-                        skills={sanitizedConfig.skills}
-                      />
-                    )}
-                    {sanitizedConfig.experiences.length !== 0 && (
-                      <div className="card-hover">
-                        <ExperienceCard
-                          loading={loading}
-                          experiences={sanitizedConfig.experiences}
-                        />
-                      </div>
-                    )}
-                    {sanitizedConfig.certifications.length !== 0 && (
-                      <div className="card-hover">
-                        <CertificationCard
-                          loading={loading}
-                          certifications={sanitizedConfig.certifications}
-                        />
-                      </div>
-                    )}
-                    {sanitizedConfig.educations.length !== 0 && (
-                      <div className="card-hover">
-                        <EducationCard
-                          loading={loading}
-                          educations={sanitizedConfig.educations}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="lg:col-span-2 col-span-1">
-                  <div className="grid grid-cols-1 gap-6">
-                    {sanitizedConfig.projects.github.display && (
-                      <div className="card-hover">
-                        <GithubProjectCard
-                          header={sanitizedConfig.projects.github.header}
-                          limit={
-                            sanitizedConfig.projects.github.automatic.limit
-                          }
-                          githubProjects={githubProjects}
-                          loading={loading}
-                          username={sanitizedConfig.github.username}
-                        />
-                      </div>
-                    )}
-                    {sanitizedConfig.publications.length !== 0 && (
-                      <PublicationCard
-                        loading={loading}
-                        publications={sanitizedConfig.publications}
-                      />
-                    )}
-                    {sanitizedConfig.projects.external.projects.length !==
-                      0 && (
-                      <div className="card-hover">
-                        <ExternalProjectCard
-                          loading={loading}
-                          header={sanitizedConfig.projects.external.header}
-                          externalProjects={
-                            sanitizedConfig.projects.external.projects
-                          }
-                        />
-                      </div>
-                    )}
-                    {sanitizedConfig.blog.display && (
-                      <BlogCard
-                        loading={loading}
-                        googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
-                        blog={sanitizedConfig.blog}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-            {sanitizedConfig.footer && (
-              <footer
-                className={`p-4 footer ${BG_COLOR} text-base-content footer-center`}
+            <motion.div
+              className={`p-6 lg:p-12 bg-transparent relative z-10 glitch font-cyber pointer-events-auto`}
+              data-text="Portfolio"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <motion.div
+                className="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-none"
+                variants={containerVariants}
+                initial="hidden"
+                animate="show"
               >
-                <div className="card compact bg-base-100 shadow">
-                  <Footer content={sanitizedConfig.footer} loading={loading} />
-                </div>
-              </footer>
-            )}
+                <motion.div className="col-span-1" variants={itemVariants}>
+                  <Suspense fallback={<div></div>}>
+                    <div className="grid grid-cols-1 gap-6">
+                      <motion.div variants={itemVariants}>
+                        <AvatarCard
+                          profile={profile}
+                          loading={loading}
+                          avatarRing={
+                            sanitizedConfig.themeConfig.displayAvatarRing
+                          }
+                          resumeFileUrl={sanitizedConfig.resume.fileUrl}
+                        />
+                      </motion.div>
+                      <motion.div variants={itemVariants}>
+                        <DetailsCard
+                          profile={profile}
+                          loading={loading}
+                          github={sanitizedConfig.github}
+                          social={sanitizedConfig.social}
+                        />
+                      </motion.div>
+                      {sanitizedConfig.skills.length !== 0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <SkillCard
+                            loading={loading}
+                            skills={sanitizedConfig.skills}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.experiences.length !== 0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <ExperienceCard
+                            loading={loading}
+                            experiences={sanitizedConfig.experiences}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.certifications.length !== 0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <CertificationCard
+                            loading={loading}
+                            certifications={sanitizedConfig.certifications}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.educations.length !== 0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <EducationCard
+                            loading={loading}
+                            educations={sanitizedConfig.educations}
+                          />
+                        </motion.div>
+                      )}
+                    </div>
+                  </Suspense>
+                </motion.div>
+                <motion.div
+                  className="lg:col-span-2 col-span-1"
+                  variants={itemVariants}
+                >
+                  <Suspense fallback={<div></div>}>
+                    <div className="grid grid-cols-1 gap-6">
+                      {sanitizedConfig.projects.github.display && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <GithubProjectCard
+                            header={sanitizedConfig.projects.github.header}
+                            limit={
+                              sanitizedConfig.projects.github.automatic.limit
+                            }
+                            githubProjects={githubProjects}
+                            loading={loading}
+                            username={sanitizedConfig.github.username}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.publications.length !== 0 && (
+                        <motion.div variants={itemVariants}>
+                          <PublicationCard
+                            loading={loading}
+                            publications={sanitizedConfig.publications}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.projects.external.projects.length !==
+                        0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <ExternalProjectCard
+                            loading={loading}
+                            header={sanitizedConfig.projects.external.header}
+                            externalProjects={
+                              sanitizedConfig.projects.external.projects
+                            }
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.blog.display && (
+                        <motion.div variants={itemVariants}>
+                          <BlogCard
+                            loading={loading}
+                            googleAnalyticsId={
+                              sanitizedConfig.googleAnalytics.id
+                            }
+                            blog={sanitizedConfig.blog}
+                          />
+                        </motion.div>
+                      )}
+                    </div>
+                  </Suspense>
+                </motion.div>
+              </motion.div>
+            </motion.div>
           </>
         )}
       </div>

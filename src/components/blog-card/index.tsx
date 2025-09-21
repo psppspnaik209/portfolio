@@ -95,7 +95,7 @@ const BlogCard = ({
     return articles && articles.length ? (
       articles.slice(0, blog.limit).map((article, index) => (
         <a
-          className="card shadow-lg compact bg-base-100 cursor-pointer"
+          className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl cursor-pointer neon-glow liquid-card"
           key={index}
           href={article.link}
           onClick={(e) => {
@@ -175,10 +175,10 @@ const BlogCard = ({
       <div className="grid grid-cols-2 gap-6">
         <div className="col-span-2">
           <div
-            className={`card compact bg-base-100 ${
+            className={`card compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl shadow neon-glow liquid-card ${
               loading || (articles && articles.length)
-                ? 'shadow bg-opacity-40'
-                : 'shadow-lg'
+                ? 'shadow-lg'
+                : 'shadow-2xl'
             }`}
           >
             <div className="card-body">

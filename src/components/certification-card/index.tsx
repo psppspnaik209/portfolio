@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { SanitizedCertification } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
 
@@ -13,19 +14,32 @@ const ListItem = ({
   body?: React.ReactNode;
   link?: string;
 }) => (
-  <li className="mb-5 ml-4">
+  <motion.li
+    className="mb-5 ml-4"
+    initial={{ opacity: 0, x: -20 }}
+    whileInView={{ opacity: 1, x: 0 }}
+    transition={{ duration: 0.5 }}
+    whileHover={{ scale: 1.02 }}
+  >
     <div
       className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
       style={{ left: '-4.5px' }}
     ></div>
     <div className="my-0.5 text-xs">{year}</div>
-    <div className="font-medium">
-      <a href={link} target="_blank" rel="noreferrer">
+    <motion.div className="font-medium">
+      <motion.a
+        href={link}
+        target="_blank"
+        rel="noreferrer"
+        whileHover={{ color: '#3b82f6' }}
+      >
         {name}
-      </a>
-    </div>
-    <h3 className="mb-4 font-normal">{body}</h3>
-  </li>
+      </motion.a>
+    </motion.div>
+    <motion.h3 className="mb-4 font-normal" whileHover={{ color: '#8b5cf6' }}>
+      {body}
+    </motion.h3>
+  </motion.li>
 );
 
 const CertificationCard = ({
@@ -39,19 +53,34 @@ const CertificationCard = ({
     const array = [];
     for (let index = 0; index < 2; index++) {
       array.push(
-        <ListItem
+        <motion.li
           key={index}
-          year={skeleton({
-            widthCls: 'w-5/12',
-            heightCls: 'h-4',
-          })}
-          name={skeleton({
-            widthCls: 'w-6/12',
-            heightCls: 'h-4',
-            className: 'my-1.5',
-          })}
-          body={skeleton({ widthCls: 'w-6/12', heightCls: 'h-3' })}
-        />,
+          className="mb-5 ml-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: index * 0.2 }}
+        >
+          <div
+            className="absolute w-2 h-2 bg-accent rounded-full border border-accent mt-1.5 shadow-lg shadow-accent/50"
+            style={{ left: '-4.5px' }}
+          ></div>
+          <div className="my-0.5 text-xs">
+            {skeleton({
+              widthCls: 'w-5/12',
+              heightCls: 'h-4',
+            })}
+          </div>
+          <motion.div className="font-medium">
+            {skeleton({
+              widthCls: 'w-6/12',
+              heightCls: 'h-4',
+              className: 'my-1.5',
+            })}
+          </motion.div>
+          <motion.h3 className="mb-4 font-normal">
+            {skeleton({ widthCls: 'w-6/12', heightCls: 'h-3' })}
+          </motion.h3>
+        </motion.li>,
       );
     }
 
@@ -59,10 +88,18 @@ const CertificationCard = ({
   };
 
   return (
-    <div className="card shadow-lg compact bg-base-100">
+    <motion.div
+      className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl  neon-glow glitch liquid-card"
+      data-text="Certifications"
+    >
       <div className="card-body">
-        <div className="mx-3">
-          <h5 className="card-title">
+        <motion.div
+          className="mx-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.h5 className="card-title">
             {loading ? (
               skeleton({ widthCls: 'w-32', heightCls: 'h-8' })
             ) : (
@@ -70,10 +107,10 @@ const CertificationCard = ({
                 Certification
               </span>
             )}
-          </h5>
-        </div>
+          </motion.h5>
+        </motion.div>
         <div className="text-base-content text-opacity-60">
-          <ol className="relative border-l border-base-300 border-opacity-30 my-2 mx-4">
+          <ol className="relative border-l border-primary/20 my-2 mx-4">
             {loading ? (
               renderSkeleton()
             ) : (
@@ -92,7 +129,7 @@ const CertificationCard = ({
           </ol>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

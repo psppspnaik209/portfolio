@@ -176,7 +176,7 @@ const CONFIG = {
     snippetVersion: 6,
   },*/
   themeConfig: {
-    defaultTheme: 'forest',
+    defaultTheme: 'procyon',
 
     // Hides the switch in the navbar
     // Useful if you want to support a single color mode
@@ -190,17 +190,23 @@ const CONFIG = {
     displayAvatarRing: true,
 
     // Available themes. To remove any theme, exclude from here.
-    themes: ['forest'],
+    themes: [],
 
     // Custom theme, applied to `procyon` theme
     customTheme: {
-      primary: '#fc055b',
-      secondary: '#219aaf',
-      accent: '#e8d03a',
-      neutral: '#2A2730',
-      'base-100': '#E3E3ED',
-      '--rounded-box': '3rem',
-      '--rounded-btn': '3rem',
+      primary: '#00ffff',
+      secondary: '#1a1a2e',
+      accent: '#ffff00',
+      neutral: '#16213e',
+      'base-100': '#0f0f23',
+      'base-200': '#1a1a2e',
+      'base-300': '#16213e',
+      '--rounded-box': '0.5rem',
+      '--rounded-btn': '0.5rem',
+      '--rounded-badge': '1.5rem',
+      '--animation-btn': '0.25s',
+      '--animation-input': '0.2s',
+      '--border-btn': '1px solid #00ffff',
     },
   },
 
