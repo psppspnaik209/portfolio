@@ -160,8 +160,6 @@ const GitProfile = ({ config }: { config: Config }) => {
     theme && document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-
-
   const handleError = (error: AxiosError | Error): void => {
     console.error('Error:', error);
 
@@ -341,7 +339,9 @@ const GitProfile = ({ config }: { config: Config }) => {
                         <motion.div variants={itemVariants}>
                           <BlogCard
                             loading={loading}
-                            googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
+                            googleAnalyticsId={
+                              sanitizedConfig.googleAnalytics.id
+                            }
                             blog={sanitizedConfig.blog}
                           />
                         </motion.div>
@@ -351,7 +351,6 @@ const GitProfile = ({ config }: { config: Config }) => {
                 </motion.div>
               </motion.div>
             </motion.div>
-
           </>
         )}
       </div>
