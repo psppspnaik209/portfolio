@@ -19,6 +19,12 @@ const AsciiBackground = () => {
     };
     updateSize();
 
+    const observer = new MutationObserver(() => {
+      updateSize();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
     const chars = '01#%@$&*+-/\\|~<>[]{}()=!"£€¥¢§°';
     const fontSize = 12;
     const columns = canvas.width / fontSize;
@@ -107,6 +113,7 @@ const AsciiBackground = () => {
       if (rafId) cancelAnimationFrame(rafId);
       document.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
+      observer.disconnect();
     };
   }, []);
 

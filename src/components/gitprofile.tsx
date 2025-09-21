@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios, { AxiosError } from 'axios';
 import { formatDistance } from 'date-fns';
@@ -14,22 +14,22 @@ import AsciiBackground from './ascii-background';
 import '../assets/index.css';
 import { getInitialTheme, getSanitizedConfig, setupHotjar } from '../utils';
 import { SanitizedConfig } from '../interfaces/sanitized-config';
+import { Profile } from '../interfaces/profile';
+import { GithubProject } from '../interfaces/github-project';
 import ErrorPage from './error-page';
 import HeadTagEditor from './head-tag-editor';
 import { DEFAULT_THEMES } from '../constants/default-themes';
 
-import AvatarCard from './avatar-card';
-import { Profile } from '../interfaces/profile';
-import DetailsCard from './details-card';
-import SkillCard from './skill-card';
-import ExperienceCard from './experience-card';
-import EducationCard from './education-card';
-import CertificationCard from './certification-card';
-import { GithubProject } from '../interfaces/github-project';
-import GithubProjectCard from './github-project-card';
-import ExternalProjectCard from './external-project-card';
-import BlogCard from './blog-card';
-import PublicationCard from './publication-card';
+const AvatarCard = lazy(() => import('./avatar-card'));
+const DetailsCard = lazy(() => import('./details-card'));
+const SkillCard = lazy(() => import('./skill-card'));
+const ExperienceCard = lazy(() => import('./experience-card'));
+const EducationCard = lazy(() => import('./education-card'));
+const CertificationCard = lazy(() => import('./certification-card'));
+const GithubProjectCard = lazy(() => import('./github-project-card'));
+const ExternalProjectCard = lazy(() => import('./external-project-card'));
+const BlogCard = lazy(() => import('./blog-card'));
+const PublicationCard = lazy(() => import('./publication-card'));
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -160,9 +160,7 @@ const GitProfile = ({ config }: { config: Config }) => {
     theme && document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  useEffect(() => {
-    window.dispatchEvent(new Event('resize'));
-  });
+
 
   const handleError = (error: AxiosError | Error): void => {
     console.error('Error:', error);
@@ -227,125 +225,129 @@ const GitProfile = ({ config }: { config: Config }) => {
                 animate="show"
               >
                 <motion.div className="col-span-1" variants={itemVariants}>
-                  <div className="grid grid-cols-1 gap-6">
-                    <motion.div variants={itemVariants}>
-                      <AvatarCard
-                        profile={profile}
-                        loading={loading}
-                        avatarRing={
-                          sanitizedConfig.themeConfig.displayAvatarRing
-                        }
-                        resumeFileUrl={sanitizedConfig.resume.fileUrl}
-                      />
-                    </motion.div>
-                    <motion.div variants={itemVariants}>
-                      <DetailsCard
-                        profile={profile}
-                        loading={loading}
-                        github={sanitizedConfig.github}
-                        social={sanitizedConfig.social}
-                      />
-                    </motion.div>
-                    {sanitizedConfig.skills.length !== 0 && (
-                      <motion.div
-                        className="card-hover"
-                        variants={itemVariants}
-                      >
-                        <SkillCard
+                  <Suspense fallback={<div></div>}>
+                    <div className="grid grid-cols-1 gap-6">
+                      <motion.div variants={itemVariants}>
+                        <AvatarCard
+                          profile={profile}
                           loading={loading}
-                          skills={sanitizedConfig.skills}
+                          avatarRing={
+                            sanitizedConfig.themeConfig.displayAvatarRing
+                          }
+                          resumeFileUrl={sanitizedConfig.resume.fileUrl}
                         />
                       </motion.div>
-                    )}
-                    {sanitizedConfig.experiences.length !== 0 && (
-                      <motion.div
-                        className="card-hover"
-                        variants={itemVariants}
-                      >
-                        <ExperienceCard
+                      <motion.div variants={itemVariants}>
+                        <DetailsCard
+                          profile={profile}
                           loading={loading}
-                          experiences={sanitizedConfig.experiences}
+                          github={sanitizedConfig.github}
+                          social={sanitizedConfig.social}
                         />
                       </motion.div>
-                    )}
-                    {sanitizedConfig.certifications.length !== 0 && (
-                      <motion.div
-                        className="card-hover"
-                        variants={itemVariants}
-                      >
-                        <CertificationCard
-                          loading={loading}
-                          certifications={sanitizedConfig.certifications}
-                        />
-                      </motion.div>
-                    )}
-                    {sanitizedConfig.educations.length !== 0 && (
-                      <motion.div
-                        className="card-hover"
-                        variants={itemVariants}
-                      >
-                        <EducationCard
-                          loading={loading}
-                          educations={sanitizedConfig.educations}
-                        />
-                      </motion.div>
-                    )}
-                  </div>
+                      {sanitizedConfig.skills.length !== 0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <SkillCard
+                            loading={loading}
+                            skills={sanitizedConfig.skills}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.experiences.length !== 0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <ExperienceCard
+                            loading={loading}
+                            experiences={sanitizedConfig.experiences}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.certifications.length !== 0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <CertificationCard
+                            loading={loading}
+                            certifications={sanitizedConfig.certifications}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.educations.length !== 0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <EducationCard
+                            loading={loading}
+                            educations={sanitizedConfig.educations}
+                          />
+                        </motion.div>
+                      )}
+                    </div>
+                  </Suspense>
                 </motion.div>
                 <motion.div
                   className="lg:col-span-2 col-span-1"
                   variants={itemVariants}
                 >
-                  <div className="grid grid-cols-1 gap-6">
-                    {sanitizedConfig.projects.github.display && (
-                      <motion.div
-                        className="card-hover"
-                        variants={itemVariants}
-                      >
-                        <GithubProjectCard
-                          header={sanitizedConfig.projects.github.header}
-                          limit={
-                            sanitizedConfig.projects.github.automatic.limit
-                          }
-                          githubProjects={githubProjects}
-                          loading={loading}
-                          username={sanitizedConfig.github.username}
-                        />
-                      </motion.div>
-                    )}
-                    {sanitizedConfig.publications.length !== 0 && (
-                      <motion.div variants={itemVariants}>
-                        <PublicationCard
-                          loading={loading}
-                          publications={sanitizedConfig.publications}
-                        />
-                      </motion.div>
-                    )}
-                    {sanitizedConfig.projects.external.projects.length !==
-                      0 && (
-                      <motion.div
-                        className="card-hover"
-                        variants={itemVariants}
-                      >
-                        <ExternalProjectCard
-                          loading={loading}
-                          header={sanitizedConfig.projects.external.header}
-                          externalProjects={
-                            sanitizedConfig.projects.external.projects
-                          }
-                        />
-                      </motion.div>
-                    )}
-                    {sanitizedConfig.blog.display && (
-                      <motion.div variants={itemVariants}>
-                        <BlogCard
-                          loading={loading}
-                          googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
-                          blog={sanitizedConfig.blog}
-                        />
-                      </motion.div>
-                    )}
-                  </div>
+                  <Suspense fallback={<div></div>}>
+                    <div className="grid grid-cols-1 gap-6">
+                      {sanitizedConfig.projects.github.display && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <GithubProjectCard
+                            header={sanitizedConfig.projects.github.header}
+                            limit={
+                              sanitizedConfig.projects.github.automatic.limit
+                            }
+                            githubProjects={githubProjects}
+                            loading={loading}
+                            username={sanitizedConfig.github.username}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.publications.length !== 0 && (
+                        <motion.div variants={itemVariants}>
+                          <PublicationCard
+                            loading={loading}
+                            publications={sanitizedConfig.publications}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.projects.external.projects.length !==
+                        0 && (
+                        <motion.div
+                          className="card-hover"
+                          variants={itemVariants}
+                        >
+                          <ExternalProjectCard
+                            loading={loading}
+                            header={sanitizedConfig.projects.external.header}
+                            externalProjects={
+                              sanitizedConfig.projects.external.projects
+                            }
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.blog.display && (
+                        <motion.div variants={itemVariants}>
+                          <BlogCard
+                            loading={loading}
+                            googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
+                            blog={sanitizedConfig.blog}
+                          />
+                        </motion.div>
+                      )}
+                    </div>
+                  </Suspense>
                 </motion.div>
               </motion.div>
             </motion.div>
