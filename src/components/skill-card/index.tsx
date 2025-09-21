@@ -28,7 +28,7 @@ const SkillCard = ({
 
   return (
     <motion.div
-      className="card shadow-lg compact bg-base-100 card-hover"
+      className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.3 }}
     >
@@ -54,7 +54,7 @@ const SkillCard = ({
               : skills.map((skill, index) => (
                   <motion.div
                     key={index}
-                    className="m-1 text-xs inline-flex items-center font-bold leading-sm px-3 py-1 badge-primary bg-opacity-90 rounded-full skill-badge-hover"
+                    className="m-1 text-xs inline-flex items-center font-bold leading-sm px-3 py-1 badge badge-accent bg-accent/80 rounded-full skill-badge-hover border border-accent/50 shadow-lg shadow-accent/30 hover:shadow-accent/50 transition-shadow duration-300"
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}

@@ -27,9 +27,9 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
 }): JSX.Element => {
   return (
     <motion.div
-      className="card shadow-lg compact bg-base-100 card-hover"
-      whileHover={{ scale: 1.05 }}
-      transition={{ duration: 0.3 }}
+      className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
+      whileHover={{ scale: 1.02, y: -2 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
       <div className="grid place-items-center py-8">
         {loading || !profile ? (
@@ -110,7 +110,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             <motion.a
               href={resumeFileUrl}
               target="_blank"
-              className="btn btn-outline btn-sm text-xs mt-6 opacity-50"
+              className="btn btn-outline btn-sm text-xs mt-6 border-accent text-accent hover:bg-accent hover:text-base-100 shadow-lg shadow-accent/20"
               download
               rel="noreferrer"
               whileHover={{ scale: 1.1 }}

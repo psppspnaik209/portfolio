@@ -30,7 +30,7 @@ const GithubProjectCard = ({
     for (let index = 0; index < limit; index++) {
       array.push(
         <motion.div
-          className="card shadow-lg compact bg-base-100 glass-card"
+          className="card shadow-lg compact bg-base-100 "
           key={index}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -88,7 +88,7 @@ const GithubProjectCard = ({
   const renderProjects = () => {
     return githubProjects.map((item, index) => (
       <motion.div
-        className="card shadow-lg compact bg-base-100 glass-card cursor-pointer card-hover"
+        className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl  cursor-pointer card-hover neon-glow liquid-card"
         key={index}
         onClick={() => setModalProject(item)}
         initial={{ opacity: 0, y: 20 }}
@@ -162,7 +162,7 @@ const GithubProjectCard = ({
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
             <motion.div
-              className="card compact bg-base-100 glass-card shadow bg-opacity-40"
+              className="card compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl  shadow neon-glow liquid-card"
               whileHover={{ scale: 1.01 }}
             >
               <div className="card-body">

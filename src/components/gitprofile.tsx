@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState, useRef } from 'react';
-import { motion, useSpring } from 'framer-motion';
+import { useCallback, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import axios, { AxiosError } from 'axios';
 import { formatDistance } from 'date-fns';
 import {
@@ -10,9 +10,7 @@ import {
   setTooManyRequestError,
 } from '../constants/errors';
 import { HelmetProvider } from 'react-helmet-async';
-import { Particles } from '@tsparticles/react';
-import { loadSlim } from '@tsparticles/slim';
-import { tsParticles } from '@tsparticles/engine';
+import AsciiBackground from './ascii-background';
 import '../assets/index.css';
 import { getInitialTheme, getSanitizedConfig, setupHotjar } from '../utils';
 import { SanitizedConfig } from '../interfaces/sanitized-config';
@@ -20,7 +18,6 @@ import ErrorPage from './error-page';
 import HeadTagEditor from './head-tag-editor';
 import { DEFAULT_THEMES } from '../constants/default-themes';
 
-import { BG_COLOR } from '../constants';
 import AvatarCard from './avatar-card';
 import { Profile } from '../interfaces/profile';
 import DetailsCard from './details-card';
@@ -50,101 +47,6 @@ const itemVariants = {
   show: { opacity: 1, y: 0, scale: 1 },
 };
 
-// @ts-ignore
-const particleOptions = {
-  background: {
-    color: {
-      value: 'transparent',
-    },
-  },
-  fpsLimit: 120,
-  particles: {
-    color: {
-      value: ['#ffff00', '#ffaa00', '#ffffff'],
-    },
-    links: {
-      color: '#ffff00',
-      consent: false,
-      opacity: 0.4,
-    },
-    move: {
-      direction: 'none' as const,
-      enable: true,
-      outModes: {
-        default: 'out',
-      },
-      random: true,
-      speed: 2,
-    },
-    number: {
-      density: {
-        enable: true,
-        area: 800,
-      },
-      value: 80,
-    },
-    opacity: {
-      value: 0.5,
-    },
-    shape: {
-      type: 'circle',
-    },
-    size: {
-      value: { min: 1, max: 5 },
-    },
-  },
-  interactivity: {
-    events: {
-      onClick: {
-        enable: true,
-        mode: 'push',
-      },
-      onHover: {
-        enable: true,
-        mode: 'repulse',
-      },
-    },
-    modes: {
-      push: {
-        quantity: 4,
-      },
-      repulse: {
-        distance: 100,
-      },
-    },
-  },
-};
-
-const CustomCursor = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useSpring(0, { stiffness: 500, damping: 28 });
-  const y = useSpring(0, { stiffness: 500, damping: 28 });
-
-  const mouseMoveHandler = useCallback(
-    (e: MouseEvent) => {
-      x.set(e.clientX - 10);
-      y.set(e.clientY - 10);
-    },
-    [x, y],
-  );
-
-  useEffect(() => {
-    document.addEventListener('mousemove', mouseMoveHandler);
-    return () => document.removeEventListener('mousemove', mouseMoveHandler);
-  }, [mouseMoveHandler]);
-
-  return (
-    <motion.div
-      ref={ref}
-      className="custom-cursor"
-      style={{ x, y }}
-      drag
-      dragElastic={0}
-      dragMomentum={false}
-    />
-  );
-};
-
 /**
  * Renders the GitProfile component.
  *
@@ -160,10 +62,6 @@ const GitProfile = ({ config }: { config: Config }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [githubProjects, setGithubProjects] = useState<GithubProject[]>([]);
-
-  useEffect(() => {
-    loadSlim(tsParticles);
-  }, []);
 
   const getGithubProjects = useCallback(
     async (publicRepoCount: number): Promise<GithubProject[]> => {
@@ -299,13 +197,8 @@ const GitProfile = ({ config }: { config: Config }) => {
 
   return (
     <HelmetProvider>
-      <div className="fade-in min-h-screen relative overflow-auto">
-        <CustomCursor />
-        <Particles
-          id="tsparticles"
-          options={particleOptions as any}
-          className="absolute inset-0 z-0"
-        />
+      <div className="fade-in min-h-screen relative overflow-visible">
+        <AsciiBackground />
         {error ? (
           <ErrorPage
             status={error.status}
@@ -318,14 +211,14 @@ const GitProfile = ({ config }: { config: Config }) => {
               googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
             />
             <motion.div
-              className={`p-6 lg:p-12 min-h-screen ${BG_COLOR} bg-animation relative z-10 glitch font-cyber`}
+              className={`p-6 lg:p-12 bg-transparent relative z-10 glitch font-cyber pointer-events-auto`}
               data-text="Portfolio"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
             >
               <motion.div
-                className="grid grid-cols-1 lg:grid-cols-3 gap-8 rounded-box"
+                className="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-none"
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
@@ -455,12 +348,12 @@ const GitProfile = ({ config }: { config: Config }) => {
             </motion.div>
             {sanitizedConfig.footer && (
               <motion.footer
-                className={`p-4 footer ${BG_COLOR} text-base-content footer-center`}
+                className={`p-4 footer bg-transparent text-base-content footer-center`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 }}
               >
-                <div className="card compact bg-base-100 shadow">
+                <div className="card compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl neon-glow liquid-card shadow">
                   <Footer content={sanitizedConfig.footer} loading={loading} />
                 </div>
               </motion.footer>
