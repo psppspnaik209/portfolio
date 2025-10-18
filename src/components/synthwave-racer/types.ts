@@ -6,8 +6,23 @@ export type InputState = Record<KeyAction, boolean>;
 
 export interface GameSettings {
   bloom: boolean;
-  motionBlur: boolean;
   renderScale: number;
+}
+
+export interface TrackTheme {
+  fogColor?: number;
+  horizonColor?: number;
+  accentColor?: number;
+}
+
+export interface TrackDefinition {
+  id: string;
+  name: string;
+  description: string;
+  difficulty: 'arcade' | 'balanced' | 'technical';
+  color: string;
+  centerline: Array<[number, number]>;
+  theme?: TrackTheme;
 }
 
 export interface HUDData {
@@ -41,4 +56,11 @@ export interface CenterlineSample {
   tangent: { x: number; y: number; z: number };
   distance: number;
   t: number;
+}
+
+export interface AudioSettings {
+  sfxVolume: number;
+  musicVolume: number;
+  musicEnabled: boolean;
+  sfxEnabled: boolean;
 }

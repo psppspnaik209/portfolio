@@ -47,3 +47,13 @@ declare module 'three/examples/jsm/postprocessing/AfterimagePass' {
   }
 }
 
+declare module 'three/examples/jsm/loaders/GLTFLoader' {
+  export class GLTFLoader {
+    load(
+      url: string,
+      onLoad: (gltf: any) => void,
+      onProgress?: (event: any) => void,
+      onError?: (event: any) => void,
+    ): void;
+  }
+}
