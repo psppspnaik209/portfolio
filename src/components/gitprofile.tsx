@@ -28,6 +28,7 @@ const EducationCard = lazy(() => import('./education-card'));
 const CertificationCard = lazy(() => import('./certification-card'));
 const GithubProjectCard = lazy(() => import('./github-project-card'));
 const ExternalProjectCard = lazy(() => import('./external-project-card'));
+const SynthwaveRacer = lazy(() => import('./synthwave-racer'));
 const BlogCard = lazy(() => import('./blog-card'));
 const PublicationCard = lazy(() => import('./publication-card'));
 
@@ -346,6 +347,9 @@ const GitProfile = ({ config }: { config: Config }) => {
                           />
                         </motion.div>
                       )}
+                      <motion.div variants={itemVariants}>
+                        <SynthwaveRacer />
+                      </motion.div>
                     </div>
                   </Suspense>
                 </motion.div>
