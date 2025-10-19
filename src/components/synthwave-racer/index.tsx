@@ -6,6 +6,7 @@ import type {
   HUDData,
   KeyAction,
   KeyBindings,
+  MusicTrackInfo,
   TrackDefinition,
 } from './types';
 import { DEFAULT_TRACK, TRACKS } from './track-data';
@@ -49,10 +50,6 @@ const actionLabels: Record<KeyAction, string> = {
   restart: 'Restart',
 };
 
-const BOOST_COLORS = [
-  'from-fuchsia-500/70 via-purple-500/70 to-cyan-400/70',
-  'from-pink-500/70 via-violet-500/70 to-sky-400/70',
-];
 
 const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
@@ -86,6 +83,11 @@ const formatKey = (code: string | undefined): string => {
     default:
       return code.replace('Key', '');
   }
+};
+
+const formatMusicName = (fileName: string): string => {
+  const base = fileName.replace(/\.mp3$/i, '').replace(/[-_]+/g, ' ');
+  return base.replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 const musicCredit = 'Music by Karl Casey @ White Bat Audio';
@@ -132,6 +134,7 @@ const SynthwaveRacer = () => {
   const [selectedTrackId, setSelectedTrackId] = useState(DEFAULT_TRACK.id);
   const [activeTrackId, setActiveTrackId] = useState(DEFAULT_TRACK.id);
   const [lastCompletion, setLastCompletion] = useState<CompletionSnapshot | null>(null);
+  const [currentMusic, setCurrentMusic] = useState<MusicTrackInfo | null>(null);
 
   useEffect(() => {
     bestTimesRef.current = bestTimes;
@@ -139,6 +142,13 @@ const SynthwaveRacer = () => {
 
   useEffect(() => {
     audioSettingsRef.current = audioSettings;
+  }, [audioSettings]);
+
+  useEffect(() => {
+    if (!gameRef.current) {
+      return;
+    }
+    gameRef.current.setAudioSettings(audioSettings);
   }, [audioSettings]);
 
   useEffect(() => {
@@ -163,12 +173,19 @@ const SynthwaveRacer = () => {
     };
   }, []);
 
-  const musicTracks = useMemo(() => {
+  const musicTracks = useMemo<MusicTrackInfo[]>(() => {
     const modules = import.meta.glob('../../assets/music/*.mp3', {
       eager: true,
       import: 'default',
     }) as Record<string, string>;
-    return Object.values(modules);
+    return Object.entries(modules).map(([path, url]) => {
+      const fileName = path.split('/').pop() ?? url;
+      return {
+        id: fileName,
+        name: formatMusicName(fileName),
+        url,
+      };
+    });
   }, []);
 
   useEffect(() => {
@@ -216,6 +233,9 @@ const SynthwaveRacer = () => {
             setLastCompletion(null);
           }
         },
+        onMusicTrackChange: (track) => {
+          setCurrentMusic(track);
+        },
       },
     );
 
@@ -230,6 +250,7 @@ const SynthwaveRacer = () => {
     return () => {
       game.dispose();
       gameRef.current = null;
+      setCurrentMusic(null);
     };
   }, [engineReady, isMobile, musicTracks]);
 
@@ -393,9 +414,35 @@ const SynthwaveRacer = () => {
     return TRACKS.find((track) => track.id === activeTrackId) ?? selectedTrack;
   }, [activeTrackId, selectedTrack]);
 
-  const boostGradient = useMemo(
-    () => BOOST_COLORS[Math.round(hud.boost) % BOOST_COLORS.length],
-    [hud.boost],
+  const boostColorClass = useMemo(() => {
+    if (hud.boost >= 0.75) {
+      return 'text-rose-400';
+    }
+    if (hud.boost >= 0.5) {
+      return 'text-amber-300';
+    }
+    if (hud.boost >= 0.25) {
+      return 'text-emerald-400';
+    }
+    return 'text-sky-400';
+  }, [hud.boost]);
+
+  const boostStateLabel = useMemo(() => {
+    if (hud.boost >= 0.75) {
+      return 'Max';
+    }
+    if (hud.boost >= 0.5) {
+      return 'Hot';
+    }
+    if (hud.boost >= 0.25) {
+      return 'Ready';
+    }
+    return 'Idle';
+  }, [hud.boost]);
+
+  const lapPercent = useMemo(
+    () => Math.min(100, Math.round(hud.lapProgress * 100)),
+    [hud.lapProgress],
   );
 
   const renderRemapRow = (action: KeyAction) => {
@@ -482,7 +529,7 @@ const SynthwaveRacer = () => {
             </h2>
             <p className="max-w-md text-sm text-base-content/70">
               Launch a neon-drenched F1 time trial. Press play to load the track hub and jump straight into
-              Monza, Monaco, or Silverstone.
+              Albert Park, Monaco, or Jeddah.
             </p>
             <button
               type="button"
@@ -510,63 +557,71 @@ const SynthwaveRacer = () => {
             )}
           >
             <div ref={containerRef} className="absolute inset-0 w-full h-full z-0" />
-            <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4 text-xs sm:text-sm font-semibold text-base-content z-10">
-              <div className="flex flex-wrap gap-3 items-start">
-                <div className="bg-base-100/85 border border-primary/35 px-4 py-2 rounded-lg shadow-lg">
-                  <p className="uppercase text-[11px] tracking-widest text-primary/70">
-                    Current
-                  </p>
+            <div className="pointer-events-none absolute inset-0 z-10 text-xs sm:text-sm font-semibold text-base-content">
+              <div className="absolute top-4 left-4 flex flex-col gap-2">
+                <div className="bg-base-100/85 border border-primary/35 px-3 py-2 rounded-lg shadow-lg">
+                  <p className="uppercase text-[10px] tracking-[0.4em] text-primary/70">Current</p>
                   <p className="text-lg sm:text-xl">{formatTime(hud.currentTime)}</p>
                 </div>
-                <div className="bg-base-100/85 border border-primary/35 px-4 py-2 rounded-lg shadow-lg">
-                  <p className="uppercase text-[11px] tracking-widest text-primary/70">
-                    Best
-                  </p>
+                <div className="bg-base-100/85 border border-primary/35 px-3 py-2 rounded-lg shadow-lg">
+                  <p className="uppercase text-[10px] tracking-[0.4em] text-primary/70">Best</p>
                   <p className="text-lg sm:text-xl">{formatTime(bestTimes[activeTrackId] ?? null)}</p>
                 </div>
-                <div className="bg-base-100/85 border border-primary/35 px-4 py-2 rounded-lg shadow-lg">
-                  <p className="uppercase text-[11px] tracking-widest text-primary/70">
-                    Speed
-                  </p>
+              </div>
+              <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
+                <div className="bg-base-100/85 border border-primary/35 px-3 py-2 rounded-lg shadow-lg text-right">
+                  <p className="uppercase text-[10px] tracking-[0.4em] text-primary/70">Speed</p>
                   <p className="text-lg sm:text-xl">{hud.speedKph.toFixed(0)} km/h</p>
                 </div>
-                <div className="bg-base-100/85 border border-primary/35 px-4 py-2 rounded-lg shadow-lg">
-                  <p className="uppercase text-[11px] tracking-[0.4em] text-primary/70">
-                    Track
-                  </p>
+                <div className="bg-base-100/85 border border-primary/35 px-3 py-2 rounded-lg shadow-lg text-right">
+                  <p className="uppercase text-[10px] tracking-[0.4em] text-primary/70">Track</p>
                   <p className="text-lg sm:text-xl">{activeTrack.name}</p>
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="bg-base-100/80 border border-primary/30 px-4 py-3 rounded-lg">
-                  <div className="flex items-center justify-between mb-1 text-[11px] uppercase tracking-widest text-primary/75">
-                    <span>Boost</span>
-                    <span>{Math.round(hud.boost * 100)}%</span>
-                  </div>
-                  <div className="h-3 w-full rounded-full bg-primary/10 overflow-hidden">
-                    <div
-                      className={cx(
-                        'h-full rounded-full transition-all duration-150 bg-gradient-to-r',
-                        boostGradient,
-                      )}
-                      style={{ width: `${Math.min(100, hud.boost * 100)}%` }}
-                    />
-                  </div>
+              <div
+                className={cx(
+                  'absolute left-4 flex flex-col gap-2',
+                  'top-1/2 -translate-y-1/2',
+                )}
+              >
+                <div className="px-3 py-2 rounded-lg bg-base-100/75 border border-primary/30 shadow-lg uppercase tracking-[0.35em] text-[10px] sm:text-xs flex items-center gap-2">
+                  <span className="text-base-content/70">⚡</span>
+                  <span className="text-base-content/70">Boost</span>
+                  <span className={cx('ml-1', boostColorClass)}>
+                    {Math.round(hud.boost * 100)}%
+                  </span>
+                  <span className="text-base-content/60">{boostStateLabel.toUpperCase()}</span>
                 </div>
-                <div className="bg-base-100/80 border border-primary/30 px-4 py-3 rounded-lg">
-                  <div className="flex items-center justify-between mb-1 text-[11px] uppercase tracking-[0.35em] text-primary/75">
-                    <span>Lap</span>
-                    <span>{Math.round(hud.lapProgress * 100)}%</span>
-                  </div>
-                  <div className="h-2 w-full rounded-full bg-primary/10 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-primary transition-all duration-150"
-                      style={{ width: `${Math.min(100, hud.lapProgress * 100)}%` }}
-                    />
-                  </div>
+                <div className="px-3 py-2 rounded-lg bg-base-100/75 border border-primary/30 shadow-lg uppercase tracking-[0.35em] text-[10px] sm:text-xs flex items-center gap-2 text-emerald-400">
+                  <span className="text-base-content/70">🏁</span>
+                  <span className="text-base-content/60">Lap</span>
+                  <span className="ml-1">{lapPercent}%</span>
                 </div>
-                <p className="text-[10px] text-base-content/60 text-right uppercase tracking-[0.3em]">
-                  {musicCredit}
+              </div>
+              <div className="absolute bottom-4 right-4 text-right text-[10px] sm:text-xs uppercase tracking-[0.35em] text-base-content/70">
+                <p>
+                  Boost uptime{' '}
+                  <span className="text-primary/80">
+                    {(hud.boostUptimeRatio * 100).toFixed(0)}%
+                  </span>{' '}
+                  · Off-line{' '}
+                  <span className="text-error/70">
+                    {(hud.offTrackRatio * 100).toFixed(0)}%
+                  </span>
+                </p>
+              </div>
+              <div className="absolute bottom-4 left-4 text-[10px] sm:text-xs uppercase tracking-[0.35em] text-primary/70">
+                <p>
+                  {musicCredit} · Track:{' '}
+                  <span className="text-base-content">{activeTrack.name}</span>
+                  {currentMusic ? (
+                    <>
+                      {' '}· Now Playing:{' '}
+                      <span className="text-base-content">{currentMusic.name}</span>
+                    </>
+                  ) : (
+                    <> · Now Playing:{' '}<span className="text-base-content">—</span></>
+                  )}
                 </p>
               </div>
             </div>
@@ -718,6 +773,26 @@ const SynthwaveRacer = () => {
                         }
                         className="range range-primary range-sm"
                       />
+                      <div className="rounded-lg border border-primary/20 bg-base-100/70 px-3 py-3">
+                        <div className="flex items-center justify-between text-xs text-base-content/60">
+                          <span>Now Playing</span>
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-xs text-primary pointer-events-auto"
+                            onClick={() => {
+                              gameRef.current?.skipMusicTrack();
+                            }}
+                            disabled={!audioSettings.musicEnabled || musicTracks.length === 0}
+                          >
+                            Skip Track
+                          </button>
+                        </div>
+                        <p className="mt-1 text-sm font-semibold text-base-content">
+                          {audioSettings.musicEnabled
+                            ? currentMusic?.name ?? '—'
+                            : 'Music disabled'}
+                        </p>
+                      </div>
                       <label className="flex items-center justify-between mt-4">
                         <span className="text-sm text-base-content/70">
                           Sound Effects
@@ -949,16 +1024,6 @@ const SynthwaveRacer = () => {
             >
               Instant Restart
             </button>
-            <div className="text-xs text-base-content/60">
-              Boost uptime:{' '}
-              <span className="font-semibold text-primary/80">
-                {(hud.boostUptimeRatio * 100).toFixed(0)}%
-              </span>{' '}
-              · Off-line:{' '}
-              <span className="font-semibold text-error/80">
-                {(hud.offTrackRatio * 100).toFixed(0)}%
-              </span>
-            </div>
           </div>
         </div>
       </div>

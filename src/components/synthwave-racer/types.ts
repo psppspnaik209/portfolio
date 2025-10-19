@@ -15,6 +15,14 @@ export interface TrackTheme {
   accentColor?: number;
 }
 
+export interface TrackAssets {
+  modelUrl?: string;
+  scaleMultiplier?: number;
+  positionOffset?: [number, number, number];
+  rotationOffset?: [number, number, number];
+  heightOffset?: number;
+}
+
 export interface TrackDefinition {
   id: string;
   name: string;
@@ -26,6 +34,7 @@ export interface TrackDefinition {
   targetLapTime: number;
   lapLength: number;
   trackWidth?: number;
+  assets?: TrackAssets;
 }
 
 export interface HUDData {
@@ -52,6 +61,7 @@ export interface TelemetrySample {
 export interface RacerGameCallbacks {
   onHUDUpdate: (data: HUDData) => void;
   onRunComplete: (sample: TelemetrySample, bestTime: number | null) => void;
+  onMusicTrackChange?: (track: MusicTrackInfo | null) => void;
 }
 
 export interface CenterlineSample {
@@ -66,4 +76,10 @@ export interface AudioSettings {
   musicVolume: number;
   musicEnabled: boolean;
   sfxEnabled: boolean;
+}
+
+export interface MusicTrackInfo {
+  id: string;
+  name: string;
+  url: string;
 }

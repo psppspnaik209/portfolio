@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import type { Object3D } from 'three/src/core/Object3D.js';
+import type { Color } from 'three/src/math/Color.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
@@ -17,7 +19,9 @@ import {
   HUDData,
   KeyAction,
   KeyBindings,
+  MusicTrackInfo,
   RacerGameCallbacks,
+  TrackAssets,
   TrackDefinition,
   TrackTheme,
 } from './types';
@@ -45,12 +49,12 @@ const BOOST_DRAIN_RATE = 0.58;
 const BASE_MAX_SPEED = 64;
 const BOOST_SPEED_MULTIPLIER = 0.5;
 const BASE_ACCELERATION = 26;
-const BRAKE_FORCE = 96;
-const DRAG_COEFFICIENT = 0.1;
-const TURN_RATE = 2.05;
+const BRAKE_FORCE = 112;
+const DRAG_COEFFICIENT = 0.12;
+const TURN_RATE = 2.4;
 const FIXED_TIME_STEP = 1 / 120;
 const HUD_UPDATE_INTERVAL = 0.05;
-const MAX_RUN_DURATION = 70;
+const MAX_RUN_DURATION = 110;
 const OFF_TRACK_DNF_THRESHOLD = 15;
 
 const DEFAULT_INPUT_STATE: InternalInputState = {
@@ -127,19 +131,30 @@ export class SynthwaveRacerGame {
   private brakeForce = BRAKE_FORCE;
   private boostMultiplier = BOOST_SPEED_MULTIPLIER;
   private targetLapTime = 90;
+  private weightShiftVisual = 0;
 
   private readonly chaseTarget = new THREE.Vector3();
   private readonly chaseCurrent = new THREE.Vector3();
+  private readonly centerlineBounds = new THREE.Box3();
+  private readonly centerlineSize = new THREE.Vector3();
+  private readonly tempBox = new THREE.Box3();
+  private readonly tempBoxCenter = new THREE.Vector3();
+  private readonly tempBoxSize = new THREE.Vector3();
 
   private readonly listener: any;
   private audioContext: AudioContext | null = null;
   private masterGain: GainNode | null = null;
-  private engineOscillator: OscillatorNode | null = null;
-  private engineHarmonic: OscillatorNode | null = null;
-  private engineGain: GainNode | null = null;
-  private engineFilter: BiquadFilterNode | null = null;
-  private engineNoise: AudioBufferSourceNode | null = null;
-  private engineNoiseGain: GainNode | null = null;
+  private engineBaseOsc: OscillatorNode | null = null;
+  private engineBaseGain: GainNode | null = null;
+  private engineThrottleOsc: OscillatorNode | null = null;
+  private engineThrottleGain: GainNode | null = null;
+  private engineHighOsc: OscillatorNode | null = null;
+  private engineHighGain: GainNode | null = null;
+  private engineRumble: AudioBufferSourceNode | null = null;
+  private engineRumbleGain: GainNode | null = null;
+  private gearShiftBuffer: AudioBuffer | null = null;
+  private gearShiftGain: GainNode | null = null;
+  private gearShiftSource: AudioBufferSourceNode | null = null;
   private boostOscillator: OscillatorNode | null = null;
   private boostGain: GainNode | null = null;
   private skidNoiseBuffer: AudioBuffer | null = null;
@@ -148,7 +163,8 @@ export class SynthwaveRacerGame {
   private audioReady = false;
   private musicGain: GainNode | null = null;
   private musicSource: AudioBufferSourceNode | null = null;
-  private musicPlaylist: string[] = [];
+  private musicPlaylist: MusicTrackInfo[] = [];
+  private currentMusicTrack: MusicTrackInfo | null = null;
   private musicCache = new Map<string, AudioBuffer>();
   private musicIndex = 0;
   private musicEnabled = true;
@@ -158,6 +174,9 @@ export class SynthwaveRacerGame {
   private musicLoading = false;
   private gltfLoader: GLTFLoader | null = null;
   private throttleInput = 0;
+  private trackAssetsToken = 0;
+  private lastGearBand = 0;
+  private lastAudioSpeed = 0;
 
   private settings: GameSettings;
   private disposed = false;
@@ -265,6 +284,8 @@ export class SynthwaveRacerGame {
             ([x, z]) => new THREE.Vector3(x, 0, z),
           )
         : [new THREE.Vector3(0, 0, 0)];
+    this.centerlineBounds.setFromPoints(points);
+    this.centerlineBounds.getSize(this.centerlineSize);
     this.centerline = new THREE.CatmullRomCurve3(
       points,
       true,
@@ -288,7 +309,10 @@ export class SynthwaveRacerGame {
     }
     this.offTrackTimer = 0;
     this.disposeTrackGroup();
+    this.trackAssetsToken += 1;
+    const assetsToken = this.trackAssetsToken;
     this.addEnvironment();
+    this.loadTrackModel(assetsToken);
     if (this.carMesh) {
       this.resetCarState();
       if (!initial) {
@@ -415,6 +439,10 @@ export class SynthwaveRacerGame {
 
   setHardwareInputEnabled(enabled: boolean): void {
     this.hardwareInputEnabled = enabled;
+    if (!enabled) {
+      Object.assign(this.inputState, DEFAULT_INPUT_STATE);
+      this.throttleInput = 0;
+    }
   }
 
   setAudioSettings(settings: AudioSettings): void {
@@ -435,12 +463,31 @@ export class SynthwaveRacerGame {
     }
   }
 
-  setMusicLibrary(urls: string[]): void {
-    this.musicPlaylist = urls.filter(Boolean);
+  setMusicLibrary(tracks: MusicTrackInfo[]): void {
+    this.musicPlaylist = tracks.filter(
+      (track): track is MusicTrackInfo => Boolean(track && track.url),
+    );
     this.shufflePlaylist();
     this.musicIndex = 0;
     if (this.musicEnabled) {
       this.ensureMusic();
+    } else {
+      this.currentMusicTrack = null;
+    }
+  }
+
+  skipMusicTrack(): void {
+    if (!this.musicEnabled || this.musicPlaylist.length === 0) {
+      return;
+    }
+    if (this.musicSource) {
+      try {
+        this.musicSource.stop();
+      } catch (error) {
+        console.warn('Failed to skip track cleanly', error);
+      }
+    } else {
+      this.playNextMusic().catch(() => undefined);
     }
   }
 
@@ -482,6 +529,10 @@ export class SynthwaveRacerGame {
       this.musicSource = null;
     }
     this.musicLoading = false;
+    if (this.currentMusicTrack) {
+      this.currentMusicTrack = null;
+      this.callbacks.onMusicTrackChange?.(null);
+    }
   }
 
   private async playNextMusic(): Promise<void> {
@@ -494,9 +545,9 @@ export class SynthwaveRacerGame {
     this.musicLoading = true;
     try {
       const index = this.musicIndex % this.musicPlaylist.length;
-      const url = this.musicPlaylist[index];
+      const track = this.musicPlaylist[index];
       this.musicIndex = (this.musicIndex + 1) % this.musicPlaylist.length;
-      const buffer = await this.loadMusicBuffer(url);
+      const buffer = await this.loadMusicBuffer(track.url);
       if (!buffer || !this.audioContext || !this.musicEnabled) {
         return;
       }
@@ -504,12 +555,17 @@ export class SynthwaveRacerGame {
       source.buffer = buffer;
       source.connect(this.musicGain);
       this.musicSource = source;
+      this.currentMusicTrack = track;
+      this.callbacks.onMusicTrackChange?.(track);
       source.onended = () => {
         if (this.musicSource === source) {
           this.musicSource = null;
         }
         if (this.musicEnabled) {
           this.playNextMusic().catch(() => undefined);
+        } else if (this.currentMusicTrack && this.currentMusicTrack.id === track.id) {
+          this.currentMusicTrack = null;
+          this.callbacks.onMusicTrackChange?.(null);
         }
       };
       source.start(0);
@@ -561,36 +617,59 @@ export class SynthwaveRacerGame {
         }
       }
     });
-    if (this.engineOscillator) {
+    if (this.engineBaseOsc) {
       try {
-        this.engineOscillator.stop();
+        this.engineBaseOsc.stop();
       } catch (error) {
-        console.warn('Failed stopping engineOscillator', error);
+        console.warn('Failed stopping engineBaseOsc', error);
       }
-      this.engineOscillator.disconnect();
-      this.engineOscillator = null;
+      this.engineBaseOsc.disconnect();
+      this.engineBaseOsc = null;
     }
-    if (this.engineHarmonic) {
+    if (this.engineThrottleOsc) {
       try {
-        this.engineHarmonic.stop();
+        this.engineThrottleOsc.stop();
       } catch (error) {
-        console.warn('Failed stopping engineHarmonic', error);
+        console.warn('Failed stopping engineThrottleOsc', error);
       }
-      this.engineHarmonic.disconnect();
-      this.engineHarmonic = null;
+      this.engineThrottleOsc.disconnect();
+      this.engineThrottleOsc = null;
     }
-    if (this.engineNoise) {
+    if (this.engineHighOsc) {
       try {
-        this.engineNoise.stop();
+        this.engineHighOsc.stop();
       } catch (error) {
-        console.warn('Failed stopping engineNoise', error);
+        console.warn('Failed stopping engineHighOsc', error);
       }
-      this.engineNoise.disconnect();
-      this.engineNoise = null;
+      this.engineHighOsc.disconnect();
+      this.engineHighOsc = null;
     }
-    this.engineNoiseGain = null;
-    this.engineFilter = null;
-    this.engineGain = null;
+    if (this.engineRumble) {
+      try {
+        this.engineRumble.stop();
+      } catch (error) {
+        console.warn('Failed stopping engineRumble', error);
+      }
+      this.engineRumble.disconnect();
+      this.engineRumble = null;
+    }
+    if (this.gearShiftSource) {
+      try {
+        this.gearShiftSource.stop();
+      } catch (error) {
+        console.warn('Failed stopping gear shift source', error);
+      }
+      this.gearShiftSource.disconnect();
+      this.gearShiftSource = null;
+    }
+    this.engineBaseGain = null;
+    this.engineThrottleGain = null;
+    this.engineHighGain = null;
+    this.engineRumbleGain = null;
+    this.gearShiftGain = null;
+    this.gearShiftBuffer = null;
+    this.lastGearBand = 0;
+    this.lastAudioSpeed = 0;
     if (this.boostOscillator) {
       try {
         this.boostOscillator.stop();
@@ -936,18 +1015,158 @@ export class SynthwaveRacerGame {
     }
   }
 
+  private loadTrackModel(token: number): void {
+    const assets = this.track?.assets;
+    if (!assets?.modelUrl) {
+      return;
+    }
+    if (this.gltfLoader === null) {
+      this.gltfLoader = new GLTFLoader();
+    }
+    const modelUrl = this.resolveAssetUrl(assets.modelUrl);
+    this.gltfLoader.load(
+      modelUrl,
+      (gltf) => {
+        if (token !== this.trackAssetsToken || this.disposed) {
+          this.disposeObject(gltf.scene);
+          return;
+        }
+        try {
+          this.integrateTrackModel(gltf.scene, assets);
+        } catch (error) {
+          console.warn('Failed to integrate track scenery', error);
+          this.disposeObject(gltf.scene);
+        }
+      },
+      undefined,
+      (error) => {
+        console.warn('Unable to load track scenery', error);
+      },
+    );
+  }
+
+  private integrateTrackModel(model: Object3D, assets: TrackAssets): void {
+    model.name = `track-scenery-${this.track?.id ?? 'unknown'}`;
+    const accent = new THREE.Color(this.track?.color ?? '#ff33cc');
+
+    model.traverse((child: any) => {
+      if (child.isMesh) {
+        child.castShadow = false;
+        child.receiveShadow = true;
+        const materials = Array.isArray(child.material)
+          ? child.material
+          : [child.material];
+        const remapped = materials.map((material: any) => {
+          const mat = material?.clone ? material.clone() : material;
+          if (mat && 'color' in mat && mat.color instanceof THREE.Color) {
+            mat.color = (mat.color as Color).clone().lerp(accent, 0.45);
+          }
+          if (mat && 'emissive' in mat && mat.emissive instanceof THREE.Color) {
+            mat.emissive = (mat.emissive as Color)
+              .clone()
+              .lerp(accent, 0.7);
+            mat.emissiveIntensity = Math.max(
+              0.5,
+              Number.parseFloat(`${mat.emissiveIntensity ?? 0.4}`) + 0.2,
+            );
+          }
+          if (mat && 'metalness' in mat) {
+            mat.metalness = Math.min(0.65, (mat.metalness ?? 0.2) + 0.15);
+          }
+          if (mat && 'roughness' in mat) {
+            mat.roughness = Math.max(0.32, (mat.roughness ?? 0.6) * 0.85);
+          }
+          return mat;
+        });
+        child.material = Array.isArray(child.material) ? remapped : remapped[0];
+      }
+    });
+
+    model.updateMatrixWorld(true);
+    this.tempBox.setFromObject(model);
+    this.tempBox.getSize(this.tempBoxSize);
+    const size = this.tempBoxSize;
+    const centerSize = this.centerlineSize;
+    const scalarSamples: number[] = [];
+    if (size.x > 0 && centerSize.x > 0) {
+      scalarSamples.push(centerSize.x / size.x);
+    }
+    if (size.z > 0 && centerSize.z > 0) {
+      scalarSamples.push(centerSize.z / size.z);
+    }
+    let scale = scalarSamples.length
+      ? scalarSamples.reduce((sum, value) => sum + value, 0) /
+        scalarSamples.length
+      : 1;
+    scale *= assets.scaleMultiplier ?? 1;
+    model.scale.setScalar(scale);
+
+    model.updateMatrixWorld(true);
+    this.tempBox.setFromObject(model);
+    this.tempBox.getCenter(this.tempBoxCenter);
+    model.position.sub(this.tempBoxCenter);
+
+    if (assets.rotationOffset) {
+      model.rotation.x += assets.rotationOffset[0] ?? 0;
+      model.rotation.y += assets.rotationOffset[1] ?? 0;
+      model.rotation.z += assets.rotationOffset[2] ?? 0;
+    }
+
+    if (assets.positionOffset) {
+      this.tempVec3C.set(
+        assets.positionOffset[0] ?? 0,
+        assets.positionOffset[1] ?? 0,
+        assets.positionOffset[2] ?? 0,
+      );
+      model.position.add(this.tempVec3C);
+    }
+
+    if (typeof assets.heightOffset === 'number') {
+      model.position.y += assets.heightOffset;
+    }
+
+    if (this.trackGroup) {
+      this.trackGroup.add(model);
+    } else {
+      this.scene.add(model);
+    }
+  }
+
   private createCarBody(): Body {
     const body = new Body({
-      mass: 650,
-      position: new Vec3(0, 0.5, 0),
+      mass: 795,
+      position: new Vec3(0, 0.48, 0),
       fixedRotation: true,
-      linearDamping: 0.22,
+      linearDamping: 0.18,
     });
-    const shape = new Box(new Vec3(0.6, 0.35, 1.2));
+    const shape = new Box(new Vec3(1.05, 0.32, 2.72));
     body.addShape(shape);
     body.allowSleep = false;
     body.angularDamping = 0.6;
     return body;
+  }
+
+  private disposeObject(object: Object3D): void {
+    object.traverse((child: any) => {
+      if (child.isMesh || child.isLine || child.isPoints) {
+        child.geometry?.dispose?.();
+        if (Array.isArray(child.material)) {
+          child.material.forEach((material: any) => material?.dispose?.());
+        } else {
+          child.material?.dispose?.();
+        }
+      }
+    });
+  }
+
+  private resolveAssetUrl(path: string): string {
+    if (/^https?:\/\//i.test(path)) {
+      return path;
+    }
+    const base = import.meta.env.BASE_URL ?? '/';
+    const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+    const normalizedPath = path.startsWith('/') ? path.slice(1) : path;
+    return `${normalizedBase}${normalizedPath}`;
   }
 
   private createCarMesh(): any {
@@ -1021,7 +1240,7 @@ export class SynthwaveRacerGame {
     if (this.gltfLoader === null) {
       this.gltfLoader = new GLTFLoader();
     }
-    const modelPath = `${import.meta.env.BASE_URL ?? '/'}assets/racer/F1/F1.gltf`;
+    const modelPath = this.resolveAssetUrl('assets/racer/F1/F1.gltf');
     this.gltfLoader.load(
       modelPath,
       (gltf) => {
@@ -1030,20 +1249,69 @@ export class SynthwaveRacerGame {
             placeholder.parent.remove(placeholder);
           }
           const model = gltf.scene;
-          model.scale.setScalar(0.58);
-          model.position.set(0, -0.28, 0);
-          model.rotation.y = Math.PI;
           const accent = new THREE.Color(this.track?.color ?? '#ff33cc');
+          const baseCarbon = new THREE.Color(0x12131c);
           model.traverse((child: any) => {
             if (child.isMesh) {
               child.castShadow = false;
               child.receiveShadow = true;
-              if (child.material && 'emissive' in child.material) {
-                child.material.emissive = accent.clone().multiplyScalar(0.35);
-                child.material.emissiveIntensity = 0.6;
-              }
+              const materials = Array.isArray(child.material)
+                ? child.material
+                : [child.material];
+              const remapped = materials.map((material: any, index: number) => {
+                const mat = material?.clone ? material.clone() : material;
+                if (mat && 'color' in mat && mat.color instanceof THREE.Color) {
+                  const blendTarget =
+                    index === 0
+                      ? accent.clone()
+                      : baseCarbon.clone().lerp(accent, 0.35);
+                  mat.color = blendTarget;
+                }
+                if (mat && 'emissive' in mat && mat.emissive instanceof THREE.Color) {
+                  mat.emissive = accent.clone().multiplyScalar(0.42);
+                  mat.emissiveIntensity = Math.max(
+                    0.6,
+                    Number.parseFloat(`${mat.emissiveIntensity ?? 0.4}`) + 0.2,
+                  );
+                }
+                if (mat && 'metalness' in mat) {
+                  mat.metalness = Math.min(0.82, (mat.metalness ?? 0.25) + 0.18);
+                }
+                if (mat && 'roughness' in mat) {
+                  mat.roughness = Math.max(0.24, (mat.roughness ?? 0.6) * 0.72);
+                }
+                return mat;
+              });
+              child.material = Array.isArray(child.material)
+                ? remapped
+                : remapped[0];
             }
           });
+          model.updateMatrixWorld(true);
+          this.tempBox.setFromObject(model);
+          this.tempBox.getSize(this.tempBoxSize);
+          const size = this.tempBoxSize;
+          const targetLength = 5.4;
+          const targetWidth = 2.0;
+          const scaleCandidates: number[] = [];
+          if (size.z > 0) {
+            scaleCandidates.push(targetLength / size.z);
+          }
+          if (size.x > 0) {
+            scaleCandidates.push(targetWidth / size.x);
+          }
+          const scale =
+            scaleCandidates.length > 0
+              ? scaleCandidates.reduce((sum, value) => sum + value, 0) /
+                scaleCandidates.length
+              : 0.65;
+          model.scale.setScalar(scale);
+          model.rotation.set(0, 0, 0);
+          model.updateMatrixWorld(true);
+          this.tempBox.setFromObject(model);
+          this.tempBox.getCenter(this.tempBoxCenter);
+          model.position.sub(this.tempBoxCenter);
+          model.position.y = -0.36;
           target.add(model);
         } catch (error) {
           console.warn('Failed to integrate F1 model, keeping placeholder.', error);
@@ -1106,6 +1374,9 @@ export class SynthwaveRacerGame {
     if (!this.hardwareInputEnabled) {
       return;
     }
+    if (event.metaKey || event.ctrlKey) {
+      return;
+    }
     if (this.matchBinding('throttle', event.code)) {
       event.preventDefault();
       this.inputState.throttle = true;
@@ -1131,6 +1402,9 @@ export class SynthwaveRacerGame {
 
   private readonly handleKeyUp = (event: KeyboardEvent) => {
     if (!this.hardwareInputEnabled) {
+      return;
+    }
+    if (event.metaKey || event.ctrlKey) {
       return;
     }
     if (this.matchBinding('throttle', event.code)) {
@@ -1162,6 +1436,7 @@ export class SynthwaveRacerGame {
   private resetInputs(): void {
     Object.assign(this.inputState, DEFAULT_INPUT_STATE);
     Object.assign(this.virtualInputState, DEFAULT_INPUT_STATE);
+    this.throttleInput = 0;
   }
 
   private loop = () => {
@@ -1198,43 +1473,85 @@ export class SynthwaveRacerGame {
   };
 
   private stepPhysics(dt: number): void {
-    const throttle =
+    const throttleActive =
       this.inputState.throttle || this.virtualInputState.throttle;
-    const brake = this.inputState.brake || this.virtualInputState.brake;
+    const brakeActive =
+      this.inputState.brake || this.virtualInputState.brake;
     const left = this.inputState.left || this.virtualInputState.left;
     const right = this.inputState.right || this.virtualInputState.right;
-    const steering = (left ? 1 : 0) - (right ? 1 : 0);
+    const steeringInput = (left ? 1 : 0) - (right ? 1 : 0);
 
-    this.throttleInput = throttle
-      ? Math.min(1, this.throttleInput + dt * 3)
-      : Math.max(0, this.throttleInput - dt * 2.2);
+    this.throttleInput = throttleActive
+      ? Math.min(1, this.throttleInput + dt * 2.8)
+      : Math.max(0, this.throttleInput - dt * 3.2);
 
-    const maxSpeed = this.maxSpeed * (1 + this.boost * this.boostMultiplier * 0.5);
-    const baseAccel = this.baseAcceleration * (1 + this.boost * 0.35);
-    if (throttle) {
-      this.speed = Math.min(
-        maxSpeed,
-        this.speed + baseAccel * dt,
-      );
-    } else {
-      const coastingDrag = DRAG_COEFFICIENT * (1 + (this.speed / this.maxSpeed) * 0.4);
-      this.speed = Math.max(
-        0,
-        this.speed - (coastingDrag * this.speed + 1.2) * dt,
-      );
+    const maxSpeed =
+      this.maxSpeed * (1 + this.boost * this.boostMultiplier * 0.6);
+    const speedRatio = THREE.MathUtils.clamp(
+      this.speed / Math.max(maxSpeed, Number.EPSILON),
+      0,
+      1,
+    );
+    const accelCurve = 1 - Math.pow(speedRatio, 0.85);
+    const boostAssist = this.boost * this.baseAcceleration * 0.45;
+    const throttleForce =
+      (this.baseAcceleration * accelCurve * (0.65 + this.throttleInput * 0.6) +
+        boostAssist) *
+      this.throttleInput;
+    const brakeForceApplied = brakeActive
+      ? this.brakeForce * (0.45 + speedRatio * 0.9)
+      : 0;
+    const rollingResistance = DRAG_COEFFICIENT * (0.8 + speedRatio * 1.4);
+    const aeroDrag = this.speed * this.speed * 0.0009;
+    const netAccel =
+      throttleForce -
+      brakeForceApplied -
+      rollingResistance -
+      aeroDrag;
+
+    this.speed = THREE.MathUtils.clamp(
+      this.speed + netAccel * dt,
+      0,
+      maxSpeed,
+    );
+
+    if (!throttleActive && !brakeActive) {
+      const passiveDrag = DRAG_COEFFICIENT * (1 + speedRatio * 1.2);
+      this.speed = Math.max(0, this.speed - passiveDrag * dt);
     }
 
-    if (brake) {
-      this.speed = Math.max(
-        0,
-        this.speed - (this.brakeForce * 0.5 + this.speed * 1.2) * dt,
-      );
-    }
+    const weightShift = THREE.MathUtils.clamp(
+      (brakeActive ? 0.85 : 0) - this.throttleInput * 0.55,
+      -0.45,
+      0.65,
+    );
+    this.weightShiftVisual = THREE.MathUtils.lerp(
+      this.weightShiftVisual,
+      weightShift,
+      0.18,
+    );
+    const frontGrip = THREE.MathUtils.clamp(1 + weightShift, 0.7, 1.7);
+    const rearGrip = THREE.MathUtils.clamp(
+      1 - weightShift * 0.8,
+      0.6,
+      1.45,
+    );
 
-    const speedRatio = THREE.MathUtils.clamp(this.speed / this.maxSpeed, 0, 1);
-    const turnRate =
-      TURN_RATE * (0.6 + speedRatio * 0.8) * (1 + this.boost * 0.25);
-    this.carYaw += steering * turnRate * dt;
+    const steerMagnitude = Math.abs(steeringInput);
+    const steerSensitivity = THREE.MathUtils.lerp(1.85, 0.35, speedRatio);
+    const gripFactor = THREE.MathUtils.lerp(
+      rearGrip,
+      frontGrip,
+      brakeActive ? 0.78 : 0.32,
+    );
+    const boostInfluence = 1 + this.boost * 0.22;
+    const steeringResponse =
+      TURN_RATE *
+      steerSensitivity *
+      gripFactor *
+      boostInfluence *
+      (0.65 + steerMagnitude * 0.35);
+    this.carYaw += steeringInput * steeringResponse * dt;
 
     const forward = this.tempVecCannon;
     forward.set(Math.sin(this.carYaw), 0, Math.cos(this.carYaw));
@@ -1245,12 +1562,32 @@ export class SynthwaveRacerGame {
     this.carBody.velocity.y = 0;
     this.carBody.velocity.z = forward.z * this.speed;
 
-    // apply lateral damping for arcade traction feel
     const lateralSpeed =
       this.carBody.velocity.x * lateral.x +
       this.carBody.velocity.z * lateral.z;
-    this.carBody.velocity.x -= lateralSpeed * lateral.x * 0.24;
-    this.carBody.velocity.z -= lateralSpeed * lateral.z * 0.24;
+    const slipLimit = 1.4 + speedRatio * 3.4;
+    const slipRatio = THREE.MathUtils.clamp(
+      Math.abs(lateralSpeed) / Math.max(slipLimit, Number.EPSILON),
+      0,
+      1.4,
+    );
+    const gripBlend = THREE.MathUtils.lerp(0.7, 0.18, slipRatio);
+    const tractionBlend = THREE.MathUtils.lerp(
+      frontGrip,
+      rearGrip,
+      this.throttleInput,
+    );
+    const dampingStrength = THREE.MathUtils.clamp(
+      gripBlend * tractionBlend * dt * 6.4,
+      0,
+      1.15,
+    );
+    this.carBody.velocity.x -= lateralSpeed * lateral.x * dampingStrength;
+    this.carBody.velocity.z -= lateralSpeed * lateral.z * dampingStrength;
+
+    if (slipRatio > 1) {
+      this.speed *= 1 - Math.min(0.12 * dt, 0.05);
+    }
 
     const quat = new CannonQuaternion();
     quat.setFromEuler(0, this.carYaw, 0, 'XYZ');
@@ -1294,25 +1631,31 @@ export class SynthwaveRacerGame {
     const lateralDir = this.tempVec3C
       .set(-sample.tangent.z, 0, sample.tangent.x)
       .normalize();
+    const rawLateralOffset = offset.dot(lateralDir);
     const lateralOffset = THREE.MathUtils.clamp(
-      offset.dot(lateralDir),
-      -this.trackHalfWidth * 2,
-      this.trackHalfWidth * 2,
+      rawLateralOffset,
+      -this.trackHalfWidth * 2.2,
+      this.trackHalfWidth * 2.2,
     );
 
-    if (Math.abs(lateralOffset) > this.trackHalfWidth * 1.05) {
-      const clampedOffset = THREE.MathUtils.clamp(
-        lateralOffset,
-        -this.trackHalfWidth * 0.92,
-        this.trackHalfWidth * 0.92,
+    if (Math.abs(lateralOffset) > this.trackHalfWidth) {
+      const overflow = Math.abs(lateralOffset) - this.trackHalfWidth;
+      const pushSign = lateralOffset > 0 ? -1 : 1;
+      const easing = THREE.MathUtils.clamp(
+        overflow / (this.trackHalfWidth * 0.65),
+        0,
+        1.2,
       );
-      const correctionAmount = clampedOffset - lateralOffset;
-      const correction = new THREE.Vector3().copy(lateralDir).multiplyScalar(correctionAmount);
-      this.carBody.position.x += correction.x;
-      this.carBody.position.z += correction.z;
-      this.speed *= 0.85;
-      this.carBody.velocity.x *= 0.65;
-      this.carBody.velocity.z *= 0.65;
+      const pushStrength =
+        (5.2 + this.speed * 0.04 + this.boost * 2.4) * easing;
+      offset
+        .set(lateralDir.x, lateralDir.y, lateralDir.z)
+        .multiplyScalar(pushStrength * pushSign);
+      this.carBody.velocity.x += offset.x * dt * 14;
+      this.carBody.velocity.z += offset.z * dt * 14;
+      this.carBody.position.x += offset.x * dt * 2.2;
+      this.carBody.position.z += offset.z * dt * 2.2;
+      this.speed = Math.max(0, this.speed - easing * 3.4 * dt);
     }
 
     const runDistance = sample.distance;
@@ -1331,7 +1674,7 @@ export class SynthwaveRacerGame {
     const alignmentAngle = Math.acos(THREE.MathUtils.clamp(alignment, -1, 1));
 
     const onLine =
-      Math.abs(lateralOffset) < this.trackHalfWidth * 0.55 &&
+      Math.abs(rawLateralOffset) < this.trackHalfWidth * 0.55 &&
       alignmentAngle < THREE.MathUtils.degToRad(12);
 
     if (onLine) {
@@ -1345,14 +1688,17 @@ export class SynthwaveRacerGame {
       }
     } else {
       this.offTrackTimer += dt;
-      const decay = Math.abs(lateralOffset) > this.trackHalfWidth
+      const decay = Math.abs(rawLateralOffset) > this.trackHalfWidth
         ? BOOST_DRAIN_RATE
         : BOOST_DECAY_RATE;
       this.boost = Math.max(0, this.boost - decay * dt);
-      if (Math.abs(lateralOffset) > this.trackHalfWidth * 0.85) {
+      if (Math.abs(rawLateralOffset) > this.trackHalfWidth * 0.85) {
         this.offTrackTime += dt;
       }
-      if (Math.abs(lateralOffset) > this.trackHalfWidth * 1.2 && this.offTrackTimer > 3) {
+      if (
+        Math.abs(rawLateralOffset) > this.trackHalfWidth * 1.35 &&
+        this.offTrackTimer > 3
+      ) {
         this.respawnToSample(this.lastSafeSampleIndex, true);
         this.offTrackTimer = 0;
       }
@@ -1362,7 +1708,7 @@ export class SynthwaveRacerGame {
   private updateBoost(dt: number): void {
     if (this.boost > 0.05) {
       this.speed = Math.min(
-        this.speed + (this.baseAcceleration * 0.25 + this.boost * 6) * dt,
+        this.speed + (this.baseAcceleration * 0.18 + this.boost * 5.4) * dt,
         this.maxSpeed * (1 + this.boost * this.boostMultiplier),
       );
     }
@@ -1446,6 +1792,13 @@ export class SynthwaveRacerGame {
       this.carBody.position.z,
     );
     this.carMesh.rotation.y = this.carYaw;
+    this.carMesh.position.y =
+      this.carBody.position.y + this.weightShiftVisual * -0.08;
+    this.carMesh.rotation.x = THREE.MathUtils.lerp(
+      this.carMesh.rotation.x,
+      this.weightShiftVisual * -0.22,
+      0.18,
+    );
     this.carMesh.rotation.z = THREE.MathUtils.lerp(
       this.carMesh.rotation.z,
       (this.inputState.left || this.virtualInputState.left
@@ -1457,7 +1810,9 @@ export class SynthwaveRacerGame {
 
     const target = this.chaseTarget.set(
       this.carBody.position.x - Math.sin(this.carYaw) * 8,
-      4.2 + THREE.MathUtils.clamp(this.speed / 60, 0, 1.5),
+      4.2 +
+        THREE.MathUtils.clamp(this.speed / 60, 0, 1.5) -
+        this.weightShiftVisual * 0.6,
       this.carBody.position.z - Math.cos(this.carYaw) * 8,
     );
     this.chaseCurrent.lerp(target, this.isMobile ? 0.08 : 0.12);
@@ -1547,6 +1902,7 @@ export class SynthwaveRacerGame {
     }
     this.lastCenterlineSample = safeIndex;
     this.offTrackTimer = 0;
+    this.weightShiftVisual = 0;
   }
 
   private resetCarState(): void {
@@ -1556,6 +1912,7 @@ export class SynthwaveRacerGame {
     this.lastSafeSampleIndex = 0;
     this.respawnToSample(0, false);
     this.throttleInput = 0;
+    this.weightShiftVisual = 0;
   }
 
   private ensureAudio(): void {
@@ -1582,37 +1939,49 @@ export class SynthwaveRacerGame {
       this.musicGain.gain.value = this.musicEnabled ? this.musicVolume : 0;
       this.musicGain.connect(context.destination);
 
-      this.engineOscillator = context.createOscillator();
-      this.engineOscillator.type = 'sawtooth';
-      this.engineOscillator.frequency.value = 80;
+      this.engineBaseGain = context.createGain();
+      this.engineBaseGain.gain.value = 0;
+      this.engineBaseGain.connect(this.masterGain);
+      this.engineBaseOsc = context.createOscillator();
+      this.engineBaseOsc.type = 'sawtooth';
+      this.engineBaseOsc.frequency.value = 80;
+      this.engineBaseOsc.connect(this.engineBaseGain);
+      this.engineBaseOsc.start();
 
-      this.engineHarmonic = context.createOscillator();
-      this.engineHarmonic.type = 'triangle';
-      this.engineHarmonic.frequency.value = 160;
+      this.engineThrottleGain = context.createGain();
+      this.engineThrottleGain.gain.value = 0;
+      this.engineThrottleGain.connect(this.masterGain);
+      this.engineThrottleOsc = context.createOscillator();
+      this.engineThrottleOsc.type = 'triangle';
+      this.engineThrottleOsc.frequency.value = 160;
+      this.engineThrottleOsc.connect(this.engineThrottleGain);
+      this.engineThrottleOsc.start();
 
-      this.engineFilter = context.createBiquadFilter();
-      this.engineFilter.type = 'bandpass';
-      this.engineFilter.Q.value = 1.4;
+      this.engineHighGain = context.createGain();
+      this.engineHighGain.gain.value = 0;
+      this.engineHighGain.connect(this.masterGain);
+      this.engineHighOsc = context.createOscillator();
+      this.engineHighOsc.type = 'square';
+      this.engineHighOsc.frequency.value = 280;
+      this.engineHighOsc.connect(this.engineHighGain);
+      this.engineHighOsc.start();
 
-      this.engineGain = context.createGain();
-      this.engineGain.gain.value = 0.05;
-      this.engineGain.connect(this.masterGain);
+      this.engineRumbleGain = context.createGain();
+      this.engineRumbleGain.gain.value = 0;
+      this.engineRumbleGain.connect(this.masterGain);
+      this.engineRumble = context.createBufferSource();
+      this.engineRumble.buffer = this.createEngineNoiseBuffer(context);
+      this.engineRumble.loop = true;
+      this.engineRumble.connect(this.engineRumbleGain);
+      this.engineRumble.start();
 
-      this.engineOscillator.connect(this.engineFilter);
-      this.engineHarmonic.connect(this.engineFilter);
-      this.engineFilter.connect(this.engineGain);
-      this.engineOscillator.start();
-      this.engineHarmonic.start();
-
-      this.engineNoiseGain = context.createGain();
-      this.engineNoiseGain.gain.value = 0;
-      this.engineNoiseGain.connect(this.masterGain);
-      const engineNoiseBuffer = this.createEngineNoiseBuffer(context);
-      this.engineNoise = context.createBufferSource();
-      this.engineNoise.buffer = engineNoiseBuffer;
-      this.engineNoise.loop = true;
-      this.engineNoise.connect(this.engineNoiseGain);
-      this.engineNoise.start();
+      this.gearShiftGain = context.createGain();
+      this.gearShiftGain.gain.value = 0;
+      this.gearShiftGain.connect(this.masterGain);
+      this.gearShiftBuffer = this.createGearShiftBuffer(context);
+      this.gearShiftSource = null;
+      this.lastGearBand = 0;
+      this.lastAudioSpeed = 0;
 
       this.boostOscillator = context.createOscillator();
       this.boostGain = context.createGain();
@@ -1648,6 +2017,22 @@ export class SynthwaveRacerGame {
     this.skidNoiseBuffer = buffer;
   }
 
+  private createGearShiftBuffer(context: AudioContext): AudioBuffer {
+    const duration = 0.28;
+    const length = Math.floor(context.sampleRate * duration);
+    const buffer = context.createBuffer(1, length, context.sampleRate);
+    const data = buffer.getChannelData(0);
+    let phase = 0;
+    for (let i = 0; i < length; i += 1) {
+      const t = i / context.sampleRate;
+      const frequency = 240 + t * 2600;
+      phase += (2 * Math.PI * frequency) / context.sampleRate;
+      const envelope = Math.exp(-t * 10);
+      data[i] = Math.sin(phase) * envelope;
+    }
+    return buffer;
+  }
+
   private createEngineNoiseBuffer(context: AudioContext): AudioBuffer {
     const buffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
     const data = buffer.getChannelData(0);
@@ -1660,53 +2045,133 @@ export class SynthwaveRacerGame {
     return buffer;
   }
 
+  private triggerGearShift(intensity: number, audioTime: number): void {
+    if (
+      !this.audioContext ||
+      !this.gearShiftGain ||
+      !this.gearShiftBuffer ||
+      intensity <= 0
+    ) {
+      return;
+    }
+    const context = this.audioContext;
+    if (this.gearShiftSource) {
+      try {
+        this.gearShiftSource.stop();
+      } catch (error) {
+        console.warn('Failed stopping previous gear shift sample', error);
+      }
+      this.gearShiftSource.disconnect();
+      this.gearShiftSource = null;
+    }
+    const source = context.createBufferSource();
+    source.buffer = this.gearShiftBuffer;
+    source.connect(this.gearShiftGain);
+    const gainTarget = Math.max(0, 0.42 * intensity);
+    const tailTarget = Math.max(0.001, 0.06 * intensity);
+    this.gearShiftGain.gain.cancelScheduledValues(audioTime);
+    this.gearShiftGain.gain.setValueAtTime(0, audioTime);
+    this.gearShiftGain.gain.linearRampToValueAtTime(
+      gainTarget,
+      audioTime + 0.01,
+    );
+    this.gearShiftGain.gain.exponentialRampToValueAtTime(
+      tailTarget,
+      audioTime + 0.24,
+    );
+    this.gearShiftGain.gain.setValueAtTime(0, audioTime + 0.32);
+    source.start(audioTime);
+    source.stop(audioTime + 0.35);
+    source.onended = () => {
+      if (this.gearShiftSource === source) {
+        this.gearShiftSource = null;
+      }
+    };
+    this.gearShiftSource = source;
+  }
+
   private updateAudioState(): void {
     if (!this.audioReady || !this.audioContext || !this.masterGain) {
       return;
     }
-    const speedRatio = THREE.MathUtils.clamp(this.speed / this.maxSpeed, 0, 1);
+    const maxSpeed = Math.max(this.maxSpeed, Number.EPSILON);
+    const speedRatio = THREE.MathUtils.clamp(this.speed / maxSpeed, 0, 1);
     const throttle = this.throttleInput;
     const sfxScalar = this.sfxEnabled ? this.sfxVolume : 0;
     this.masterGain.gain.value = sfxScalar;
     const audioTime = this.audioContext.currentTime + 0.03;
 
-    if (
-      this.engineOscillator &&
-      this.engineHarmonic &&
-      this.engineGain &&
-      this.engineFilter
-    ) {
-      const tonalEnergy = THREE.MathUtils.clamp(
-        Math.pow(speedRatio, 1.4) + throttle * 0.25,
-        0,
-        1,
-      );
-      const baseHz = 160 + tonalEnergy * 1600;
-      const harmonicHz = baseHz * 2.15;
-      this.engineOscillator.frequency.linearRampToValueAtTime(baseHz, audioTime);
-      this.engineHarmonic.frequency.linearRampToValueAtTime(
-        harmonicHz,
+    if (this.engineBaseOsc && this.engineBaseGain) {
+      const baseHz = 60 + speedRatio * 220 + this.boost * 40;
+      this.engineBaseOsc.frequency.linearRampToValueAtTime(baseHz, audioTime);
+      const baseGain =
+        THREE.MathUtils.clamp(0.08 + speedRatio * 0.18, 0, 0.6) * sfxScalar;
+      this.engineBaseGain.gain.linearRampToValueAtTime(baseGain, audioTime);
+    }
+
+    if (this.engineThrottleOsc && this.engineThrottleGain) {
+      const throttleHz =
+        140 + speedRatio * 320 + throttle * 260 + this.boost * 160;
+      this.engineThrottleOsc.frequency.linearRampToValueAtTime(
+        throttleHz,
         audioTime,
       );
-      this.engineFilter.frequency.linearRampToValueAtTime(
-        380 + Math.pow(speedRatio, 1.6) * 2600 + throttle * 220,
+      const throttleGain =
+        THREE.MathUtils.clamp(
+          throttle * 0.55 + speedRatio * 0.2 + this.boost * 0.22,
+          0,
+          1,
+        ) * sfxScalar;
+      this.engineThrottleGain.gain.linearRampToValueAtTime(
+        throttleGain,
         audioTime,
       );
-      this.engineFilter.Q.value = 1.6 - speedRatio * 0.5;
-      const engineGainTarget = (0.07 + speedRatio * 0.25 + throttle * 0.12) * sfxScalar;
-      this.engineGain.gain.linearRampToValueAtTime(
-        engineGainTarget,
+    }
+
+    if (this.engineHighOsc && this.engineHighGain) {
+      const highBlend = THREE.MathUtils.smoothstep(speedRatio, 0.35, 0.92);
+      const highHz = 320 + speedRatio * 920 + this.boost * 240;
+      this.engineHighOsc.frequency.linearRampToValueAtTime(
+        highHz,
         audioTime,
       );
-      if (this.engineNoiseGain) {
-        const noiseGain =
-          THREE.MathUtils.clamp(speedRatio * 0.32 + throttle * 0.18, 0.04, 0.48) *
-          sfxScalar;
-        this.engineNoiseGain.gain.linearRampToValueAtTime(
-          noiseGain,
-          audioTime,
-        );
+      const highGain =
+        Math.max(0, highBlend * (0.4 + this.boost * 0.25)) * sfxScalar;
+      this.engineHighGain.gain.linearRampToValueAtTime(highGain, audioTime);
+    }
+
+    if (this.engineRumbleGain) {
+      const rumbleGain =
+        THREE.MathUtils.clamp(
+          0.06 + speedRatio * 0.18 + throttle * 0.15,
+          0,
+          0.6,
+        ) * sfxScalar;
+      this.engineRumbleGain.gain.linearRampToValueAtTime(
+        rumbleGain,
+        audioTime,
+      );
+    }
+
+    if (this.gearShiftGain && this.gearShiftBuffer) {
+      const gearBand = Math.floor(speedRatio * 6.5);
+      if (
+        gearBand > this.lastGearBand &&
+        speedRatio > 0.2 &&
+        throttle > 0.25
+      ) {
+        this.triggerGearShift(sfxScalar, audioTime);
+      } else if (
+        gearBand < this.lastGearBand &&
+        this.lastAudioSpeed - speedRatio > 0.08
+      ) {
+        this.triggerGearShift(sfxScalar * 0.7, audioTime);
+      } else if (sfxScalar < 0.01) {
+        this.gearShiftGain.gain.cancelScheduledValues(audioTime);
+        this.gearShiftGain.gain.setValueAtTime(0, audioTime);
       }
+      this.lastGearBand = gearBand;
+      this.lastAudioSpeed = speedRatio;
     }
 
     if (this.boostOscillator && this.boostGain) {
@@ -1721,8 +2186,10 @@ export class SynthwaveRacerGame {
     }
 
     const lateralSlip =
-      Math.abs(this.carBody.velocity.x * Math.cos(this.carYaw) -
-        this.carBody.velocity.z * Math.sin(this.carYaw)) / 12;
+      Math.abs(
+        this.carBody.velocity.x * Math.cos(this.carYaw) -
+          this.carBody.velocity.z * Math.sin(this.carYaw),
+      ) / 12;
 
     if (this.skidGain && this.skidNoiseBuffer) {
       const skidVolume = THREE.MathUtils.clamp(
