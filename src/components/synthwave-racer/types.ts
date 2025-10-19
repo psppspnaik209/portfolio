@@ -23,6 +23,9 @@ export interface TrackDefinition {
   color: string;
   centerline: Array<[number, number]>;
   theme?: TrackTheme;
+  targetLapTime: number;
+  lapLength: number;
+  trackWidth?: number;
 }
 
 export interface HUDData {

@@ -37,7 +37,7 @@ interface InternalInputState {
   restart: boolean;
 }
 
-const TRACK_HALF_WIDTH = 6.5;
+const DEFAULT_TRACK_HALF_WIDTH = 6;
 const CENTERLINE_SAMPLES = 480;
 const BOOST_BUILD_RATE = 0.35;
 const BOOST_DECAY_RATE = 0.45;
@@ -112,6 +112,7 @@ export class SynthwaveRacerGame {
   private readonly tempVecCannonB = new Vec3();
 
   private track: TrackDefinition;
+  private trackHalfWidth = DEFAULT_TRACK_HALF_WIDTH;
   private centerline: any;
   private centerlineSamples: CenterlineSample[] = [];
   private trackLength = 0;
@@ -121,6 +122,11 @@ export class SynthwaveRacerGame {
   private readonly lastSafePosition = new THREE.Vector3();
   private readonly lastSafeTangent = new THREE.Vector3(0, 0, 1);
   private offTrackTimer = 0;
+  private maxSpeed = BASE_MAX_SPEED;
+  private baseAcceleration = BASE_ACCELERATION;
+  private brakeForce = BRAKE_FORCE;
+  private boostMultiplier = BOOST_SPEED_MULTIPLIER;
+  private targetLapTime = 90;
 
   private readonly chaseTarget = new THREE.Vector3();
   private readonly chaseCurrent = new THREE.Vector3();
@@ -251,6 +257,8 @@ export class SynthwaveRacerGame {
     }
     this.track = track;
     this.currentTheme = track.theme;
+    this.trackHalfWidth = track.trackWidth ?? DEFAULT_TRACK_HALF_WIDTH;
+    this.targetLapTime = track.targetLapTime ?? 90;
     const points =
       track.centerline.length > 0
         ? track.centerline.map(
@@ -266,6 +274,11 @@ export class SynthwaveRacerGame {
     const { samples, length } = this.precomputeCenterlineSamples();
     this.centerlineSamples = samples;
     this.trackLength = length;
+    const averageSpeed = length / Math.max(this.targetLapTime, 1);
+    this.maxSpeed = Math.max(averageSpeed * 1.25, BASE_MAX_SPEED * 0.8);
+    this.baseAcceleration = Math.max(averageSpeed * 0.55, BASE_ACCELERATION * 0.6);
+    this.brakeForce = Math.max(averageSpeed * 1.8, BRAKE_FORCE * 0.6);
+    this.boostMultiplier = Math.min(0.85, Math.max(0.45, averageSpeed / 90));
     this.lastCenterlineSample = 0;
     this.lastSafeSampleIndex = 0;
     if (samples.length > 0) {
@@ -667,7 +680,7 @@ export class SynthwaveRacerGame {
 
   private addTrackMesh(): void {
     const trackShape = new THREE.Shape();
-    const halfWidth = TRACK_HALF_WIDTH;
+    const halfWidth = this.trackHalfWidth;
     const bermHeight = 0.35;
     trackShape.moveTo(-halfWidth, 0);
     trackShape.lineTo(halfWidth, 0);
@@ -739,9 +752,9 @@ export class SynthwaveRacerGame {
       return;
     }
     const accent = new THREE.Color(this.track?.color ?? '#ff33cc');
-    const leftPoints: THREE.Vector3[] = [];
-    const rightPoints: THREE.Vector3[] = [];
-    const width = TRACK_HALF_WIDTH + 0.7;
+    const leftPoints: Array<{ x: number; y: number; z: number }> = [];
+    const rightPoints: Array<{ x: number; y: number; z: number }> = [];
+    const width = this.trackHalfWidth + 0.7;
     for (let i = 0; i < this.centerlineSamples.length; i += 1) {
       const sample = this.centerlineSamples[i];
       const tangent = new THREE.Vector3(sample.tangent.x, 0, sample.tangent.z).normalize();
@@ -1196,16 +1209,15 @@ export class SynthwaveRacerGame {
       ? Math.min(1, this.throttleInput + dt * 3)
       : Math.max(0, this.throttleInput - dt * 2.2);
 
-    const maxSpeed =
-      BASE_MAX_SPEED * (1 + this.boost * BOOST_SPEED_MULTIPLIER);
-    const baseAccel = BASE_ACCELERATION * (1 + this.boost * 0.4);
+    const maxSpeed = this.maxSpeed * (1 + this.boost * this.boostMultiplier * 0.5);
+    const baseAccel = this.baseAcceleration * (1 + this.boost * 0.35);
     if (throttle) {
       this.speed = Math.min(
         maxSpeed,
         this.speed + baseAccel * dt,
       );
     } else {
-      const coastingDrag = DRAG_COEFFICIENT * (1 + (this.speed / BASE_MAX_SPEED) * 0.4);
+      const coastingDrag = DRAG_COEFFICIENT * (1 + (this.speed / this.maxSpeed) * 0.4);
       this.speed = Math.max(
         0,
         this.speed - (coastingDrag * this.speed + 1.2) * dt,
@@ -1215,11 +1227,11 @@ export class SynthwaveRacerGame {
     if (brake) {
       this.speed = Math.max(
         0,
-        this.speed - (BRAKE_FORCE * 0.5 + this.speed * 1.2) * dt,
+        this.speed - (this.brakeForce * 0.5 + this.speed * 1.2) * dt,
       );
     }
 
-    const speedRatio = THREE.MathUtils.clamp(this.speed / BASE_MAX_SPEED, 0, 1);
+    const speedRatio = THREE.MathUtils.clamp(this.speed / this.maxSpeed, 0, 1);
     const turnRate =
       TURN_RATE * (0.6 + speedRatio * 0.8) * (1 + this.boost * 0.25);
     this.carYaw += steering * turnRate * dt;
@@ -1284,15 +1296,15 @@ export class SynthwaveRacerGame {
       .normalize();
     const lateralOffset = THREE.MathUtils.clamp(
       offset.dot(lateralDir),
-      -TRACK_HALF_WIDTH * 2,
-      TRACK_HALF_WIDTH * 2,
+      -this.trackHalfWidth * 2,
+      this.trackHalfWidth * 2,
     );
 
-    if (Math.abs(lateralOffset) > TRACK_HALF_WIDTH * 1.05) {
+    if (Math.abs(lateralOffset) > this.trackHalfWidth * 1.05) {
       const clampedOffset = THREE.MathUtils.clamp(
         lateralOffset,
-        -TRACK_HALF_WIDTH * 0.92,
-        TRACK_HALF_WIDTH * 0.92,
+        -this.trackHalfWidth * 0.92,
+        this.trackHalfWidth * 0.92,
       );
       const correctionAmount = clampedOffset - lateralOffset;
       const correction = new THREE.Vector3().copy(lateralDir).multiplyScalar(correctionAmount);
@@ -1319,7 +1331,7 @@ export class SynthwaveRacerGame {
     const alignmentAngle = Math.acos(THREE.MathUtils.clamp(alignment, -1, 1));
 
     const onLine =
-      Math.abs(lateralOffset) < TRACK_HALF_WIDTH * 0.55 &&
+      Math.abs(lateralOffset) < this.trackHalfWidth * 0.55 &&
       alignmentAngle < THREE.MathUtils.degToRad(12);
 
     if (onLine) {
@@ -1333,14 +1345,14 @@ export class SynthwaveRacerGame {
       }
     } else {
       this.offTrackTimer += dt;
-      const decay = Math.abs(lateralOffset) > TRACK_HALF_WIDTH
+      const decay = Math.abs(lateralOffset) > this.trackHalfWidth
         ? BOOST_DRAIN_RATE
         : BOOST_DECAY_RATE;
       this.boost = Math.max(0, this.boost - decay * dt);
-      if (Math.abs(lateralOffset) > TRACK_HALF_WIDTH * 0.85) {
+      if (Math.abs(lateralOffset) > this.trackHalfWidth * 0.85) {
         this.offTrackTime += dt;
       }
-      if (Math.abs(lateralOffset) > TRACK_HALF_WIDTH * 1.2 && this.offTrackTimer > 3) {
+      if (Math.abs(lateralOffset) > this.trackHalfWidth * 1.2 && this.offTrackTimer > 3) {
         this.respawnToSample(this.lastSafeSampleIndex, true);
         this.offTrackTimer = 0;
       }
@@ -1350,8 +1362,8 @@ export class SynthwaveRacerGame {
   private updateBoost(dt: number): void {
     if (this.boost > 0.05) {
       this.speed = Math.min(
-        this.speed + (BASE_ACCELERATION * 0.25 + this.boost * 8) * dt,
-        BASE_MAX_SPEED * (1 + this.boost * BOOST_SPEED_MULTIPLIER),
+        this.speed + (this.baseAcceleration * 0.25 + this.boost * 6) * dt,
+        this.maxSpeed * (1 + this.boost * this.boostMultiplier),
       );
     }
   }
@@ -1384,7 +1396,6 @@ export class SynthwaveRacerGame {
   }
 
   private onRunComplete(duration: number, dnf: boolean): void {
-    this.runActive = false;
     if (!dnf) {
       if (!this.bestTime || duration < this.bestTime) {
         this.bestTime = duration;
@@ -1404,12 +1415,28 @@ export class SynthwaveRacerGame {
       },
       this.bestTime,
     );
-    this.restartRun(false);
-    setTimeout(() => {
-      if (!this.disposed) {
-        this.startRun();
-      }
-    }, 400);
+
+    if (dnf) {
+      this.runActive = false;
+      return;
+    }
+
+    this.runId += 1;
+    this.runStartTime = performance.now() / 1000;
+    this.boost = 0;
+    this.boostUptime = 0;
+    this.offTrackTime = 0;
+    this.offTrackTimer = 0;
+    this.retries = 0;
+    this.dnfTriggered = false;
+    this.lastLapProgress = this.lapProgress;
+    if (this.centerlineSamples[this.lastCenterlineSample]) {
+      const sample = this.centerlineSamples[this.lastCenterlineSample];
+      this.lastSafeSampleIndex = this.lastCenterlineSample;
+      this.lastSafePosition.set(sample.point.x, 0.4, sample.point.z);
+      this.lastSafeTangent.set(sample.tangent.x, sample.tangent.y, sample.tangent.z);
+    }
+    this.runActive = true;
   }
 
   private updateVisuals(): void {
@@ -1503,6 +1530,7 @@ export class SynthwaveRacerGame {
     this.carBody.angularVelocity.setZero();
     this.speed = 0;
     this.boost = 0;
+    this.throttleInput = 0;
     const yaw = Math.atan2(sample.tangent.x, sample.tangent.z);
     this.carYaw = yaw;
     this.carBody.quaternion.setFromEuler(0, yaw, 0, 'XYZ');
@@ -1527,6 +1555,7 @@ export class SynthwaveRacerGame {
     this.offTrackTimer = 0;
     this.lastSafeSampleIndex = 0;
     this.respawnToSample(0, false);
+    this.throttleInput = 0;
   }
 
   private ensureAudio(): void {
@@ -1635,7 +1664,7 @@ export class SynthwaveRacerGame {
     if (!this.audioReady || !this.audioContext || !this.masterGain) {
       return;
     }
-    const speedRatio = THREE.MathUtils.clamp(this.speed / BASE_MAX_SPEED, 0, 1);
+    const speedRatio = THREE.MathUtils.clamp(this.speed / this.maxSpeed, 0, 1);
     const throttle = this.throttleInput;
     const sfxScalar = this.sfxEnabled ? this.sfxVolume : 0;
     this.masterGain.gain.value = sfxScalar;

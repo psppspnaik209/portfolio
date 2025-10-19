@@ -35,6 +35,12 @@ type RemapTarget = {
   slot: number;
 };
 
+type CompletionSnapshot = {
+  trackId: string;
+  time: number;
+  bestTime: number | null;
+};
+
 const actionLabels: Record<KeyAction, string> = {
   throttle: 'Throttle',
   brake: 'Brake',
@@ -82,12 +88,18 @@ const formatKey = (code: string | undefined): string => {
   }
 };
 
+const musicCredit = 'Music by Karl Casey @ White Bat Audio';
+
 const SynthwaveRacer = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const gameRef = useRef<SynthwaveRacerGame | null>(null);
   const activeTrackRef = useRef<string>(DEFAULT_TRACK.id);
   const audioSettingsRef = useRef<AudioSettings>(defaultAudioSettings);
+  const bestTimesRef = useRef<Record<string, number | null>>({});
+
+  const [engineReady, setEngineReady] = useState(false);
+  const [booting, setBooting] = useState(false);
 
   const [hud, setHud] = useState<HUDData>({
     boost: 0,
@@ -99,11 +111,17 @@ const SynthwaveRacer = () => {
     offTrackRatio: 0,
     runActive: false,
   });
-  const [keyBindings, setKeyBindings] =
-    useState<KeyBindings>(defaultKeyBindings);
+  const [bestTimes, setBestTimes] = useState<Record<string, number | null>>(() => {
+    const initial: Record<string, number | null> = {};
+    TRACKS.forEach((track) => {
+      initial[track.id] = null;
+    });
+    bestTimesRef.current = initial;
+    return initial;
+  });
+  const [keyBindings, setKeyBindings] = useState<KeyBindings>(defaultKeyBindings);
   const [settings, setSettings] = useState<GameSettings>(defaultSettings);
-  const [audioSettings, setAudioSettings] =
-    useState<AudioSettings>(defaultAudioSettings);
+  const [audioSettings, setAudioSettings] = useState<AudioSettings>(defaultAudioSettings);
   const [remapTarget, setRemapTarget] = useState<RemapTarget | null>(null);
   const [leftHandedMobile, setLeftHandedMobile] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -113,17 +131,37 @@ const SynthwaveRacer = () => {
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [selectedTrackId, setSelectedTrackId] = useState(DEFAULT_TRACK.id);
   const [activeTrackId, setActiveTrackId] = useState(DEFAULT_TRACK.id);
-  const [bestTimes, setBestTimes] = useState<Record<string, number | null>>(
-    () => {
-      const initial: Record<string, number | null> = {};
-      TRACKS.forEach((track) => {
-        initial[track.id] = null;
-      });
-      return initial;
-    },
-  );
+  const [lastCompletion, setLastCompletion] = useState<CompletionSnapshot | null>(null);
 
-  const bestTime = bestTimes[activeTrackId] ?? null;
+  useEffect(() => {
+    bestTimesRef.current = bestTimes;
+  }, [bestTimes]);
+
+  useEffect(() => {
+    audioSettingsRef.current = audioSettings;
+  }, [audioSettings]);
+
+  useEffect(() => {
+    setIsMobile(/Mobi|Android|iPad|iPhone/i.test(window.navigator.userAgent));
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener(
+      'webkitfullscreenchange',
+      handleFullscreenChange as EventListener,
+    );
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener(
+        'webkitfullscreenchange',
+        handleFullscreenChange as EventListener,
+      );
+    };
+  }, []);
 
   const musicTracks = useMemo(() => {
     const modules = import.meta.glob('../../assets/music/*.mp3', {
@@ -132,6 +170,87 @@ const SynthwaveRacer = () => {
     }) as Record<string, string>;
     return Object.values(modules);
   }, []);
+
+  useEffect(() => {
+    if (!engineReady) {
+      return undefined;
+    }
+    if (!containerRef.current) {
+      return undefined;
+    }
+
+    const game = new SynthwaveRacerGame(
+      containerRef.current,
+      {
+        keyBindings: defaultKeyBindings,
+        settings: defaultSettings,
+        isMobile,
+        track: DEFAULT_TRACK,
+      },
+      {
+        onHUDUpdate: (data) => {
+          setHud(data);
+        },
+        onRunComplete: (sample, newBest) => {
+          const trackId = activeTrackRef.current;
+          const prevBest = bestTimesRef.current[trackId];
+          let updatedBest = prevBest ?? null;
+          if (!sample.dnf) {
+            if (updatedBest === null || sample.duration < updatedBest) {
+              updatedBest = sample.duration;
+            }
+          }
+          setBestTimes((prev) => {
+            const next = { ...prev, [trackId]: updatedBest };
+            bestTimesRef.current = next;
+            return next;
+          });
+          if (!sample.dnf) {
+            const bestTime = newBest ?? updatedBest ?? prevBest ?? null;
+            setLastCompletion({
+              trackId,
+              time: sample.duration,
+              bestTime,
+            });
+          } else {
+            setLastCompletion(null);
+          }
+        },
+      },
+    );
+
+    gameRef.current = game;
+    if (musicTracks.length) {
+      game.setMusicLibrary(musicTracks);
+    }
+    game.setAudioSettings(audioSettingsRef.current);
+    const bootTrack = TRACKS.find((track) => track.id === activeTrackRef.current) ?? DEFAULT_TRACK;
+    game.loadTrack(bootTrack, true);
+
+    return () => {
+      game.dispose();
+      gameRef.current = null;
+    };
+  }, [engineReady, isMobile, musicTracks]);
+
+  useEffect(() => {
+    activeTrackRef.current = activeTrackId;
+  }, [activeTrackId]);
+
+  const handleBoot = useCallback(() => {
+    if (booting || engineReady) {
+      return;
+    }
+    setBooting(true);
+    setMenuVisible(true);
+    setSettingsVisible(false);
+    setHasInteracted(false);
+    setLastCompletion(null);
+    requestAnimationFrame(() => {
+      setEngineReady(true);
+      setBooting(false);
+    });
+  }, [booting, engineReady]);
 
   const enterFullscreen = useCallback(async () => {
     const el = wrapperRef.current;
@@ -171,98 +290,78 @@ const SynthwaveRacer = () => {
   }, []);
 
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    document.addEventListener(
-      'webkitfullscreenchange',
-      handleFullscreenChange as EventListener,
-    );
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener(
-        'webkitfullscreenchange',
-        handleFullscreenChange as EventListener,
-      );
-    };
-  }, []);
-
-  useEffect(() => {
-    audioSettingsRef.current = audioSettings;
-  }, [audioSettings]);
-
-  useEffect(() => {
-    activeTrackRef.current = activeTrackId;
-  }, [activeTrackId]);
-
-  useEffect(() => {
-    const mobile = /Mobi|Android|iPad|iPhone/i.test(
-      window.navigator.userAgent,
-    );
-    setIsMobile(mobile);
-    if (!containerRef.current) {
-      return;
-    }
-    const game = new SynthwaveRacerGame(
-      containerRef.current,
-      {
-        keyBindings: defaultKeyBindings,
-        settings: defaultSettings,
-        isMobile: mobile,
-        track: DEFAULT_TRACK,
-      },
-      {
-        onHUDUpdate: (data) => {
-          setHud(data);
-        },
-        onRunComplete: (_sample, newBest) => {
-          const trackId = activeTrackRef.current;
-          if (newBest !== null) {
-            setBestTimes((prev) => ({
-              ...prev,
-              [trackId]: newBest,
-            }));
-          }
-        },
-      },
-    );
-    gameRef.current = game;
-    game.setAudioSettings(defaultAudioSettings);
-    if (musicTracks.length) {
-      game.setMusicLibrary(musicTracks);
-    }
-    return () => {
-      game.dispose();
-      gameRef.current = null;
-    };
-  }, [musicTracks]);
-
-  useEffect(() => {
-    if (gameRef.current) {
-      gameRef.current.setKeyBindings(keyBindings);
-    }
-  }, [keyBindings]);
-
-  useEffect(() => {
-    if (gameRef.current) {
-      gameRef.current.updateSettings(settings);
-    }
-  }, [settings]);
-
-  useEffect(() => {
-    if (gameRef.current) {
-      gameRef.current.setAudioSettings(audioSettings);
-    }
-  }, [audioSettings]);
-
-  useEffect(() => {
     if (!gameRef.current) {
       return;
     }
     const disable = menuVisible || settingsVisible || remapTarget !== null;
     gameRef.current.setHardwareInputEnabled(!disable);
   }, [menuVisible, settingsVisible, remapTarget]);
+
+  const handleMobileControl = useCallback(
+    (action: KeyAction, active: boolean) => {
+      gameRef.current?.setVirtualInput(action, active);
+    },
+    [],
+  );
+
+  const applyTrackToBestTimes = useCallback((trackId: string) => {
+    setBestTimes((prev) => {
+      if (prev[trackId] !== undefined) {
+        return prev;
+      }
+      const next = { ...prev, [trackId]: null };
+      bestTimesRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const loadTrackIntoGame = useCallback(
+    (track: TrackDefinition) => {
+      applyTrackToBestTimes(track.id);
+      setActiveTrackId(track.id);
+      activeTrackRef.current = track.id;
+      setLastCompletion(null);
+      gameRef.current?.loadTrack(track);
+    },
+    [applyTrackToBestTimes],
+  );
+
+  const handleStartRun = useCallback(
+    async (forceReload = false) => {
+      if (!engineReady || !gameRef.current) {
+        return;
+      }
+      const track = TRACKS.find((item) => item.id === selectedTrackId) ?? DEFAULT_TRACK;
+      if (forceReload || activeTrackRef.current !== track.id) {
+        loadTrackIntoGame(track);
+      }
+      setMenuVisible(false);
+      setSettingsVisible(false);
+      setHasInteracted(true);
+      setLastCompletion(null);
+      if (!document.fullscreenElement) {
+        await enterFullscreen();
+      }
+      gameRef.current.startRun();
+    },
+    [engineReady, selectedTrackId, loadTrackIntoGame, enterFullscreen],
+  );
+
+  const handleInstantRestart = useCallback(async () => {
+    if (!engineReady || !gameRef.current) {
+      return;
+    }
+    const track = TRACKS.find((item) => item.id === selectedTrackId) ?? DEFAULT_TRACK;
+    loadTrackIntoGame(track);
+    setMenuVisible(false);
+    setHasInteracted(true);
+    setLastCompletion(null);
+    if (!document.fullscreenElement) {
+      await enterFullscreen();
+    }
+    gameRef.current.restartRun(true);
+    gameRef.current.startRun();
+  }, [engineReady, selectedTrackId, loadTrackIntoGame, enterFullscreen]);
 
   useEffect(() => {
     if (!remapTarget) {
@@ -271,15 +370,13 @@ const SynthwaveRacer = () => {
     const handler = (event: KeyboardEvent) => {
       event.preventDefault();
       const code = event.code;
-      setKeyBindings((prev) => {
-        const primary = defaultKeyBindings[remapTarget.action][0];
-        const fallbackAlt = defaultKeyBindings[remapTarget.action][1];
-        const alternate = code === primary ? fallbackAlt : code;
-        return {
-          ...prev,
-          [remapTarget.action]: [primary, alternate],
-        };
-      });
+      const primary = defaultKeyBindings[remapTarget.action][0];
+      const fallbackAlt = defaultKeyBindings[remapTarget.action][1];
+      const alternate = code === primary ? fallbackAlt : code;
+      setKeyBindings((prev) => ({
+        ...prev,
+        [remapTarget.action]: [primary, alternate],
+      }));
       setRemapTarget(null);
     };
     window.addEventListener('keydown', handler, { once: true });
@@ -287,13 +384,6 @@ const SynthwaveRacer = () => {
       window.removeEventListener('keydown', handler);
     };
   }, [remapTarget]);
-
-  const handleMobileControl = useCallback(
-    (action: KeyAction, active: boolean) => {
-      gameRef.current?.setVirtualInput(action, active);
-    },
-    [],
-  );
 
   const selectedTrack = useMemo<TrackDefinition>(() => {
     return TRACKS.find((track) => track.id === selectedTrackId) ?? DEFAULT_TRACK;
@@ -307,59 +397,6 @@ const SynthwaveRacer = () => {
     () => BOOST_COLORS[Math.round(hud.boost) % BOOST_COLORS.length],
     [hud.boost],
   );
-
-  const applyTrackToBestTimes = useCallback((trackId: string) => {
-    setBestTimes((prev) => {
-      if (prev[trackId] !== undefined) {
-        return prev;
-      }
-      return { ...prev, [trackId]: null };
-    });
-  }, []);
-
-  const loadTrackIntoGame = useCallback(
-    (track: TrackDefinition) => {
-      applyTrackToBestTimes(track.id);
-      setActiveTrackId(track.id);
-      activeTrackRef.current = track.id;
-      gameRef.current?.loadTrack(track);
-    },
-    [applyTrackToBestTimes],
-  );
-
-  const handleStartRun = useCallback(
-    async (forceReload = false) => {
-      const track = TRACKS.find((item) => item.id === selectedTrackId) ?? DEFAULT_TRACK;
-      if (forceReload || activeTrackRef.current !== track.id) {
-        loadTrackIntoGame(track);
-      }
-      setMenuVisible(false);
-      setSettingsVisible(false);
-      setHasInteracted(true);
-      if (!document.fullscreenElement) {
-        await enterFullscreen();
-      }
-      if (gameRef.current) {
-        gameRef.current.setAudioSettings(audioSettingsRef.current);
-        gameRef.current.startRun();
-      }
-    },
-    [enterFullscreen, loadTrackIntoGame, selectedTrackId],
-  );
-
-  const handleInstantRestart = useCallback(async () => {
-    const track = TRACKS.find((item) => item.id === selectedTrackId) ?? DEFAULT_TRACK;
-    loadTrackIntoGame(track);
-    setMenuVisible(false);
-    setHasInteracted(true);
-    if (!document.fullscreenElement) {
-      await enterFullscreen();
-    }
-    if (gameRef.current) {
-      gameRef.current.setAudioSettings(audioSettingsRef.current);
-      gameRef.current.startRun();
-    }
-  }, [enterFullscreen, loadTrackIntoGame, selectedTrackId]);
 
   const renderRemapRow = (action: KeyAction) => {
     const bindings = keyBindings[action] || [];
@@ -385,9 +422,7 @@ const SynthwaveRacer = () => {
             type="button"
             className={cx(
               'btn btn-xs transition-all',
-              remapTarget?.action === action
-                ? 'btn-primary'
-                : 'btn-outline btn-primary',
+              remapTarget?.action === action ? 'btn-primary' : 'btn-outline btn-primary',
             )}
             onClick={() => setRemapTarget({ action, slot: 1 })}
           >
@@ -396,13 +431,6 @@ const SynthwaveRacer = () => {
         </div>
       </div>
     );
-  };
-
-  const musicCredit = 'Music by Karl Casey @ White Bat Audio';
-
-  const handleOpenMenu = async () => {
-    setMenuVisible(true);
-    await exitFullscreen();
   };
 
   const menuTrackCard = (track: TrackDefinition) => {
@@ -417,7 +445,10 @@ const SynthwaveRacer = () => {
           isSelected ? 'border-primary' : 'border-primary/30',
         )}
         style={isSelected ? { boxShadow: `0 0 18px ${track.color}55` } : undefined}
-        onClick={() => setSelectedTrackId(track.id)}
+        onClick={() => {
+          setSelectedTrackId(track.id);
+          setLastCompletion(null);
+        }}
       >
         <div className="flex items-center justify-between">
           <h4
@@ -426,7 +457,7 @@ const SynthwaveRacer = () => {
           >
             {track.name}
           </h4>
-          <span className="badge badge-sm badge-outline uppercase tracking-[0.25em]">
+          <span className="badge badge-sm badge-outline uppercase tracking-[0.25em] text-[10px]">
             {track.difficulty}
           </span>
         </div>
@@ -441,6 +472,32 @@ const SynthwaveRacer = () => {
     );
   };
 
+  if (!engineReady) {
+    return (
+      <section className="card compact bg-base-100/70 border border-primary/30 backdrop-blur-xl rounded-xl text-base-content shadow-2xl">
+        <div className="card-body">
+          <div className="flex flex-col items-center gap-4 text-center py-12">
+            <h2 className="text-2xl font-semibold uppercase tracking-[0.35em] text-primary/80">
+              Synthwave Sprint
+            </h2>
+            <p className="max-w-md text-sm text-base-content/70">
+              Launch a neon-drenched F1 time trial. Press play to load the track hub and jump straight into
+              Monza, Monaco, or Silverstone.
+            </p>
+            <button
+              type="button"
+              className="btn btn-primary btn-wide shadow-neon"
+              onClick={handleBoot}
+              disabled={booting}
+            >
+              {booting ? 'Loading…' : 'Play'}
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="card compact bg-base-100/70 border border-primary/30 backdrop-blur-xl rounded-xl text-base-content shadow-2xl">
       <div className="card-body">
@@ -452,43 +509,32 @@ const SynthwaveRacer = () => {
               isFullscreen && 'h-full min-h-full rounded-none border-none',
             )}
           >
-            <div
-              ref={containerRef}
-              className="absolute inset-0 w-full h-full z-0"
-            />
+            <div ref={containerRef} className="absolute inset-0 w-full h-full z-0" />
             <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4 text-xs sm:text-sm font-semibold text-base-content z-10">
               <div className="flex flex-wrap gap-3 items-start">
                 <div className="bg-base-100/85 border border-primary/35 px-4 py-2 rounded-lg shadow-lg">
                   <p className="uppercase text-[11px] tracking-widest text-primary/70">
                     Current
                   </p>
-                  <p className="text-lg sm:text-xl">
-                    {formatTime(hud.currentTime)}
-                  </p>
+                  <p className="text-lg sm:text-xl">{formatTime(hud.currentTime)}</p>
                 </div>
                 <div className="bg-base-100/85 border border-primary/35 px-4 py-2 rounded-lg shadow-lg">
                   <p className="uppercase text-[11px] tracking-widest text-primary/70">
                     Best
                   </p>
-                  <p className="text-lg sm:text-xl">
-                    {formatTime(bestTime)}
-                  </p>
+                  <p className="text-lg sm:text-xl">{formatTime(bestTimes[activeTrackId] ?? null)}</p>
                 </div>
                 <div className="bg-base-100/85 border border-primary/35 px-4 py-2 rounded-lg shadow-lg">
                   <p className="uppercase text-[11px] tracking-widest text-primary/70">
                     Speed
                   </p>
-                  <p className="text-lg sm:text-xl">
-                    {hud.speedKph.toFixed(0)} km/h
-                  </p>
+                  <p className="text-lg sm:text-xl">{hud.speedKph.toFixed(0)} km/h</p>
                 </div>
                 <div className="bg-base-100/85 border border-primary/35 px-4 py-2 rounded-lg shadow-lg">
                   <p className="uppercase text-[11px] tracking-[0.4em] text-primary/70">
                     Track
                   </p>
-                  <p className="text-lg sm:text-xl">
-                    {activeTrack.name}
-                  </p>
+                  <p className="text-lg sm:text-xl">{activeTrack.name}</p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -515,14 +561,12 @@ const SynthwaveRacer = () => {
                   <div className="h-2 w-full rounded-full bg-primary/10 overflow-hidden">
                     <div
                       className="h-full rounded-full bg-primary transition-all duration-150"
-                      style={{
-                        width: `${Math.min(100, hud.lapProgress * 100)}%`,
-                      }}
+                      style={{ width: `${Math.min(100, hud.lapProgress * 100)}%` }}
                     />
                   </div>
                 </div>
                 <p className="text-[10px] text-base-content/60 text-right uppercase tracking-[0.3em]">
-                  Music by Karl Casey @ White Bat Audio
+                  {musicCredit}
                 </p>
               </div>
             </div>
@@ -565,9 +609,8 @@ const SynthwaveRacer = () => {
                   </button>
                 </div>
                 <p className="text-xs text-base-content/70 max-w-lg">
-                  Stay on the neon line to charge boost, then unleash it for
-                  faster laps. WASD / Arrow keys with Space to brake on desktop,
-                  responsive touch controls on mobile.
+                  Stay on the neon line to charge boost, then unleash it for faster laps. WASD / Arrow keys with
+                  Space to brake on desktop, responsive touch controls on mobile.
                 </p>
               </div>
             )}
@@ -635,9 +678,7 @@ const SynthwaveRacer = () => {
                           type="checkbox"
                           className="toggle toggle-primary"
                           checked={leftHandedMobile}
-                          onChange={(event) =>
-                            setLeftHandedMobile(event.target.checked)
-                          }
+                          onChange={(event) => setLeftHandedMobile(event.target.checked)}
                         />
                       </label>
                     </div>
@@ -721,13 +762,11 @@ const SynthwaveRacer = () => {
                       Controls
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {(Object.keys(actionLabels) as KeyAction[]).map(
-                        renderRemapRow,
-                      )}
+                      {(Object.keys(actionLabels) as KeyAction[]).map(renderRemapRow)}
                     </div>
                     <p className="text-xs text-base-content/60">
-                      Tip: Space bar is mapped to Brake by default. Remapping
-                      replaces duplicates automatically.
+                      Default bindings keep Arrow/WASD/Space primaries. Use the Remap Alt button to customize the
+                      secondary key without touching the primaries.
                     </p>
                     {remapTarget && (
                       <p className="text-xs text-warning/80">
@@ -743,7 +782,11 @@ const SynthwaveRacer = () => {
                 <button
                   type="button"
                   className="btn btn-xs btn-outline border-primary/60 bg-base-100/80 text-base-content"
-                  onClick={handleOpenMenu}
+                  onClick={() => {
+                    setMenuVisible(true);
+                    setLastCompletion(null);
+                    void exitFullscreen();
+                  }}
                 >
                   Menu
                 </button>
@@ -779,6 +822,45 @@ const SynthwaveRacer = () => {
                 </button>
               )}
             </div>
+            {lastCompletion &&
+              lastCompletion.trackId === activeTrackId &&
+              !menuVisible &&
+              !settingsVisible && (
+                <div className="pointer-events-auto absolute top-1/2 right-4 z-20 w-64 -translate-y-1/2 space-y-3 rounded-xl border border-primary/30 bg-base-100/85 px-4 py-4 shadow-xl">
+                  <p className="text-xs uppercase tracking-[0.3em] text-primary/70">
+                    Lap Complete
+                  </p>
+                  <p className="text-2xl font-semibold text-base-content">
+                    {formatTime(lastCompletion.time)}
+                  </p>
+                  <p className="text-[11px] text-base-content/60 uppercase tracking-[0.3em]">
+                    Best: {formatTime(lastCompletion.bestTime)}
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-primary"
+                      onClick={() => {
+                        setLastCompletion(null);
+                        void handleInstantRestart();
+                      }}
+                    >
+                      Replay Track
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline"
+                      onClick={() => {
+                        setLastCompletion(null);
+                        setMenuVisible(true);
+                        void exitFullscreen();
+                      }}
+                    >
+                      Quit to Menu
+                    </button>
+                  </div>
+                </div>
+              )}
             {isMobile && !menuVisible && (
               <div
                 className={cx(
