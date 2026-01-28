@@ -88,15 +88,18 @@ const GithubProjectCard = ({
   const renderProjects = () => {
     return githubProjects.map((item, index) => (
       <motion.div
-        className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl  cursor-pointer card-hover neon-glow liquid-card"
+        className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl  cursor-pointer neon-glow liquid-card"
         key={index}
         onClick={() => setModalProject(item)}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
+        animate={{ scale: 1, zIndex: 1 }}
         transition={{ duration: 0.5, delay: index * 0.1 }}
         whileHover={{
           scale: 1.05,
-          boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
+          zIndex: 10,
+          boxShadow: '0 0 25px rgba(59, 130, 246, 0.5)',
+          transition: { duration: 0.2 }
         }}
       >
         <div className="flex justify-between flex-col p-8 h-full w-full">

@@ -120,8 +120,10 @@ const AsciiBackground = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none"
-      style={{ backgroundColor: '#0f0f23' }}
+      className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
+      style={{
+        backgroundColor: '#0f0f23',
+      }}
     />
   );
 };
