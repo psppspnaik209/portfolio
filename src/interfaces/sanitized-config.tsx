@@ -13,6 +13,7 @@ export interface SanitizedGitHubProjects {
       forks: boolean;
       projects: Array<string>;
     };
+    source?: 'api' | 'pinned';
   };
   manual: {
     projects: Array<string>;

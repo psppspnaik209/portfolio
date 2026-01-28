@@ -51,6 +51,11 @@ interface GitHubProjects {
        */
       projects?: Array<string>;
     };
+
+    /**
+     * 'api' | 'pinned'
+     */
+    source?: string;
   };
 
   /**

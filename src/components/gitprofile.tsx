@@ -69,6 +69,21 @@ const GitProfile = ({ config }: { config: Config }) => {
           return [];
         }
 
+        if (sanitizedConfig.projects.github.automatic.source === 'pinned') {
+          const url = `https://gh-pinned-repos.egoist.dev/?username=${sanitizedConfig.github.username}`;
+          const repoResponse = await axios.get(url);
+          const repoData = repoResponse.data;
+
+          return repoData.map((project: any) => ({
+            name: project.repo,
+            html_url: project.link,
+            description: project.description,
+            stargazers_count: project.stars,
+            forks_count: project.forks,
+            language: project.language,
+          }));
+        }
+
         const excludeRepo =
           sanitizedConfig.projects.github.automatic.exclude.projects
             .map((project) => `+-repo:${project}`)
@@ -81,7 +96,6 @@ const GitProfile = ({ config }: { config: Config }) => {
           headers: { 'Content-Type': 'application/vnd.github.v3+json' },
         });
         const repoData = repoResponse.data;
-
         return repoData.items;
       } else {
         if (sanitizedConfig.projects.github.manual.projects.length === 0) {
@@ -109,6 +123,7 @@ const GitProfile = ({ config }: { config: Config }) => {
       sanitizedConfig.projects.github.automatic.limit,
       sanitizedConfig.projects.github.automatic.exclude.forks,
       sanitizedConfig.projects.github.automatic.exclude.projects,
+      sanitizedConfig.projects.github.automatic.source,
     ],
   );
 
