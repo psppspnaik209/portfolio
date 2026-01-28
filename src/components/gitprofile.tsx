@@ -30,6 +30,7 @@ const GithubProjectCard = lazy(() => import('./github-project-card'));
 const ExternalProjectCard = lazy(() => import('./external-project-card'));
 const BlogCard = lazy(() => import('./blog-card'));
 const PublicationCard = lazy(() => import('./publication-card'));
+const RobotModel = lazy(() => import('./robot-model'));
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -361,6 +362,11 @@ const GitProfile = ({ config }: { config: Config }) => {
                           />
                         </motion.div>
                       )}
+                      
+                      {/* 3D Robot Model */}
+                      <motion.div variants={itemVariants} className="">
+                        <RobotModel />
+                      </motion.div>
                     </div>
                   </Suspense>
                 </motion.div>
