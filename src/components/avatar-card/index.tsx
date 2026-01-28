@@ -28,8 +28,11 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
   return (
     <motion.div
       className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
-      whileHover={{ scale: 1.02, y: -2 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      whileHover={{
+        scale: 1.02,
+        y: -2,
+        transition: { duration: 0.2 },
+      }}
     >
       <div className="grid place-items-center py-8">
         {loading || !profile ? (

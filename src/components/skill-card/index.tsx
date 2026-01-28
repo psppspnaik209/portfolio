@@ -29,8 +29,10 @@ const SkillCard = ({
   return (
     <motion.div
       className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.3 }}
+      whileHover={{
+        scale: 1.02,
+        transition: { duration: 0.2 },
+      }}
     >
       <div className="card-body">
         <motion.div

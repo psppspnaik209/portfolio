@@ -19,7 +19,10 @@ const ListItem = ({
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.5 }}
-    whileHover={{ scale: 1.02 }}
+    whileHover={{
+      scale: 1.02,
+      transition: { duration: 0.2 },
+    }}
   >
     <div
       className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
