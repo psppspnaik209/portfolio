@@ -78,6 +78,16 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             </div>
           </motion.div>
         )}
+        
+        {/* Name display */}
+        <motion.h2
+          className="text-2xl font-bold text-base-content mt-4 mb-2"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0 }}
+        >
+          Kaushik Naik Guguloth
+        </motion.h2>
         <motion.div
           className="text-center mx-auto px-8"
           initial={{ opacity: 0, y: 20 }}

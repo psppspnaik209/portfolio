@@ -29,6 +29,7 @@ const ROBOT_CONFIG = {
 const RobotModel = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showModel, setShowModel] = useState(false);
+  const [splineKey, setSplineKey] = useState(0); // Key to force remount
 
   useEffect(() => {
     // Only load on desktop (pointer: fine)
@@ -121,7 +122,17 @@ const RobotModel = () => {
           fallback={<div className="text-cyan-400">Loading 3D Model...</div>}
         >
           <Spline
+            key={splineKey} // Key forces complete remount when changed
             scene={ROBOT_CONFIG.sceneUrl}
+            onLoad={() => {
+              // FIX: Force Spline to remount after initial load to recalculate dimensions
+              // This simulates what HMR does - complete unmount/remount
+              if (splineKey === 0) {
+                setTimeout(() => {
+                  setSplineKey(1); // This will unmount and remount Spline
+                }, 200);
+              }
+            }}
             style={{
               width: '100%',
               height: '100%',
