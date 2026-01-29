@@ -1,7 +1,9 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo } from 'react';
 
-const AsciiBackground = () => {
+const AsciiBackground = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | null>(null);
+  const isRunningRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -9,37 +11,35 @@ const AsciiBackground = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Guard against multiple animation loops (React StrictMode)
+    if (isRunningRef.current) {
+      return;
+    }
+    isRunningRef.current = true;
+
     const updateSize = () => {
       canvas.width = window.innerWidth;
-      canvas.height = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        window.innerHeight,
-      );
+      canvas.height = window.innerHeight;
     };
     updateSize();
 
-    const observer = new MutationObserver(() => {
-      updateSize();
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
     const chars = '01#%@$&*+-/\\|~<>[]{}()=!"£€¥¢§°';
     const fontSize = 12;
-    const columns = canvas.width / fontSize;
+    const columns = Math.floor(canvas.width / fontSize) + 50;
     const drops: number[] = Array.from(
-      { length: Math.floor(columns) + 50 },
-      () => (Math.random() * canvas.height) / fontSize,
+      { length: columns },
+      () => Math.random() * (canvas.height / fontSize),
     );
 
     let mouseX = 0;
     let mouseY = 0;
 
     const draw = () => {
+      // Semi-transparent black overlay for trail effect
       ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // Draw grid lines
       ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
       ctx.lineWidth = 1;
       for (let i = 0; i < canvas.width; i += 50) {
@@ -55,10 +55,8 @@ const AsciiBackground = () => {
         ctx.stroke();
       }
 
-      ctx.fillStyle = '#00ffff';
+      // Draw falling characters
       ctx.font = `${fontSize}px monospace`;
-      ctx.shadowColor = '#00ffff';
-      ctx.shadowBlur = 10;
 
       drops.forEach((y, i) => {
         const text = chars[Math.floor(Math.random() * chars.length)];
@@ -68,6 +66,7 @@ const AsciiBackground = () => {
 
         const dist = Math.hypot(x - mouseX, realY - mouseY);
         const offset = dist < 150 ? -50 : 0;
+        
         if (dist < 150) {
           ctx.fillStyle = '#ffff00';
           ctx.shadowColor = '#ffff00';
@@ -79,7 +78,6 @@ const AsciiBackground = () => {
         }
 
         ctx.fillText(text, x, realY + offset);
-
         ctx.shadowBlur = 0;
 
         if (realY < 0) {
@@ -89,43 +87,45 @@ const AsciiBackground = () => {
       });
     };
 
-    let rafId: number;
     const animate = () => {
+      if (!isRunningRef.current) return;
       draw();
-      rafId = requestAnimationFrame(animate);
+      animationRef.current = requestAnimationFrame(animate);
     };
     animate();
 
     const handleMouseMove = (e: MouseEvent) => {
       mouseX = e.clientX;
-      mouseY = window.scrollY + e.clientY;
+      mouseY = e.clientY; // Use clientY directly since canvas is fixed
     };
-
-    document.addEventListener('mousemove', handleMouseMove);
 
     const handleResize = () => {
       updateSize();
     };
 
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('resize', handleResize);
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      document.removeEventListener('mousemove', handleMouseMove);
+      isRunningRef.current = false;
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
-      observer.disconnect();
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
-      style={{
-        backgroundColor: '#0f0f23',
-      }}
+      className="fixed inset-0 z-0 pointer-events-none"
+      style={{ backgroundColor: '#0f0f23' }}
     />
   );
-};
+});
+
+AsciiBackground.displayName = 'AsciiBackground';
 
 export default AsciiBackground;
