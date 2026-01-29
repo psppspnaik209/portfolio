@@ -1,25 +1,27 @@
-import { lazy, Suspense, useRef, useEffect, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 
 const Spline = lazy(() => import('@splinetool/react-spline'));
 
 // ============================================
-// EDIT THESE VALUES TO ADJUST
+// CONFIGURATION
 // ============================================
 const ROBOT_CONFIG = {
-  // Container dimensions
-  width: '100%', // Container width (use '100%' or specific like '800px')
-  height: '1050px', // Container height - increase to make robot taller
+  // REFERENCE DIMENSIONS
+  // The Spline scene renders at this fixed size internally.
+  // This prevents Spline from distorting because it always "sees" this resolution.
+  refWidth: 1400,
+  refHeight: 1000,
 
-  // Position adjustments (negative values pull up/left, positive push down/right)
-  marginTop: '-180px', // Pull robot up (negative) or push down (positive)
-  marginBottom: '0px', // Reduce bottom space (negative) or add space (positive)
-  marginLeft: '100px', // Shift left (negative) or right (positive)
-  marginRight: '0px', // Shift left (positive) or right (negative)
-
-  // CSS Transform for additional adjustments (applied to the Spline canvas)
-  scale: 1, // Scale multiplier (1 = 100%, 1.2 = 120%, 0.8 = 80%)
-  translateX: '0px', // Horizontal shift
-  translateY: '0px', // Vertical shift
+  // Position adjustments (relative to the reference size)
+  marginTop: -150,
+  marginLeft: 100,
 
   // Spline scene URL
   sceneUrl: 'https://prod.spline.design/e4pEQtAAYjkiADby/scene.splinecode',
@@ -29,21 +31,38 @@ const ROBOT_CONFIG = {
 const RobotModel = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showModel, setShowModel] = useState(false);
-  const [splineKey, setSplineKey] = useState(0); // Key to force remount
+  const [scale, setScale] = useState(1);
+
+  // Calculate generic scale based on window width
+  const handleResize = useCallback(() => {
+    // Only scale down if screen is smaller than reference
+    // We target a specific behavior for 1366x768 screens
+    const width = window.innerWidth;
+
+    // Breakpoint logic
+    if (width < ROBOT_CONFIG.refWidth) {
+      const newScale = width / ROBOT_CONFIG.refWidth;
+      setScale(newScale);
+    } else {
+      setScale(1);
+    }
+  }, []);
 
   useEffect(() => {
     // Only load on desktop (pointer: fine)
     const isDesktop = window.matchMedia('(pointer: fine)').matches;
     if (!isDesktop) return;
 
-    // Preload Spline runtime to minimize hitch on first scroll
+    // Initial scale calc
+    handleResize();
+
+    // Preload Spline runtime
     import('@splinetool/react-spline');
 
     const handleScroll = () => {
       setShowModel(true);
     };
 
-    // Check if already scrolled
     if (
       window.scrollY > 0 ||
       document.body.scrollTop > 0 ||
@@ -58,9 +77,15 @@ const RobotModel = () => {
       });
     }
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    window.addEventListener('resize', handleResize);
 
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [handleResize]);
+
+  // Forward mouse events for interaction (Spline "Look At" etc.)
   useEffect(() => {
     if (!showModel) return;
 
@@ -68,7 +93,6 @@ const RobotModel = () => {
       if (!containerRef.current) return;
       const canvas = containerRef.current.querySelector('canvas');
       if (!canvas) return;
-
       if (e.target === canvas) return;
 
       const eventInit = {
@@ -83,36 +107,34 @@ const RobotModel = () => {
         buttons: e.buttons,
       };
 
-      const mouseEvent = new MouseEvent('mousemove', eventInit);
-      const pointerEvent = new PointerEvent('pointermove', {
-        ...eventInit,
-        pointerType: 'mouse',
-      });
-
-      canvas.dispatchEvent(mouseEvent);
-      canvas.dispatchEvent(pointerEvent);
+      // We might need to adjust coordinates if we are scaling,
+      // but usually Spline's global listeners handle screen coords well if forwarded correctly.
+      canvas.dispatchEvent(new MouseEvent('mousemove', eventInit));
+      canvas.dispatchEvent(
+        new PointerEvent('pointermove', { ...eventInit, pointerType: 'mouse' }),
+      );
     };
 
     window.addEventListener('mousemove', handleGlobalMouseMove);
     return () => window.removeEventListener('mousemove', handleGlobalMouseMove);
   }, [showModel]);
 
-  // Build transform string from config
-  const transformStyle = `scale(${ROBOT_CONFIG.scale}) translate(${ROBOT_CONFIG.translateX}, ${ROBOT_CONFIG.translateY})`;
+  // Calculate dynamic height for the container based on scale
+  // to avoid large empty spaces when scaled down
+  const containerHeight = ROBOT_CONFIG.refHeight * scale;
 
   return (
     <div
       ref={containerRef}
-      className={`hidden lg:flex w-full justify-center items-center relative -z-10 pointer-events-none transition-opacity duration-0 ${
+      className={`hidden lg:flex w-full justify-center items-center relative -z-10 pointer-events-none transition-opacity duration-500 ${
         showModel ? 'opacity-100' : 'opacity-0'
       }`}
       style={{
-        width: ROBOT_CONFIG.width,
-        height: ROBOT_CONFIG.height,
-        marginTop: ROBOT_CONFIG.marginTop,
-        marginBottom: ROBOT_CONFIG.marginBottom,
-        marginLeft: ROBOT_CONFIG.marginLeft,
-        marginRight: ROBOT_CONFIG.marginRight,
+        // The outer container adjusts its height to fit the scaled content
+        height: `${containerHeight}px`,
+        marginTop: `${ROBOT_CONFIG.marginTop * scale}px`, // Scale margin too
+        width: '100%',
+        overflow: 'visible', // Allow overlap if needed
         display:
           typeof window !== 'undefined' &&
           !window.matchMedia('(pointer: fine)').matches
@@ -124,25 +146,28 @@ const RobotModel = () => {
         <Suspense
           fallback={<div className="text-cyan-400">Loading 3D Model...</div>}
         >
-          <Spline
-            key={splineKey} // Key forces complete remount when changed
-            scene={ROBOT_CONFIG.sceneUrl}
-            onLoad={() => {
-              // FIX: Force Spline to remount after initial load to recalculate dimensions
-              // This simulates what HMR does - complete unmount/remount
-              if (splineKey === 0) {
-                setTimeout(() => {
-                  setSplineKey(1); // This will unmount and remount Spline
-                }, 200);
-              }
-            }}
+          {/* 
+            Wrapper that holds the fixed-size Spline scene.
+            We scale this wrapper using CSS transform.
+          */}
+          <div
             style={{
-              width: '100%',
-              height: '100%',
-              transform: transformStyle,
-              transformOrigin: 'center center',
+              width: `${ROBOT_CONFIG.refWidth}px`,
+              height: `${ROBOT_CONFIG.refHeight}px`,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top center', // Scale from top center
+              marginLeft: `${ROBOT_CONFIG.marginLeft}px`,
+              flexShrink: 0,
             }}
-          />
+          >
+            <Spline
+              scene={ROBOT_CONFIG.sceneUrl}
+              style={{
+                width: '100%',
+                height: '100%',
+              }}
+            />
+          </div>
         </Suspense>
       )}
     </div>
