@@ -104,7 +104,7 @@ const RobotModel = () => {
   return (
     <div
       ref={containerRef}
-      className={`hidden lg:flex w-full justify-center items-center relative z-10 transition-opacity duration-0 ${
+      className={`hidden lg:flex w-full justify-center items-center relative -z-10 pointer-events-none transition-opacity duration-0 ${
         showModel ? 'opacity-100' : 'opacity-0'
       }`}
       style={{

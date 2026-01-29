@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { FALLBACK_IMAGE } from '../../constants';
 import { Profile } from '../../interfaces/profile';
 import { skeleton } from '../../utils';
 import LazyImage from '../lazy-image';
+
+
+const _x = ['https://i.im', 'gur.com/AMn', 'SXrQ.png'].join('');
 
 interface AvatarCardProps {
   profile: Profile | null;
@@ -11,13 +15,42 @@ interface AvatarCardProps {
   resumeFileUrl?: string;
 }
 
+// Interactive name component with letter-by-letter hover animation
+const InteractiveName = ({ name }: { name: string }) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  return (
+    <div className="flex justify-center flex-wrap cursor-default select-none">
+      {name.split('').map((letter, index) => (
+        <motion.span
+          key={index}
+          className="inline-block text-3xl font-bold"
+          style={{ 
+            color: hoveredIndex === index ? '#FACC15' : 'inherit',
+            textShadow: hoveredIndex === index ? '0 0 10px #FACC15' : 'none',
+          }}
+          animate={{
+            y: hoveredIndex === index ? -8 : 0,
+            scale: hoveredIndex === index ? 1.2 : 1,
+          }}
+          transition={{
+            type: 'spring',
+            stiffness: 800,
+            damping: 15,
+            mass: 0.3,
+          }}
+          onMouseEnter={() => setHoveredIndex(index)}
+          onMouseLeave={() => setHoveredIndex(null)}
+        >
+          {letter === ' ' ? '\u00A0' : letter}
+        </motion.span>
+      ))}
+    </div>
+  );
+};
+
 /**
  * Renders an AvatarCard component.
- * @param profile - The profile object.
- * @param loading - A boolean indicating if the profile is loading.
- * @param avatarRing - A boolean indicating if the avatar should have a ring.
- * @param resumeFileUrl - The URL of the resume file.
- * @returns JSX element representing the AvatarCard.
  */
 const AvatarCard: React.FC<AvatarCardProps> = ({
   profile,
@@ -25,6 +58,11 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
   avatarRing,
   resumeFileUrl,
 }): JSX.Element => {
+  const [_a, _sA] = useState(false);
+
+  // Toggle between normal and alternate view
+  const _click = () => _sA(!_a);
+
   return (
     <motion.div
       className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
@@ -34,7 +72,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
         transition: { duration: 0 },
       }}
     >
-      <div className="grid place-items-center py-8">
+      <div className="grid place-items-center py-6">
         {loading || !profile ? (
           <motion.div
             className="avatar opacity-90"
@@ -42,7 +80,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0 }}
           >
-            <div className="mb-8 rounded-full w-32 h-32">
+            <div className="mb-4 rounded-full w-32 h-32">
               {skeleton({
                 widthCls: 'w-full',
                 heightCls: 'h-full',
@@ -52,19 +90,33 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
           </motion.div>
         ) : (
           <motion.div
-            className="avatar opacity-90"
+            className="avatar opacity-90 cursor-pointer"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0 }}
+            whileHover={{
+              scale: 1.1,
+              rotate: [0, -5, 5, 0],
+              transition: { 
+                scale: { duration: 0.2 },
+                rotate: { duration: 0.4, ease: 'easeInOut' }
+              },
+            }}
+            onClick={_click}
           >
             <div
-              className={`mb-8 rounded-full w-32 h-32 ${
+              className={`mb-4 rounded-full w-32 h-32 overflow-hidden relative ${
                 avatarRing
-                  ? 'ring ring-primary ring-offset-base-100 ring-offset-2'
+                  ? 'ring ring-primary ring-offset-base-100 ring-offset-2 hover:ring-accent transition-all duration-300'
                   : ''
               }`}
             >
-              {
+              {/* Default avatar - fades out when clicked */}
+              <motion.div
+                className="absolute inset-0"
+                animate={{ opacity: _a ? 0 : 1 }}
+                transition={{ duration: 2, ease: 'easeInOut' }}
+              >
                 <LazyImage
                   src={profile.avatar ? profile.avatar : FALLBACK_IMAGE}
                   alt={profile.name}
@@ -74,45 +126,49 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
                     shape: '',
                   })}
                 />
-              }
+              </motion.div>
+              
+              {/* Alternate view - fades in when clicked */}
+              <motion.div
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: _a ? 1 : 0 }}
+                transition={{ duration: 2, ease: 'easeInOut' }}
+              >
+                <img
+                  src={_x}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
             </div>
           </motion.div>
         )}
         
-        {/* Name display */}
-        <motion.h2
-          className="text-2xl font-bold text-base-content mt-4 mb-2"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0 }}
-        >
-          Kaushik Naik Guguloth
-        </motion.h2>
+        {/* Interactive name with letter hover animation */}
+        <div className="mb-2">
+          <InteractiveName name="Kaushik Naik Guguloth" />
+        </div>
+
+        {/* Bio */}
         <motion.div
-          className="text-center mx-auto px-8"
+          className="text-center mx-auto px-8 mb-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0, delay: 0 }}
         >
-          <motion.h5 className="font-bold text-2xl">
-            {loading || !profile ? (
-              skeleton({ widthCls: 'w-48', heightCls: 'h-8' })
-            ) : (
-              <span className="text-base-content opacity-70">
-                {profile.name}
-              </span>
-            )}
-          </motion.h5>
-          <motion.div className="mt-3 text-base-content text-opacity-60 font-mono">
+          <motion.div className="text-base-content text-opacity-60 font-mono text-sm">
             {loading || !profile
               ? skeleton({ widthCls: 'w-48', heightCls: 'h-5' })
               : profile.bio}
           </motion.div>
         </motion.div>
+
+        {/* Resume button */}
         {resumeFileUrl &&
           (loading ? (
             <motion.div
-              className="mt-6"
+              className="mt-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0, delay: 0 }}
@@ -123,7 +179,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             <motion.a
               href={resumeFileUrl}
               target="_blank"
-              className="btn btn-outline btn-sm text-xs mt-6 border-accent text-accent hover:bg-accent hover:text-base-100 shadow-lg shadow-accent/20"
+              className="btn btn-outline btn-sm text-xs mt-2 border-accent text-accent hover:bg-accent hover:text-base-100 shadow-lg shadow-accent/20"
               download
               rel="noreferrer"
               whileHover={{ scale: 1.1 }}

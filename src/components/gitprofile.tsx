@@ -313,7 +313,7 @@ const GitProfile = ({ config }: { config: Config }) => {
                   variants={itemVariants}
                 >
                   <Suspense fallback={<div></div>}>
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 gap-6 relative z-10">
                       {sanitizedConfig.projects.github.display && (
                         <motion.div
                           className="card-hover"
