@@ -31,7 +31,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
       whileHover={{
         scale: 1.02,
         y: -2,
-        transition: { duration: 0.2 },
+        transition: { duration: 0 },
       }}
     >
       <div className="grid place-items-center py-8">
@@ -40,7 +40,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             className="avatar opacity-90"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0 }}
           >
             <div className="mb-8 rounded-full w-32 h-32">
               {skeleton({
@@ -55,7 +55,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             className="avatar opacity-90"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0 }}
           >
             <div
               className={`mb-8 rounded-full w-32 h-32 ${
@@ -82,7 +82,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
           className="text-center mx-auto px-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0, delay: 0 }}
         >
           <motion.h5 className="font-bold text-2xl">
             {loading || !profile ? (
@@ -105,7 +105,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
               className="mt-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0, delay: 0 }}
             >
               {skeleton({ widthCls: 'w-40', heightCls: 'h-8' })}
             </motion.div>

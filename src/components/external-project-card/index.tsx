@@ -26,7 +26,7 @@ const ExternalProjectCard = ({
           key={index}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
+          transition={{ duration: 0.2, delay: 0 }}
         >
           <div className="p-8 h-full w-full">
             <div className="flex items-center flex-col">
@@ -36,7 +36,7 @@ const ExternalProjectCard = ({
                     <motion.h2
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0 }}
                     >
                       {skeleton({
                         widthCls: 'w-32',
@@ -88,7 +88,7 @@ const ExternalProjectCard = ({
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         animate={{ scale: 1, zIndex: 1 }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
+        transition={{ duration: 0.2, delay: 0 }}
         whileHover={{
           scale: 1.05,
           zIndex: 10,
@@ -129,7 +129,7 @@ const ExternalProjectCard = ({
                     className="mt-2 text-base-content text-opacity-60 text-sm text-justify truncate"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
+                    transition={{ duration: 0.2, delay: 0 }}
                   >
                     {item.description}
                   </motion.p>
@@ -190,7 +190,7 @@ const ExternalProjectCard = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0 }}
           >
             <motion.p className="py-4" whileHover={{ color: '#8b5cf6' }}>
               {modalProject.description}

@@ -6,6 +6,13 @@
   scrollbar-width: thin;
 }
 
+/* Only hide default cursor on devices with mouse/pointer (not touch-only) */
+@media (hover: hover) and (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+}
+
 ::-webkit-scrollbar-track {
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
@@ -41,7 +48,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  perspective: 1000px;
+  /* perspective: 1000px; -- REMOVED: This breaks position:fixed for ALL elements */
 }
 
 #root {
@@ -75,34 +82,33 @@ svg {
   padding-bottom: 0 !important;
 }
 
-.fade-in {
-  opacity: 1;
-  animation-name: fadeIn;
-  animation-iteration-count: 1;
-  animation-timing-function: ease-in;
-  animation-duration: 1s;
-}
+/* Mobile optimizations removed as per user request */
 
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@-webkit-keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+/* FORCE HIDE CUSTOM CURSOR ON MOBILE */
+@media (max-width: 1024px) {
+  #custom-cursor {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 }
 
 .card-hover {
-  transition: all 0.3s ease-in-out;
+  transition: all 0s ease-in-out;
+}
+
+/* ... existing styles ... */
+
+/* Custom cursor styles removed as we use react-animated-cursor */
+
+.card-3d {
+  transition: all 0s ease;
+  transform-style: preserve-3d;
+}
+
+.skill-badge-hover {
+  transition: all 0s ease-in-out;
 }
 
 .card-hover:hover {
@@ -159,7 +165,10 @@ svg {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: linear-gradient(rgba(0, 255, 255, 0.35) 1px, transparent 1px),
+  background-image: linear-gradient(
+      rgba(0, 255, 255, 0.35) 1px,
+      transparent 1px
+    ),
     linear-gradient(90deg, rgba(0, 255, 255, 0.35) 1px, transparent 1px);
   background-size: 50px 50px;
   animation: grid-move 20s linear infinite;

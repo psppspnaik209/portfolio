@@ -31,13 +31,14 @@ const ExternalProjectCard = lazy(() => import('./external-project-card'));
 const BlogCard = lazy(() => import('./blog-card'));
 const PublicationCard = lazy(() => import('./publication-card'));
 const RobotModel = lazy(() => import('./robot-model'));
+import CustomCursor from './custom-cursor';
 
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0,
     },
   },
 };
@@ -213,6 +214,7 @@ const GitProfile = ({ config }: { config: Config }) => {
   return (
     <HelmetProvider>
       <div className="fade-in min-h-screen relative overflow-visible">
+        <CustomCursor />
         <AsciiBackground />
         {error ? (
           <ErrorPage
@@ -230,7 +232,7 @@ const GitProfile = ({ config }: { config: Config }) => {
               data-text="Portfolio"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 0 }}
             >
               <motion.div
                 className="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-none"

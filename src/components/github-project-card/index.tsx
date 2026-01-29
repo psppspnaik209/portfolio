@@ -34,7 +34,7 @@ const GithubProjectCard = ({
           key={index}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
+          transition={{ duration: 0.2, delay: 0 }}
         >
           <div className="flex justify-between flex-col p-8 h-full w-full">
             <div>
@@ -94,7 +94,7 @@ const GithubProjectCard = ({
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         animate={{ scale: 1, zIndex: 1 }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
+        transition={{ duration: 0.2, delay: 0 }}
         whileHover={{
           scale: 1.05,
           zIndex: 10,
@@ -117,7 +117,7 @@ const GithubProjectCard = ({
               className="mb-5 mt-1 text-base-content text-opacity-60 text-sm truncate"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
+              transition={{ duration: 0.2, delay: 0 }}
               whileHover={{ color: '#8b5cf6' }}
             >
               {item.description}
@@ -216,7 +216,7 @@ const GithubProjectCard = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0 }}
           >
             <motion.p className="py-4" whileHover={{ color: '#8b5cf6' }}>
               {modalProject.description}

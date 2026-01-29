@@ -18,7 +18,7 @@ const ListItem = ({
     className="mb-5 ml-4"
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.5 }}
+    transition={{ duration: 0.2 }}
     whileHover={{
       scale: 1.02,
       transition: { duration: 0.2 },
@@ -61,7 +61,7 @@ const CertificationCard = ({
           className="mb-5 ml-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: index * 0.2 }}
+          transition={{ delay: 0 }}
         >
           <div
             className="absolute w-2 h-2 bg-accent rounded-full border border-accent mt-1.5 shadow-lg shadow-accent/50"
@@ -100,7 +100,7 @@ const CertificationCard = ({
           className="mx-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.2 }}
         >
           <motion.h5 className="card-title">
             {loading ? (

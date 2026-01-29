@@ -77,9 +77,10 @@ const RobotModel = () => {
   return (
     <div
       ref={containerRef}
-      className={`w-full h-[600px] flex justify-center items-center relative z-10 transition-opacity duration-1000 ${
+      className={`hidden lg:flex w-full h-[600px] justify-center items-center relative z-10 transition-opacity duration-0 ${
         showModel ? 'opacity-100' : 'opacity-0'
       }`}
+      style={{ display: typeof window !== 'undefined' && !window.matchMedia('(pointer: fine)').matches ? 'none' : undefined }}
     >
       {showModel && (
         <Suspense

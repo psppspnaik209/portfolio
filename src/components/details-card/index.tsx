@@ -82,7 +82,7 @@ const ListItem: React.FC<{
       onDoubleClick={handleDoubleClick}
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0 }}
       whileHover={{ scale: 1.02, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
     >
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
@@ -177,7 +177,7 @@ const OrganizationItem: React.FC<{
       onDoubleClick={handleDoubleClick}
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0 }}
       whileHover={{ scale: 1.02, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
     >
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
@@ -215,7 +215,7 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
           key={index}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: index * 0.1 }}
+          transition={{ delay: 0 }}
         >
           <ListItem
             skeleton={true}
@@ -235,7 +235,7 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
       className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
       whileHover={{
         scale: 1.02,
-        transition: { duration: 0.2 },
+        transition: { duration: 0 },
       }}
     >
       <div className="card-body">
