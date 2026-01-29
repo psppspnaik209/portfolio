@@ -21,7 +21,7 @@ const Modal: React.FC<ModalProps> = ({ children, isOpen, onClose, title }) => {
 
   const handleClose = () => {
     setIsVisible(false);
-    setTimeout(onClose, 300); // Match transition duration
+    setTimeout(onClose, 0); // Match transition duration
   };
 
   if (!isOpen && !isVisible) {
@@ -31,13 +31,13 @@ const Modal: React.FC<ModalProps> = ({ children, isOpen, onClose, title }) => {
   return (
     <Portal wrapperId="modal-portal-wrapper">
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center transition-opacity duration-300 ease-in-out ${
+        className={`fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center transition-opacity duration-0 ease-in-out ${
           isVisible ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={handleClose}
       >
         <div
-          className={`bg-base-100 p-5 rounded-lg max-w-2xl w-full transform transition-transform duration-300 ease-in-out ${
+          className={`bg-base-100 p-5 rounded-lg max-w-2xl w-full transform transition-transform duration-0 ease-in-out ${
             isVisible ? 'scale-100' : 'scale-95'
           }`}
           onClick={(e) => e.stopPropagation()}

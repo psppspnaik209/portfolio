@@ -16,7 +16,7 @@ const SkillCard = ({
           key={index}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3, delay: index * 0.05 }}
+          transition={{ duration: 0, delay: 0 }}
         >
           {skeleton({ widthCls: 'w-16', heightCls: 'h-4', className: 'm-1' })}
         </motion.div>,
@@ -29,15 +29,17 @@ const SkillCard = ({
   return (
     <motion.div
       className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.3 }}
+      whileHover={{
+        scale: 1.02,
+        transition: { duration: 0 },
+      }}
     >
       <div className="card-body">
         <motion.div
           className="mx-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0 }}
         >
           <motion.h5 className="card-title">
             {loading ? (
@@ -54,11 +56,15 @@ const SkillCard = ({
               : skills.map((skill, index) => (
                   <motion.div
                     key={index}
-                    className="m-1 text-xs inline-flex items-center font-bold leading-sm px-3 py-1 badge badge-accent bg-accent/80 rounded-full skill-badge-hover border border-accent/50 shadow-lg shadow-accent/30 hover:shadow-accent/50 transition-shadow duration-300"
+                    className="m-1 text-xs inline-flex items-center font-bold leading-sm px-3 py-1 badge badge-accent bg-accent/80 rounded-full skill-badge-hover border border-accent/50 shadow-lg shadow-accent/30 hover:shadow-accent/50 transition-shadow duration-0"
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    whileHover={{ scale: 1.1, y: -5 }}
+                    transition={{ duration: 0, delay: 0 }}
+                    whileHover={{
+                      scale: 1.1,
+                      y: -5,
+                      transition: { duration: 0 },
+                    }}
                   >
                     {skill}
                   </motion.div>

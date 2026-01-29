@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 \tampa
+Agents.md
+bundle-analysis.html

@@ -45,7 +45,12 @@ export const getSanitizedConfig = (
               projects:
                 config?.projects?.github?.automatic?.exclude?.projects || [],
             },
+            source:
+              (config?.projects?.github?.automatic?.source as
+                | 'api'
+                | 'pinned') || 'api',
           },
+
           manual: {
             projects: config?.projects?.github?.manual?.projects || [],
           },

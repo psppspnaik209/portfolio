@@ -16,8 +16,11 @@ const ListItem = ({
     onClick={onClick}
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.5 }}
-    whileHover={{ scale: 1.02 }}
+    transition={{ duration: 0.2 }}
+    whileHover={{
+      scale: 1.02,
+      transition: { duration: 0.2 },
+    }}
   >
     <div
       className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
@@ -54,7 +57,7 @@ const ExperienceCard = ({
           key={index}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: index * 0.2 }}
+          transition={{ delay: 0 }}
         >
           <div
             className="absolute w-2 h-2 bg-accent rounded-full border border-accent mt-1.5 shadow-lg shadow-accent/50"
@@ -86,14 +89,14 @@ const ExperienceCard = ({
         className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl neon-glow liquid-card"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.2 }}
       >
         <div className="card-body">
           <motion.div
             className="mx-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.2 }}
           >
             <motion.h5 className="card-title">
               {loading ? (
@@ -131,7 +134,7 @@ const ExperienceCard = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
           >
             <p className="text-sm text-base-content text-opacity-60">
               {modalExperience.company}

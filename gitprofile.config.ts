@@ -26,10 +26,10 @@ const CONFIG = {
       manual: {
         // Properties for manually specifying projects
         projects: [
-          'psppspnaik209/WinTaskBarAutoHideFix',
+          'S-T-A-R-K-Projects/Capstone-Project',
           'psppspnaik209/FFLocker',
-          'psppspnaik209/LibMngSys',
-          'psppspnaik209/arrow_K-game_py',
+          'psppspnaik209/portfolio',
+          'psppspnaik209/WinTaskBarAutoHideFix',
         ], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
       },
     },

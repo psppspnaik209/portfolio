@@ -26,7 +26,7 @@ const ExternalProjectCard = ({
           key={index}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
+          transition={{ duration: 0.2, delay: 0 }}
         >
           <div className="p-8 h-full w-full">
             <div className="flex items-center flex-col">
@@ -36,7 +36,7 @@ const ExternalProjectCard = ({
                     <motion.h2
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0 }}
                     >
                       {skeleton({
                         widthCls: 'w-32',
@@ -82,15 +82,18 @@ const ExternalProjectCard = ({
   const renderExternalProjects = () => {
     return externalProjects.map((item, index) => (
       <motion.div
-        className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl  cursor-pointer card-hover neon-glow liquid-card"
+        className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl  cursor-pointer neon-glow liquid-card"
         key={index}
         onClick={() => setModalProject(item)}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
+        animate={{ scale: 1, zIndex: 1 }}
+        transition={{ duration: 0.2, delay: 0 }}
         whileHover={{
           scale: 1.05,
-          boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
+          zIndex: 10,
+          boxShadow: '0 0 25px rgba(59, 130, 246, 0.5)',
+          transition: { duration: 0.2 },
         }}
       >
         <div className="p-8 h-full w-full">
@@ -126,7 +129,7 @@ const ExternalProjectCard = ({
                     className="mt-2 text-base-content text-opacity-60 text-sm text-justify truncate"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
+                    transition={{ duration: 0.2, delay: 0 }}
                   >
                     {item.description}
                   </motion.p>
@@ -187,7 +190,7 @@ const ExternalProjectCard = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0 }}
           >
             <motion.p className="py-4" whileHover={{ color: '#8b5cf6' }}>
               {modalProject.description}

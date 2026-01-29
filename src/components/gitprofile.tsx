@@ -30,13 +30,15 @@ const GithubProjectCard = lazy(() => import('./github-project-card'));
 const ExternalProjectCard = lazy(() => import('./external-project-card'));
 const BlogCard = lazy(() => import('./blog-card'));
 const PublicationCard = lazy(() => import('./publication-card'));
+const RobotModel = lazy(() => import('./robot-model'));
+import CustomCursor from './custom-cursor';
 
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0,
     },
   },
 };
@@ -69,6 +71,30 @@ const GitProfile = ({ config }: { config: Config }) => {
           return [];
         }
 
+        if (sanitizedConfig.projects.github.automatic.source === 'pinned') {
+          const url = `https://gh-pinned-repos.egoist.dev/?username=${sanitizedConfig.github.username}`;
+          const repoResponse = await axios.get(url);
+          const repoData = repoResponse.data;
+
+          return repoData.map(
+            (project: {
+              repo: string;
+              link: string;
+              description: string;
+              stars: number;
+              forks: number;
+              language: string;
+            }) => ({
+              name: project.repo,
+              html_url: project.link,
+              description: project.description,
+              stargazers_count: project.stars,
+              forks_count: project.forks,
+              language: project.language,
+            }),
+          );
+        }
+
         const excludeRepo =
           sanitizedConfig.projects.github.automatic.exclude.projects
             .map((project) => `+-repo:${project}`)
@@ -81,7 +107,6 @@ const GitProfile = ({ config }: { config: Config }) => {
           headers: { 'Content-Type': 'application/vnd.github.v3+json' },
         });
         const repoData = repoResponse.data;
-
         return repoData.items;
       } else {
         if (sanitizedConfig.projects.github.manual.projects.length === 0) {
@@ -109,6 +134,7 @@ const GitProfile = ({ config }: { config: Config }) => {
       sanitizedConfig.projects.github.automatic.limit,
       sanitizedConfig.projects.github.automatic.exclude.forks,
       sanitizedConfig.projects.github.automatic.exclude.projects,
+      sanitizedConfig.projects.github.automatic.source,
     ],
   );
 
@@ -197,6 +223,7 @@ const GitProfile = ({ config }: { config: Config }) => {
   return (
     <HelmetProvider>
       <div className="fade-in min-h-screen relative overflow-visible">
+        <CustomCursor />
         <AsciiBackground />
         {error ? (
           <ErrorPage
@@ -214,7 +241,7 @@ const GitProfile = ({ config }: { config: Config }) => {
               data-text="Portfolio"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 0 }}
             >
               <motion.div
                 className="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-none"
@@ -295,7 +322,7 @@ const GitProfile = ({ config }: { config: Config }) => {
                   variants={itemVariants}
                 >
                   <Suspense fallback={<div></div>}>
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 gap-6 relative z-10">
                       {sanitizedConfig.projects.github.display && (
                         <motion.div
                           className="card-hover"
@@ -346,6 +373,11 @@ const GitProfile = ({ config }: { config: Config }) => {
                           />
                         </motion.div>
                       )}
+
+                      {/* 3D Robot Model */}
+                      <motion.div variants={itemVariants} className="">
+                        <RobotModel />
+                      </motion.div>
                     </div>
                   </Suspense>
                 </motion.div>
