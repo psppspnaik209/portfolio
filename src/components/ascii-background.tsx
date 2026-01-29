@@ -66,7 +66,7 @@ const AsciiBackground = memo(() => {
 
         const dist = Math.hypot(x - mouseX, realY - mouseY);
         const offset = dist < 150 ? -50 : 0;
-        
+
         if (dist < 150) {
           ctx.fillStyle = '#ffff00';
           ctx.shadowColor = '#ffff00';

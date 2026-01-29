@@ -93,7 +93,7 @@ const ExternalProjectCard = ({
           scale: 1.05,
           zIndex: 10,
           boxShadow: '0 0 25px rgba(59, 130, 246, 0.5)',
-          transition: { duration: 0.2 }
+          transition: { duration: 0.2 },
         }}
       >
         <div className="p-8 h-full w-full">

@@ -18,7 +18,7 @@ const CustomCursor = () => {
   const [trail, setTrail] = useState<TrailPoint[]>([]);
   const [isVisible, setIsVisible] = useState(false);
   const [trailVisible, setTrailVisible] = useState(true);
-  
+
   const idCounter = useRef(0);
   const lastUpdateTime = useRef(0);
   const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -41,30 +41,33 @@ const CustomCursor = () => {
     }, 300);
   }, []);
 
-  const updateTrail = useCallback((x: number, y: number) => {
-    const now = Date.now();
-    if (now - lastUpdateTime.current < TRAIL_UPDATE_INTERVAL) return;
-    lastUpdateTime.current = now;
+  const updateTrail = useCallback(
+    (x: number, y: number) => {
+      const now = Date.now();
+      if (now - lastUpdateTime.current < TRAIL_UPDATE_INTERVAL) return;
+      lastUpdateTime.current = now;
 
-    // Show trail and reset fade timer
-    setTrailVisible(true);
-    
-    // Clear existing fade timeout
-    if (fadeTimeoutRef.current) {
-      clearTimeout(fadeTimeoutRef.current);
-    }
-    
-    // Set new fade timeout
-    fadeTimeoutRef.current = setTimeout(() => {
-      clearTrail();
-    }, TRAIL_FADE_DELAY);
+      // Show trail and reset fade timer
+      setTrailVisible(true);
 
-    setTrail(prev => {
-      const newPoint: TrailPoint = { x, y, id: idCounter.current++ };
-      const newTrail = [newPoint, ...prev].slice(0, TRAIL_LENGTH);
-      return newTrail;
-    });
-  }, [clearTrail]);
+      // Clear existing fade timeout
+      if (fadeTimeoutRef.current) {
+        clearTimeout(fadeTimeoutRef.current);
+      }
+
+      // Set new fade timeout
+      fadeTimeoutRef.current = setTimeout(() => {
+        clearTrail();
+      }, TRAIL_FADE_DELAY);
+
+      setTrail((prev) => {
+        const newPoint: TrailPoint = { x, y, id: idCounter.current++ };
+        const newTrail = [newPoint, ...prev].slice(0, TRAIL_LENGTH);
+        return newTrail;
+      });
+    },
+    [clearTrail],
+  );
 
   useEffect(() => {
     if (!isDesktop) return;
@@ -102,7 +105,14 @@ const CustomCursor = () => {
   if (!mounted || !isDesktop) return null;
 
   return createPortal(
-    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 999999 }}>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        pointerEvents: 'none',
+        zIndex: 999999,
+      }}
+    >
       {/* Trail circles with fade transition */}
       <div
         style={{
@@ -114,7 +124,7 @@ const CustomCursor = () => {
           const age = index / TRAIL_LENGTH;
           const size = 18 * (1 - age * 0.6);
           const opacity = (1 - age) * 0.8;
-          
+
           return (
             <div
               key={point.id}
@@ -149,13 +159,14 @@ const CustomCursor = () => {
           marginTop: -8,
           borderRadius: '50%',
           background: '#f5fff7ff',
-          boxShadow: '0 0 8px 3px #00E5FF, 0 0 16px 6px rgba(0,229,255,0.5), 0 0 24px 10px rgba(0,229,255,0.25)',
+          boxShadow:
+            '0 0 8px 3px #00E5FF, 0 0 16px 6px rgba(0,229,255,0.5), 0 0 24px 10px rgba(0,229,255,0.25)',
           opacity: isVisible ? 1 : 0,
           transition: 'opacity 0.15s ease-out',
         }}
       />
     </div>,
-    document.body
+    document.body,
   );
 };
 

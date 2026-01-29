@@ -76,14 +76,23 @@ const GitProfile = ({ config }: { config: Config }) => {
           const repoResponse = await axios.get(url);
           const repoData = repoResponse.data;
 
-          return repoData.map((project: any) => ({
-            name: project.repo,
-            html_url: project.link,
-            description: project.description,
-            stargazers_count: project.stars,
-            forks_count: project.forks,
-            language: project.language,
-          }));
+          return repoData.map(
+            (project: {
+              repo: string;
+              link: string;
+              description: string;
+              stars: number;
+              forks: number;
+              language: string;
+            }) => ({
+              name: project.repo,
+              html_url: project.link,
+              description: project.description,
+              stargazers_count: project.stars,
+              forks_count: project.forks,
+              language: project.language,
+            }),
+          );
         }
 
         const excludeRepo =
@@ -364,7 +373,7 @@ const GitProfile = ({ config }: { config: Config }) => {
                           />
                         </motion.div>
                       )}
-                      
+
                       {/* 3D Robot Model */}
                       <motion.div variants={itemVariants} className="">
                         <RobotModel />

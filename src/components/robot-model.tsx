@@ -7,20 +7,20 @@ const Spline = lazy(() => import('@splinetool/react-spline'));
 // ============================================
 const ROBOT_CONFIG = {
   // Container dimensions
-  width: '100%',           // Container width (use '100%' or specific like '800px')
-  height: '1050px',        // Container height - increase to make robot taller
-  
+  width: '100%', // Container width (use '100%' or specific like '800px')
+  height: '1050px', // Container height - increase to make robot taller
+
   // Position adjustments (negative values pull up/left, positive push down/right)
-  marginTop: '-180px',      // Pull robot up (negative) or push down (positive)
-  marginBottom: '0px',  // Reduce bottom space (negative) or add space (positive)
-  marginLeft: '100px',       // Shift left (negative) or right (positive)
-  marginRight: '0px',      // Shift left (positive) or right (negative)
-  
+  marginTop: '-180px', // Pull robot up (negative) or push down (positive)
+  marginBottom: '0px', // Reduce bottom space (negative) or add space (positive)
+  marginLeft: '100px', // Shift left (negative) or right (positive)
+  marginRight: '0px', // Shift left (positive) or right (negative)
+
   // CSS Transform for additional adjustments (applied to the Spline canvas)
-  scale: 1,                // Scale multiplier (1 = 100%, 1.2 = 120%, 0.8 = 80%)
-  translateX: '0px',       // Horizontal shift
-  translateY: '0px',       // Vertical shift
-  
+  scale: 1, // Scale multiplier (1 = 100%, 1.2 = 120%, 0.8 = 80%)
+  translateX: '0px', // Horizontal shift
+  translateY: '0px', // Vertical shift
+
   // Spline scene URL
   sceneUrl: 'https://prod.spline.design/e4pEQtAAYjkiADby/scene.splinecode',
 };
@@ -58,8 +58,7 @@ const RobotModel = () => {
       });
     }
 
-    return () =>
-      window.removeEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -114,7 +113,11 @@ const RobotModel = () => {
         marginBottom: ROBOT_CONFIG.marginBottom,
         marginLeft: ROBOT_CONFIG.marginLeft,
         marginRight: ROBOT_CONFIG.marginRight,
-        display: typeof window !== 'undefined' && !window.matchMedia('(pointer: fine)').matches ? 'none' : undefined
+        display:
+          typeof window !== 'undefined' &&
+          !window.matchMedia('(pointer: fine)').matches
+            ? 'none'
+            : undefined,
       }}
     >
       {showModel && (

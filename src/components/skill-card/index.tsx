@@ -60,7 +60,11 @@ const SkillCard = ({
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0, delay: 0 }}
-                    whileHover={{ scale: 1.1, y: -5, transition: { duration: 0 } }}
+                    whileHover={{
+                      scale: 1.1,
+                      y: -5,
+                      transition: { duration: 0 },
+                    }}
                   >
                     {skill}
                   </motion.div>

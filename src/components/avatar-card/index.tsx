@@ -5,7 +5,6 @@ import { Profile } from '../../interfaces/profile';
 import { skeleton } from '../../utils';
 import LazyImage from '../lazy-image';
 
-
 const _x = ['https://i.im', 'gur.com/AMn', 'SXrQ.png'].join('');
 
 interface AvatarCardProps {
@@ -25,7 +24,7 @@ const InteractiveName = ({ name }: { name: string }) => {
         <motion.span
           key={index}
           className="inline-block text-3xl font-bold"
-          style={{ 
+          style={{
             color: hoveredIndex === index ? '#FACC15' : 'inherit',
             textShadow: hoveredIndex === index ? '0 0 10px #FACC15' : 'none',
           }}
@@ -97,9 +96,9 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             whileHover={{
               scale: 1.1,
               rotate: [0, -5, 5, 0],
-              transition: { 
+              transition: {
                 scale: { duration: 0.2 },
-                rotate: { duration: 0.4, ease: 'easeInOut' }
+                rotate: { duration: 0.4, ease: 'easeInOut' },
               },
             }}
             onClick={_click}
@@ -127,7 +126,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
                   })}
                 />
               </motion.div>
-              
+
               {/* Alternate view - fades in when clicked */}
               <motion.div
                 className="absolute inset-0"
@@ -135,16 +134,12 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
                 animate={{ opacity: _a ? 1 : 0 }}
                 transition={{ duration: 2, ease: 'easeInOut' }}
               >
-                <img
-                  src={_x}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+                <img src={_x} alt="" className="w-full h-full object-cover" />
               </motion.div>
             </div>
           </motion.div>
         )}
-        
+
         {/* Interactive name with letter hover animation */}
         <div className="mb-2">
           <InteractiveName name="Kaushik Naik Guguloth" />
