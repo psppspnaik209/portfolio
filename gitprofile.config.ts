@@ -28,8 +28,8 @@ const CONFIG = {
         projects: [
           'S-T-A-R-K-Projects/Capstone-Project',
           'psppspnaik209/FFLocker',
-          'psppspnaik209/portfolio',
-          'psppspnaik209/WinTaskBarAutoHideFix',
+          'psppspnaik209/flutter_gen_ai_demo',
+          'psppspnaik209/MicMuteNetPublic',
         ], // List of repository names to display. example: ['arifszn/my-project1', 'arifszn/my-project2']
       },
     },
@@ -42,7 +42,7 @@ const CONFIG = {
           description:
             'Solo developed a reinforcement learning simulation on the Amazon DeepRacer platform, training an autonomous vehicle to navigate a virtual track using state-of-the-art machine learning algorithms. Designed and implemented reward functions and tuning strategies to optimize performance, showcasing a strong grasp of reinforcement learning principles in an autonomous driving context. Leveraged AWS machine learning tools and services to build a robust training pipeline, demonstrating advanced technical proficiency and innovation in applying ML to real-world scenarios.',
           imageUrl:
-            'https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg',
+            'https://i.ibb.co/KxQqVH3V/screen-shot-2019-11-27-at-1-13-05-pm.webp',
           link: 'https://example.com',
         },
         {
@@ -50,7 +50,7 @@ const CONFIG = {
           description:
             'Solo Developed a city growth simulation in C++ that models residential, commercial, and industrial zones while incorporating pollution spread, disaster simulations, and resource allocation. Designed and implemented efficient data structures for effective zone management and region analysis. Followed modular coding practices and employed Git for version control, and design documents in UML format.',
           imageUrl:
-            'https://img.freepik.com/free-vector/illustration-gallery-icon_53876-27002.jpg',
+            'https://i.ibb.co/MxzQqzdD/windsimulation.jpg',
           link: 'https://example.com',
         },
       ],
