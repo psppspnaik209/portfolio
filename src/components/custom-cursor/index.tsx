@@ -142,10 +142,27 @@ const CustomCursor = memo(() => {
     }
     rafId.current = requestAnimationFrame(frame);
 
+    // ---- Fullscreen detection ----
+    const onFullscreenChange = () => {
+      if (document.fullscreenElement) {
+        // Entering fullscreen
+        document.body.classList.add('is-fullscreen');
+        visible.current = false;
+        cursor.style.opacity = '0';
+        // Note: We do NOT unmount (setShouldRender(false)) because that removes this listener!
+      } else {
+        // Exiting fullscreen
+        document.body.classList.remove('is-fullscreen');
+        visible.current = true;
+        cursor.style.opacity = '1';
+      }
+    };
+
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     document.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('mouseenter', onMouseEnter);
     window.addEventListener('resize', resize);
+    document.addEventListener('fullscreenchange', onFullscreenChange);
 
     return () => {
       cancelAnimationFrame(rafId.current);
@@ -153,6 +170,7 @@ const CustomCursor = memo(() => {
       document.removeEventListener('mouseleave', onMouseLeave);
       document.removeEventListener('mouseenter', onMouseEnter);
       window.removeEventListener('resize', resize);
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
     };
   }, [shouldRender]);
 
