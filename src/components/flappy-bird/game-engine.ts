@@ -576,6 +576,14 @@ export function debugCompleteWord(s: GameState): void {
   completeWord(s);
 }
 
+// ---- Time Adjustment (Fix for Pause Glitch) ----
+
+export function adjustGameTime(s: GameState, delta: number): void {
+  // If we paused for `delta` ms, we should shift `lastPipeTime` forward
+  // so `now - lastPipeTime` doesn't balloon and trigger instant spawn.
+  s.lastPipeTime += delta;
+}
+
 export function debugUnlockAll(s: GameState): void {
   const total = s.collectibles.targetWords.length;
   s.collectibles.keyFragments = total;

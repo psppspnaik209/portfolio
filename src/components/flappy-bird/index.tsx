@@ -31,6 +31,7 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false); // New: for Pause menu
 
+
   const {
     canvasRef,
     containerRef,
@@ -53,7 +54,33 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
     debugUnlockAll,
     goToMenu,
     resetProgress,
+    adjustTime, // New helper
   } = useGame(skills);
+
+  // New State
+  const [pauseStartTime, setPauseStartTime] = useState(0);
+  const [countDown, setCountDown] = useState<number | null>(null);
+
+  // Countdown Effect
+  useEffect(() => {
+     if (countDown === null) return;
+     if (countDown > 0) {
+        const timer = setTimeout(() => setCountDown(countDown - 1), 1000);
+        return () => clearTimeout(timer);
+     } else if (countDown === 0) {
+        // Resume!
+        setIsPaused(false);
+        setCountDown(null);
+        setShowQuitConfirm(false);
+        
+        // Adjust Time to prevent spawn glitch
+        const now = Date.now();
+        const duration = now - pauseStartTime;
+        adjustTime(duration);
+
+        setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
+     }
+  }, [countDown, pauseStartTime, overrides, setOverrides, adjustTime]);
 
   // Global Key Listener for Pause
   useEffect(() => {
@@ -62,28 +89,23 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
         if (phase === 'playing') {
           // Toggle Pause
           if (isPaused) {
-              // Resume
-              setIsPaused(false);
-              setShowQuitConfirm(false);
-              setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
+              // Only resume if not already confirming quit? 
+              // Or just start countdown
+              if (countDown === null) {
+                 setCountDown(3);
+              }
           } else {
               // Pause
               setIsPaused(true);
-              // Force hard pause
+              setPauseStartTime(Date.now());
               setOverrides({ ...overrides, speedMultiplier: 0, gravity: 0 }); 
           }
-        } else if (isPaused) {
-           // If already paused, Escape resumes? Or closes menus?
-           // Let's make Escape resume.
-           setIsPaused(false);
-           setShowQuitConfirm(false);
-           setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
-        }
+        } 
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [phase, isPaused, overrides, setOverrides]);
+  }, [phase, isPaused, overrides, setOverrides, countDown]); // Add dependencies
 
   if (!isDesktop) return null;
 
@@ -114,12 +136,13 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
       />
       
       {/* ---- Pause Button (Visible during play) ---- */}
-      {phase === 'playing' && (
+      {phase === 'playing' && !isPaused && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             setOverrides({ ...overrides, speedMultiplier: 0, gravity: 0 });
             setIsPaused(true);
+            setPauseStartTime(Date.now());
           }}
           style={{
             position: 'absolute',
@@ -137,6 +160,26 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
         >
           II
         </button>
+      )}
+
+      {/* ---- PLAYING: Score Overlay (New Format) ---- */}
+      {phase === 'playing' && (
+         <div style={{
+            position: 'absolute',
+            top: '36px',
+            width: '100%',
+            textAlign: 'center',
+            pointerEvents: 'none',
+            fontFamily: "'Orbitron', monospace",
+            fontWeight: 'bold',
+            fontSize: '28px',
+            color: COLORS.cyan,
+            textShadow: '0 0 10px #ff00ff'
+         }}>
+            {score} <span style={{ fontSize: '14px', opacity: 0.8, color: '#fff' }}>
+              {(1 + wordsCollectedInRun * 0.2).toFixed(1)}x
+            </span>
+         </div>
       )}
 
       {/* ---- IDLE: play button ---- */}
@@ -320,51 +363,59 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
       {/* ---- PAUSE MENU ---- */}
       {isPaused && (
         <div style={{ ...overlayStyle, background: 'rgba(0,0,0,0.85)' }}>
-             <h2 style={{ ...titleStyle, fontSize: '18px' }}>PAUSED</h2>
              
-             {!showQuitConfirm ? (
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
-                 <button 
-                    onClick={() => {
-                       setIsPaused(false);
-                       setShowQuitConfirm(false);
-                       setOverrides({ ...overrides, speedMultiplier: 1, gravity: null }); // Restore defaults
-                    }}
-                    style={playBtnStyle}
-                 >
-                   RESUME
-                 </button>
-                 <button 
-                    onClick={() => setShowQuitConfirm(true)}
-                    style={{ ...retryBtnStyle, background: COLORS.cyan, color: COLORS.bg, opacity: 1 }}
-                 >
-                   MAIN MENU
-                 </button>
-               </div>
-             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-                   <p style={{ color: COLORS.cyan, fontFamily: "'Orbitron', monospace", fontSize: '14px', marginBottom: '8px' }}>
-                     RETURN TO MENU? <br/>
-                     <span style={{ fontSize: '10px', opacity: 0.7 }}>CURRENT RUN PROGRESS WILL BE LOST</span>
-                   </p>
-                   <button 
-                      onClick={() => {
-                          setIsPaused(false);
-                          setShowQuitConfirm(false);
-                          goToMenu();
-                          setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
-                      }}
-                      style={{ ...retryBtnStyle, background: '#ff4444', color: '#fff', border: 'none' }}
-                   >
-                     YES, EXIT
-                   </button>
-                   <button 
-                      onClick={() => setShowQuitConfirm(false)}
-                      style={{ ...retryBtnStyle, background: 'transparent' }}
-                   >
-                     NO, BACK
-                   </button>
+             {countDown !== null ? (
+                // Countdown View
+                <div style={{ fontSize: '64px', color: COLORS.cyan, fontWeight: 900, animation: 'pulse 0.5s infinite'}}>
+                  {countDown === 0 ? 'GO!' : countDown}
                 </div>
+             ) : (
+               <>
+                 <h2 style={{ ...titleStyle, fontSize: '18px' }}>PAUSED</h2>
+                 
+                 {!showQuitConfirm ? (
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+                     <button 
+                        onClick={() => setCountDown(3)} // Start countdown
+                        style={playBtnStyle}
+                     >
+                       RESUME
+                     </button>
+                     <button 
+                        onClick={() => setShowQuitConfirm(true)}
+                        style={{ ...retryBtnStyle, background: COLORS.cyan, color: COLORS.bg, opacity: 1, border: 'none' }}
+                     >
+                       MAIN MENU
+                     </button>
+                   </div>
+                 ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                       <p style={{ color: COLORS.cyan, fontFamily: "'Orbitron', monospace", fontSize: '14px', marginBottom: '8px' }}>
+                         RETURN TO MENU? <br/>
+                         <span style={{ fontSize: '10px', opacity: 0.7 }}>CURRENT RUN PROGRESS WILL BE LOST</span>
+                       </p>
+                       <div style={{ display: 'flex', gap: '12px' }}>
+                         <button 
+                            onClick={() => {
+                                setIsPaused(false);
+                                setShowQuitConfirm(false);
+                                goToMenu();
+                                setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
+                            }}
+                            style={{ ...retryBtnStyle, background: '#ff4444', color: '#fff', border: 'none' }}
+                         >
+                           YES
+                         </button>
+                         <button 
+                            onClick={() => setShowQuitConfirm(false)}
+                            style={{ ...retryBtnStyle, background: 'transparent', opacity: 1 }}
+                         >
+                           NO
+                         </button>
+                       </div>
+                    </div>
+                 )}
+               </>
              )}
         </div>
       )}

@@ -40,6 +40,7 @@ interface UseGameReturn {
   debugUnlockAll: () => void;
   goToMenu: () => void; // Already added?
   resetProgress: () => void;
+  adjustTime: (delta: number) => void;
 }
 
 export function useGame(skills: string[] = []): UseGameReturn {
@@ -245,6 +246,16 @@ export function useGame(skills: string[] = []): UseGameReturn {
       s.collectibles.isRewardUnlocked = false;
       s.collectibles.rewardLink = '';
       syncPhase();
+    },
+    adjustTime: (delta: number) => {
+      // Import this? Or just move impl here?
+      // It's in engine. 
+      // We need to import it at top of file first.
+      // But we can't easily add import with replace_file if we don't touch top.
+      // Wait, `use-game.ts` imports from `./game-engine`.
+      // I need to add `adjustGameTime` to imports.
+      const s = stateRef.current;
+      s.lastPipeTime += delta; 
     }
   };
 }
