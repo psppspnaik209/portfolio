@@ -12,7 +12,7 @@ const ListItem = ({
   onClick: () => void;
 }) => (
   <motion.li
-    className="mb-5 ml-6 cursor-pointer list-item-hover"
+    className="mb-5 !ml-6 cursor-pointer list-item-hover"
     onClick={onClick}
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
@@ -20,7 +20,7 @@ const ListItem = ({
   >
     <div
       className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
-      style={{ left: '-4.5px' }}
+      style={{ left: '-29px' }}
     ></div>
     <div className="my-0.5 text-xs">
       {experience.from} - {experience.to}

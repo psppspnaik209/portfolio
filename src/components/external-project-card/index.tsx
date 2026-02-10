@@ -86,6 +86,7 @@ const ExternalProjectCard = ({
         key={index}
         onClick={() => setModalProject(item)}
         initial={{ opacity: 0, y: 20 }}
+        whileHover={{ scale: 1.05, y: -5 }}
         whileInView={{ opacity: 1, y: 0 }}
         animate={{ scale: 1, zIndex: 1 }}
         transition={{ duration: 0.2, delay: 0 }}

@@ -65,10 +65,11 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
           </motion.div>
         ) : (
           <motion.div
-            className="avatar opacity-90 cursor-pointer hover:scale-110 transition-transform"
+            className="avatar opacity-90 cursor-pointer"
+            whileHover={{ scale: 1.1, y: -5 }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={_click}
           >
             <div

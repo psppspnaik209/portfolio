@@ -15,14 +15,14 @@ const ListItem = ({
   link?: string;
 }) => (
   <motion.li
-    className="mb-5 ml-6 list-item-hover"
+    className="mb-5 !ml-6 list-item-hover"
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.2 }}
   >
     <div
       className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
-      style={{ left: '-4.5px' }}
+      style={{ left: '-29px' }}
     ></div>
     <div className="my-0.5 text-xs">{time}</div>
     <h3 className="font-semibold link-glow">{degree}</h3>
