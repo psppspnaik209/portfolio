@@ -12,19 +12,15 @@ const ListItem = ({
   onClick: () => void;
 }) => (
   <motion.li
-    className="mb-5 ml-4 cursor-pointer"
+    className="mb-5 !ml-6 cursor-pointer list-item-hover"
     onClick={onClick}
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.2 }}
-    whileHover={{
-      scale: 1.02,
-      transition: { duration: 0.2 },
-    }}
   >
     <div
       className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
-      style={{ left: '-4.5px' }}
+      style={{ left: '-29px' }}
     ></div>
     <div className="my-0.5 text-xs">
       {experience.from} - {experience.to}
@@ -86,7 +82,7 @@ const ExperienceCard = ({
   return (
     <>
       <motion.div
-        className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl neon-glow liquid-card"
+        className="card shadow-2xl compact bg-base-100/85 border border-primary/20  rounded-xl neon-glow liquid-card"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}

@@ -15,33 +15,22 @@ const ListItem = ({
   link?: string;
 }) => (
   <motion.li
-    className="mb-5 ml-4"
+    className="mb-5 !ml-6 list-item-hover"
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.2 }}
-    whileHover={{
-      scale: 1.02,
-      transition: { duration: 0.2 },
-    }}
   >
     <div
       className="absolute w-2 h-2 bg-base-300 rounded-full border border-base-300 mt-1.5"
-      style={{ left: '-4.5px' }}
+      style={{ left: '-29px' }}
     ></div>
     <div className="my-0.5 text-xs">{year}</div>
     <motion.div className="font-medium">
-      <motion.a
-        href={link}
-        target="_blank"
-        rel="noreferrer"
-        whileHover={{ color: '#3b82f6' }}
-      >
+      <a href={link} target="_blank" rel="noreferrer" className="link-glow">
         {name}
-      </motion.a>
+      </a>
     </motion.div>
-    <motion.h3 className="mb-4 font-normal" whileHover={{ color: '#8b5cf6' }}>
-      {body}
-    </motion.h3>
+    <h3 className="mb-4 font-normal link-glow-purple">{body}</h3>
   </motion.li>
 );
 
@@ -92,7 +81,7 @@ const CertificationCard = ({
 
   return (
     <motion.div
-      className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl  neon-glow glitch liquid-card"
+      className="card shadow-2xl compact bg-base-100/85 border border-primary/20  rounded-xl  neon-glow glitch liquid-card"
       data-text="Certifications"
     >
       <div className="card-body">

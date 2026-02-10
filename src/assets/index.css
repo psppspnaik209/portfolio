@@ -13,6 +13,11 @@
   }
 }
 
+/* GLOBAL RESET FOR HOVER DELAY - CRITICAL FOR RESPONSIVENESS */
+* {
+  transition-delay: 0s !important;
+}
+
 ::-webkit-scrollbar-track {
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
@@ -48,7 +53,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* perspective: 1000px; -- REMOVED: This breaks position:fixed for ALL elements */
 }
 
 #root {
@@ -82,8 +86,6 @@ svg {
   padding-bottom: 0 !important;
 }
 
-/* Mobile optimizations removed as per user request */
-
 /* FORCE HIDE CUSTOM CURSOR ON MOBILE */
 @media (max-width: 1024px) {
   #custom-cursor {
@@ -94,32 +96,122 @@ svg {
   }
 }
 
+/* ============================================
+   HOVER EFFECT SYSTEM — CSS-only, GPU compositor
+   All use transform + box-shadow only (no layout triggers)
+   ============================================ */
+
+/* Card hover — for main section cards */
 .card-hover {
-  transition: all 0s ease-in-out;
-}
-
-/* ... existing styles ... */
-
-/* Custom cursor styles removed as we use react-animated-cursor */
-
-.card-3d {
-  transition: all 0s ease;
-  transform-style: preserve-3d;
-}
-
-.skill-badge-hover {
-  transition: all 0s ease-in-out;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  will-change: transform;
 }
 
 .card-hover:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+  transform: scale(1.03) translateY(-4px);
+  box-shadow:
+    0 0 20px rgba(0, 255, 255, 0.4),
+    0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
+/* Card 3D — for project cards (more dramatic) */
+.card-3d {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  will-change: transform;
+}
+
+.card-3d:hover {
+  transform: scale(1.05) translateY(-6px);
+  box-shadow:
+    0 0 30px rgba(0, 255, 255, 0.4),
+    0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* List item hover — for timeline items (education, cert, experience) */
+.list-item-hover {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  margin: -0.25rem;
+}
+
+.list-item-hover:hover {
+  transform: scale(1.03) translateX(4px);
+  background-color: rgba(0, 255, 255, 0.06);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+}
+
+/* Detail row hover — for info card rows (location, GitHub, etc.) */
+.detail-row-hover {
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
+  border-radius: 0.375rem;
+}
+
+.detail-row-hover:hover {
+  /* Info section pop up and out */
+  transform: scale(1.02) translateX(4px);
+  background-color: rgba(59, 130, 246, 0.15);
+  box-shadow: -2px 0 10px rgba(59, 130, 246, 0.1);
+}
+
+/* Skill badge hover — snappy pop like letters */
+.skill-badge-hover {
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+  will-change: transform;
+}
+
+.skill-badge-hover:hover {
+  transform: scale(1.18) translateY(-4px);
+  box-shadow:
+    0 0 14px rgba(255, 255, 0, 0.6),
+    0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Icon pop — for small interactive icons */
+.icon-pop:hover {
+  transform: scale(1.2);
+}
+
+/* Link glow — for anchor text */
+.link-glow {
+  transition:
+    color 0.15s ease,
+    text-shadow 0.15s ease;
+}
+
+.link-glow:hover {
+  color: #3b82f6;
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+.link-glow-purple {
+  transition:
+    color 0.15s ease,
+    text-shadow 0.15s ease;
+}
+
+.link-glow-purple:hover {
+  color: #8b5cf6;
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+}
+
+/* ============================================
+   STATIC STYLES
+   ============================================ */
+
 .glass-card {
-  background: rgba(0, 25, 50, 0.55); /* Blue-ish transparency */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 25, 50, 0.75);
   border: 1px solid rgba(0, 255, 255, 0.2);
   border-radius: 0.5rem;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -127,7 +219,7 @@ svg {
 
 .bg-animation {
   position: relative;
-  background: transparent; /* Removed opaque gradient to show ASCII backbone */
+  background: transparent;
   overflow: hidden;
 }
 
@@ -138,7 +230,6 @@ svg {
   left: 0;
   right: 0;
   bottom: 0;
-  /* Removed heavy radial gradients that might mask the background */
   background: radial-gradient(
     circle at 50% 50%,
     rgba(0, 255, 255, 0.05) 0%,
@@ -151,11 +242,9 @@ svg {
 @keyframes pulse {
   0% {
     opacity: 0.5;
-    transform: scale(1);
   }
   100% {
     opacity: 0.8;
-    transform: scale(1.05);
   }
 }
 
@@ -192,25 +281,4 @@ svg {
   50% {
     opacity: 0.8;
   }
-}
-
-/* Legacy .custom-cursor styles removed - we use React component now */
-
-.card-3d {
-  transition: all 0.3s ease;
-  transform-style: preserve-3d;
-}
-
-.card-3d:hover {
-  transform: rotateY(10deg) rotateX(10deg) scale(1.05);
-  box-shadow: 0 20px 40px rgba(255, 255, 0, 0.3);
-}
-.skill-badge-hover {
-  transition: all 0.2s ease-in-out;
-}
-
-.skill-badge-hover:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
