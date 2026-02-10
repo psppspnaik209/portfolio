@@ -103,7 +103,9 @@ svg {
 
 /* Card hover — for main section cards */
 .card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   will-change: transform;
 }
 
@@ -116,7 +118,9 @@ svg {
 
 /* Card 3D — for project cards (more dramatic) */
 .card-3d {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   will-change: transform;
 }
 
@@ -129,7 +133,9 @@ svg {
 
 /* List item hover — for timeline items (education, cert, experience) */
 .list-item-hover {
-  transition: transform 0.15s ease, box-shadow 0.15s ease,
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
     background-color 0.15s ease;
   border-radius: 0.5rem;
   padding: 0.25rem;
@@ -144,7 +150,9 @@ svg {
 
 /* Detail row hover — for info card rows (location, GitHub, etc.) */
 .detail-row-hover {
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
   border-radius: 0.375rem;
 }
 
@@ -155,11 +163,11 @@ svg {
   box-shadow: -2px 0 10px rgba(59, 130, 246, 0.1);
 }
 
-
-
 /* Skill badge hover — snappy pop like letters */
 .skill-badge-hover {
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
   will-change: transform;
 }
 
@@ -177,7 +185,9 @@ svg {
 
 /* Link glow — for anchor text */
 .link-glow {
-  transition: color 0.15s ease, text-shadow 0.15s ease;
+  transition:
+    color 0.15s ease,
+    text-shadow 0.15s ease;
 }
 
 .link-glow:hover {
@@ -186,7 +196,9 @@ svg {
 }
 
 .link-glow-purple {
-  transition: color 0.15s ease, text-shadow 0.15s ease;
+  transition:
+    color 0.15s ease,
+    text-shadow 0.15s ease;
 }
 
 .link-glow-purple:hover {
