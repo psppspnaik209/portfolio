@@ -95,31 +95,21 @@ svg {
 }
 
 .card-hover {
-  transition: all 0s ease-in-out;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
 }
 
 /* ... existing styles ... */
 
-/* Custom cursor styles removed as we use react-animated-cursor */
-
-.card-3d {
-  transition: all 0s ease;
-  transform-style: preserve-3d;
-}
-
-.skill-badge-hover {
-  transition: all 0s ease-in-out;
-}
+/* Duplicate removed — see rules below */
 
 .card-hover:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+  transform: scale(1.03) translateY(-2px);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .glass-card {
-  background: rgba(0, 25, 50, 0.55); /* Blue-ish transparency */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 25, 50, 0.75);
   border: 1px solid rgba(0, 255, 255, 0.2);
   border-radius: 0.5rem;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -151,11 +141,9 @@ svg {
 @keyframes pulse {
   0% {
     opacity: 0.5;
-    transform: scale(1);
   }
   100% {
     opacity: 0.8;
-    transform: scale(1.05);
   }
 }
 
@@ -197,20 +185,21 @@ svg {
 /* Legacy .custom-cursor styles removed - we use React component now */
 
 .card-3d {
-  transition: all 0.3s ease;
-  transform-style: preserve-3d;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform;
 }
 
 .card-3d:hover {
-  transform: rotateY(10deg) rotateX(10deg) scale(1.05);
-  box-shadow: 0 20px 40px rgba(255, 255, 0, 0.3);
+  transform: scale(1.04) translateY(-3px);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.35), 0 12px 30px rgba(0, 0, 0, 0.3);
 }
+
 .skill-badge-hover {
-  transition: all 0.2s ease-in-out;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  will-change: transform;
 }
 
 .skill-badge-hover:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: scale(1.15) translateY(-3px);
+  box-shadow: 0 0 12px rgba(255, 255, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.3);
 }

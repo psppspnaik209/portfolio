@@ -76,7 +76,7 @@ const PublicationCard = ({
   const renderPublications = () => {
     return publications.map((item, index) => (
       <a
-        className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl cursor-pointer neon-glow liquid-card"
+        className="card shadow-2xl compact bg-base-100/85 border border-accent/20  rounded-xl cursor-pointer neon-glow liquid-card"
         key={index}
         href={item.link}
         target="_blank"
@@ -122,7 +122,7 @@ const PublicationCard = ({
       <div className="col-span-1 lg:col-span-2">
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
-            <div className="card compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl shadow neon-glow liquid-card">
+            <div className="card compact bg-base-100/85 border border-primary/20  rounded-xl shadow neon-glow liquid-card">
               <div className="card-body">
                 <div className="mx-3 flex items-center justify-between mb-2">
                   <h5 className="card-title">

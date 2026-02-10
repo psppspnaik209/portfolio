@@ -82,35 +82,27 @@ const ExternalProjectCard = ({
   const renderExternalProjects = () => {
     return externalProjects.map((item, index) => (
       <motion.div
-        className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl  cursor-pointer neon-glow liquid-card"
+        className="card shadow-2xl compact bg-base-100/85 border border-accent/20 rounded-xl cursor-pointer neon-glow liquid-card card-3d"
         key={index}
         onClick={() => setModalProject(item)}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         animate={{ scale: 1, zIndex: 1 }}
         transition={{ duration: 0.2, delay: 0 }}
-        whileHover={{
-          scale: 1.05,
-          zIndex: 10,
-          boxShadow: '0 0 25px rgba(59, 130, 246, 0.5)',
-          transition: { duration: 0.2 },
-        }}
       >
         <div className="p-8 h-full w-full">
           <div className="flex items-center flex-col">
             <div className="w-full">
               <div className="px-4">
                 <div className="text-center w-full">
-                  <motion.h2
-                    className="font-medium text-center opacity-60 mb-2"
-                    whileHover={{ color: '#3b82f6' }}
+                  <h2
+                    className="font-medium text-center opacity-60 mb-2 hover:text-blue-400 transition-colors"
                   >
                     {item.title}
-                  </motion.h2>
+                  </h2>
                   {item.imageUrl && (
-                    <motion.div
-                      className="avatar opacity-90"
-                      whileHover={{ scale: 1.1 }}
+                    <div
+                      className="avatar opacity-90 hover:scale-110 transition-transform"
                     >
                       <div className="w-24 h-24 mask mask-squircle">
                         <LazyImage
@@ -123,7 +115,7 @@ const ExternalProjectCard = ({
                           })}
                         />
                       </div>
-                    </motion.div>
+                    </div>
                   )}
                   <motion.p
                     className="mt-2 text-base-content text-opacity-60 text-sm text-justify truncate"
@@ -152,8 +144,7 @@ const ExternalProjectCard = ({
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
             <motion.div
-              className="card compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl  shadow neon-glow liquid-card"
-              whileHover={{ scale: 1.01 }}
+              className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow neon-glow liquid-card card-hover"
             >
               <div className="card-body">
                 <motion.div
@@ -192,15 +183,14 @@ const ExternalProjectCard = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0 }}
           >
-            <motion.p className="py-4" whileHover={{ color: '#8b5cf6' }}>
+            <motion.p className="py-4 hover:text-purple-400 transition-colors">
               {modalProject.description}
             </motion.p>
             <motion.a
               href={modalProject.link}
               target="_blank"
               rel="noreferrer"
-              className="btn"
-              whileHover={{ scale: 1.05 }}
+              className="btn hover:scale-105 transition-transform"
               whileTap={{ scale: 0.95 }}
             >
               View Project

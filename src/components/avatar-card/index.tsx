@@ -16,33 +16,16 @@ interface AvatarCardProps {
 
 // Interactive name component with letter-by-letter hover animation
 const InteractiveName = ({ name }: { name: string }) => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
   return (
     <div className="flex justify-center flex-wrap cursor-default select-none">
       {name.split('').map((letter, index) => (
-        <motion.span
+        <span
           key={index}
-          className="inline-block text-3xl font-bold"
-          style={{
-            color: hoveredIndex === index ? '#FACC15' : 'inherit',
-            textShadow: hoveredIndex === index ? '0 0 10px #FACC15' : 'none',
-          }}
-          animate={{
-            y: hoveredIndex === index ? -8 : 0,
-            scale: hoveredIndex === index ? 1.2 : 1,
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 800,
-            damping: 15,
-            mass: 0.3,
-          }}
-          onMouseEnter={() => setHoveredIndex(index)}
-          onMouseLeave={() => setHoveredIndex(null)}
+          className="inline-block text-3xl font-bold transition-all duration-150 hover:text-yellow-400 hover:-translate-y-2 hover:scale-110"
+          style={{ transitionDelay: '0ms' }}
         >
           {letter === ' ' ? '\u00A0' : letter}
-        </motion.span>
+        </span>
       ))}
     </div>
   );
@@ -64,12 +47,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
 
   return (
     <motion.div
-      className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
-      whileHover={{
-        scale: 1.02,
-        y: -2,
-        transition: { duration: 0 },
-      }}
+      className="card shadow-2xl compact bg-base-100/85 border border-primary/20 rounded-xl card-hover neon-glow liquid-card"
     >
       <div className="grid place-items-center py-6">
         {loading || !profile ? (
@@ -89,18 +67,10 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
           </motion.div>
         ) : (
           <motion.div
-            className="avatar opacity-90 cursor-pointer"
+            className="avatar opacity-90 cursor-pointer hover:scale-110 transition-transform"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0 }}
-            whileHover={{
-              scale: 1.1,
-              rotate: [0, -5, 5, 0],
-              transition: {
-                scale: { duration: 0.2 },
-                rotate: { duration: 0.4, ease: 'easeInOut' },
-              },
-            }}
             onClick={_click}
           >
             <div
@@ -174,10 +144,9 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             <motion.a
               href={resumeFileUrl}
               target="_blank"
-              className="btn btn-outline btn-sm text-xs mt-2 border-accent text-accent hover:bg-accent hover:text-base-100 shadow-lg shadow-accent/20"
+              className="btn btn-outline btn-sm text-xs mt-2 border-accent text-accent hover:bg-accent hover:text-base-100 shadow-lg shadow-accent/20 hover:scale-110 transition-transform"
               download
               rel="noreferrer"
-              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
               Download Resume

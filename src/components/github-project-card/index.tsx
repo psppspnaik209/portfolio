@@ -88,37 +88,29 @@ const GithubProjectCard = ({
   const renderProjects = () => {
     return githubProjects.map((item, index) => (
       <motion.div
-        className="card shadow-2xl compact bg-base-100/60 border border-accent/20 backdrop-blur-lg rounded-xl  cursor-pointer neon-glow liquid-card"
+        className="card shadow-2xl compact bg-base-100/85 border border-accent/20 rounded-xl cursor-pointer neon-glow liquid-card card-3d"
         key={index}
         onClick={() => setModalProject(item)}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         animate={{ scale: 1, zIndex: 1 }}
         transition={{ duration: 0.2, delay: 0 }}
-        whileHover={{
-          scale: 1.05,
-          zIndex: 10,
-          boxShadow: '0 0 25px rgba(59, 130, 246, 0.5)',
-          transition: { duration: 0.2 },
-        }}
       >
         <div className="flex justify-between flex-col p-8 h-full w-full">
           <div>
             <div className="flex items-center truncate">
-              <motion.div
-                className="card-title text-lg tracking-wide flex text-base-content opacity-60"
-                whileHover={{ color: '#3b82f6' }}
+              <div
+                className="card-title text-lg tracking-wide flex text-base-content opacity-60 hover:text-blue-400 transition-colors"
               >
                 <MdInsertLink className="my-auto" />
                 <span>{item.name}</span>
-              </motion.div>
+              </div>
             </div>
             <motion.p
               className="mb-5 mt-1 text-base-content text-opacity-60 text-sm truncate"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2, delay: 0 }}
-              whileHover={{ color: '#8b5cf6' }}
             >
               {item.description}
             </motion.p>
@@ -126,21 +118,19 @@ const GithubProjectCard = ({
           <div className="flex justify-between text-sm text-base-content text-opacity-60 truncate">
             <div className="flex flex-grow">
               <motion.span
-                className="mr-3 flex items-center"
-                whileHover={{ scale: 1.1 }}
+                className="mr-3 flex items-center hover:scale-110 transition-transform"
               >
                 <AiOutlineStar className="mr-0.5" />
                 <span>{item.stargazers_count}</span>
               </motion.span>
               <motion.span
-                className="flex items-center"
-                whileHover={{ scale: 1.1 }}
+                className="flex items-center hover:scale-110 transition-transform"
               >
                 <AiOutlineFork className="mr-0.5" />
                 <span>{item.forks_count}</span>
               </motion.span>
             </div>
-            <motion.div whileHover={{ scale: 1.1 }}>
+            <div className="hover:scale-110 transition-transform">
               <span className="flex items-center">
                 <div
                   className="w-3 h-3 rounded-full mr-1 opacity-60"
@@ -148,7 +138,7 @@ const GithubProjectCard = ({
                 />
                 <span>{item.language}</span>
               </span>
-            </motion.div>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -165,8 +155,7 @@ const GithubProjectCard = ({
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
             <motion.div
-              className="card compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl  shadow neon-glow liquid-card"
-              whileHover={{ scale: 1.01 }}
+              className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow neon-glow liquid-card card-hover"
             >
               <div className="card-body">
                 <motion.div
@@ -190,8 +179,7 @@ const GithubProjectCard = ({
                       href={`https://github.com/${username}?tab=repositories`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-base-content opacity-50 hover:underline"
-                      whileHover={{ color: '#3b82f6' }}
+                      className="text-base-content opacity-50 hover:underline hover:text-blue-400 transition-colors"
                     >
                       See All
                     </motion.a>
@@ -218,15 +206,14 @@ const GithubProjectCard = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0 }}
           >
-            <motion.p className="py-4" whileHover={{ color: '#8b5cf6' }}>
+            <motion.p className="py-4 hover:text-purple-400 transition-colors">
               {modalProject.description}
             </motion.p>
             <motion.a
               href={modalProject.html_url}
               target="_blank"
               rel="noreferrer"
-              className="btn"
-              whileHover={{ scale: 1.05 }}
+              className="btn hover:scale-105 transition-transform"
               whileTap={{ scale: 0.95 }}
             >
               View Project

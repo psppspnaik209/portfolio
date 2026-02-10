@@ -83,10 +83,10 @@ const ListItem: React.FC<{
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0 }}
-      whileHover={{ scale: 1.02, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
+
     >
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
-        <motion.div whileHover={{ scale: 1.1 }}>{icon}</motion.div> {title}
+        <div className="hover:scale-110 transition-transform">{icon}</div> {title}
       </div>
       <div
         className={`${
@@ -97,15 +97,14 @@ const ListItem: React.FC<{
         }}
       >
         {link ? (
-          <motion.a
+          <a
             href={link}
             target="_blank"
             rel="noreferrer"
-            className="flex justify-start py-2 px-1 items-center"
-            whileHover={{ color: '#3b82f6' }}
+            className="flex justify-start py-2 px-1 items-center hover:text-blue-400 transition-colors"
           >
             {value}
-          </motion.a>
+          </a>
         ) : (
           <span className="flex justify-start py-2 px-1 items-center">
             {value}
@@ -139,19 +138,19 @@ const OrganizationItem: React.FC<{
 
         if (isCompanyMention(company)) {
           return (
-            <motion.a
+            <a
               href={companyLink(company)}
               target="_blank"
               rel="noreferrer"
               key={company}
+              className="hover:text-blue-400 transition-colors"
               onDoubleClick={(e: React.MouseEvent) => {
-                e.stopPropagation(); // Prevent double-click on link from bubbling to parent div
+                e.stopPropagation();
                 copy(company);
               }}
-              whileHover={{ color: '#3b82f6' }}
             >
               {company}
-            </motion.a>
+            </a>
           );
         } else {
           return (
@@ -178,10 +177,10 @@ const OrganizationItem: React.FC<{
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0 }}
-      whileHover={{ scale: 1.02, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
+
     >
       <div className="flex-grow font-medium gap-2 flex items-center my-1">
-        <motion.div whileHover={{ scale: 1.1 }}>{icon}</motion.div> {title}
+        <div className="hover:scale-110 transition-transform">{icon}</div> {title}
       </div>
       <div
         className={`${
@@ -232,11 +231,7 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
 
   return (
     <motion.div
-      className="card shadow-2xl compact bg-base-100/60 border border-primary/20 backdrop-blur-lg rounded-xl card-hover neon-glow liquid-card"
-      whileHover={{
-        scale: 1.02,
-        transition: { duration: 0 },
-      }}
+      className="card shadow-2xl compact bg-base-100/85 border border-primary/20 rounded-xl card-hover neon-glow liquid-card"
     >
       <div className="card-body">
         <div className="text-base-content text-opacity-60">
