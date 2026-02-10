@@ -168,7 +168,10 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
             position: 'absolute',
             top: '36px',
             width: '100%',
-            textAlign: 'center',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'baseline',
+            gap: '10px',
             pointerEvents: 'none',
             fontFamily: "'Orbitron', monospace",
             fontWeight: 'bold',
@@ -176,7 +179,8 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
             color: COLORS.cyan,
             textShadow: '0 0 10px #ff00ff'
          }}>
-            {score} <span style={{ fontSize: '14px', opacity: 0.8, color: '#fff' }}>
+            <span>{score}</span>
+            <span style={{ fontSize: '14px', opacity: 0.8, color: '#fff' }}>
               {(1 + wordsCollectedInRun * 0.2).toFixed(1)}x
             </span>
          </div>
@@ -408,7 +412,7 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
                          </button>
                          <button 
                             onClick={() => setShowQuitConfirm(false)}
-                            style={{ ...retryBtnStyle, background: 'transparent', opacity: 1 }}
+                            style={{ ...retryBtnStyle }}
                          >
                            NO
                          </button>

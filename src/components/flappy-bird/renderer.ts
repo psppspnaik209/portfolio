@@ -139,9 +139,9 @@ export function drawFrame(ctx: CanvasRenderingContext2D, s: GameState): void {
   drawBird(ctx, s.birdX, s.birdY, s.birdVelocity, frame);
   drawScorePops(ctx, s.scorePops);
 
-  if (s.phase === 'playing') {
-    drawLiveScore(ctx, s.score, w);
-  }
+  // if (s.phase === 'playing') {
+  //   drawLiveScore(ctx, s.score, w);
+  // }
 
   ctx.restore();
 }
