@@ -15,7 +15,7 @@ const ListItem = ({
   link?: string;
 }) => (
   <motion.li
-    className="mb-5 ml-4 hover:scale-[1.01] transition-transform"
+    className="mb-5 ml-4 list-item-hover"
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.2 }}
@@ -26,18 +26,11 @@ const ListItem = ({
     ></div>
     <div className="my-0.5 text-xs">{year}</div>
     <motion.div className="font-medium">
-      <a
-        href={link}
-        target="_blank"
-        rel="noreferrer"
-        className="hover:text-blue-400 transition-colors"
-      >
+      <a href={link} target="_blank" rel="noreferrer" className="link-glow">
         {name}
       </a>
     </motion.div>
-    <h3 className="mb-4 font-normal hover:text-purple-400 transition-colors">
-      {body}
-    </h3>
+    <h3 className="mb-4 font-normal link-glow-purple">{body}</h3>
   </motion.li>
 );
 

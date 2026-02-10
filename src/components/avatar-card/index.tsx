@@ -46,9 +46,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
   const _click = () => _sA(!_a);
 
   return (
-    <motion.div
-      className="card shadow-2xl compact bg-base-100/85 border border-primary/20 rounded-xl card-hover neon-glow liquid-card"
-    >
+    <motion.div className="card shadow-2xl compact bg-base-100/85 border border-primary/20 rounded-xl card-hover neon-glow liquid-card">
       <div className="grid place-items-center py-6">
         {loading || !profile ? (
           <motion.div

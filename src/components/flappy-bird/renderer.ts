@@ -3,7 +3,13 @@
 // ============================================
 
 import { GAME_CONFIG } from './config';
-import type { GameState, Star, CityBuilding, Particle, ScorePop } from './types';
+import type {
+  GameState,
+  Star,
+  CityBuilding,
+  Particle,
+  ScorePop,
+} from './types';
 
 // ---- Color palette ----
 const C = {
@@ -104,10 +110,7 @@ function drawStaticBackground(
 
 // ---- Drawing functions ----
 
-export function drawFrame(
-  ctx: CanvasRenderingContext2D,
-  s: GameState,
-): void {
+export function drawFrame(ctx: CanvasRenderingContext2D, s: GameState): void {
   const { w, h, frame } = s;
 
   ctx.save();
@@ -224,11 +227,7 @@ function drawGrid(
 
 // ---- Ground ----
 
-function drawGround(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-): void {
+function drawGround(ctx: CanvasRenderingContext2D, w: number, h: number): void {
   const gy = h - 2;
 
   // Glow reflection above line
@@ -374,7 +373,14 @@ function drawBird(
 
   // ---- Outer glow ----
   const glowR = s + 4 + Math.sin(frame * 0.12) * 1.5;
-  const glowGrad = ctx.createRadialGradient(-s * 0.15, -s * 0.15, 0, 0, 0, glowR);
+  const glowGrad = ctx.createRadialGradient(
+    -s * 0.15,
+    -s * 0.15,
+    0,
+    0,
+    0,
+    glowR,
+  );
   glowGrad.addColorStop(0, 'rgba(0,255,255,0.12)');
   glowGrad.addColorStop(1, 'rgba(0,255,255,0)');
   ctx.fillStyle = glowGrad;
@@ -441,10 +447,7 @@ function drawParticles(
 
 // ---- Score pop "+1" ----
 
-function drawScorePops(
-  ctx: CanvasRenderingContext2D,
-  pops: ScorePop[],
-): void {
+function drawScorePops(ctx: CanvasRenderingContext2D, pops: ScorePop[]): void {
   for (const sp of pops) {
     const progress = sp.frame / GAME_CONFIG.scorePopDuration;
     const alpha = 1 - progress;

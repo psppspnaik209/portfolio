@@ -30,7 +30,7 @@ export const GAME_CONFIG = {
   // Background parallax speeds (px/frame)
   starSpeed: 0.15,
   citySpeed: 0.4,
-  gridSpeed: 0.,
+  gridSpeed: 0,
 
   // Scoring
   scorePopDuration: 20, // frames

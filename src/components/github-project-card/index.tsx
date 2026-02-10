@@ -99,9 +99,7 @@ const GithubProjectCard = ({
         <div className="flex justify-between flex-col p-8 h-full w-full">
           <div>
             <div className="flex items-center truncate">
-              <div
-                className="card-title text-lg tracking-wide flex text-base-content opacity-60 hover:text-blue-400 transition-colors"
-              >
+              <div className="card-title text-lg tracking-wide flex text-base-content opacity-60 link-glow">
                 <MdInsertLink className="my-auto" />
                 <span>{item.name}</span>
               </div>
@@ -117,15 +115,11 @@ const GithubProjectCard = ({
           </div>
           <div className="flex justify-between text-sm text-base-content text-opacity-60 truncate">
             <div className="flex flex-grow">
-              <motion.span
-                className="mr-3 flex items-center hover:scale-110 transition-transform"
-              >
+              <motion.span className="mr-3 flex items-center hover:scale-110 transition-transform">
                 <AiOutlineStar className="mr-0.5" />
                 <span>{item.stargazers_count}</span>
               </motion.span>
-              <motion.span
-                className="flex items-center hover:scale-110 transition-transform"
-              >
+              <motion.span className="flex items-center hover:scale-110 transition-transform">
                 <AiOutlineFork className="mr-0.5" />
                 <span>{item.forks_count}</span>
               </motion.span>
@@ -154,9 +148,7 @@ const GithubProjectCard = ({
       >
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
-            <motion.div
-              className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow neon-glow liquid-card card-hover"
-            >
+            <motion.div className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow neon-glow liquid-card card-hover">
               <div className="card-body">
                 <motion.div
                   className="mx-3 flex items-center justify-between mb-2"
@@ -179,7 +171,7 @@ const GithubProjectCard = ({
                       href={`https://github.com/${username}?tab=repositories`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-base-content opacity-50 hover:underline hover:text-blue-400 transition-colors"
+                      className="text-base-content opacity-50 hover:underline link-glow"
                     >
                       See All
                     </motion.a>
@@ -206,7 +198,7 @@ const GithubProjectCard = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0 }}
           >
-            <motion.p className="py-4 hover:text-purple-400 transition-colors">
+            <motion.p className="py-4 link-glow-purple">
               {modalProject.description}
             </motion.p>
             <motion.a

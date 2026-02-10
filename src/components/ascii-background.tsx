@@ -36,8 +36,6 @@ const AsciiBackground = memo(() => {
 
     // Pre-created offscreen canvases
     let gridCanvas: OffscreenCanvas | HTMLCanvasElement;
-    let glowCyan: HTMLCanvasElement;
-    let glowYellow: HTMLCanvasElement;
 
     const drops: number[] = [];
     // Per-column speed so we don't call Math.random() every frame
@@ -53,7 +51,14 @@ const AsciiBackground = memo(() => {
       c.width = s;
       c.height = s;
       const g = c.getContext('2d')!;
-      const grad = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, radius);
+      const grad = g.createRadialGradient(
+        s / 2,
+        s / 2,
+        0,
+        s / 2,
+        s / 2,
+        radius,
+      );
       grad.addColorStop(0, color);
       grad.addColorStop(1, 'transparent');
       g.fillStyle = grad;
@@ -107,8 +112,8 @@ const AsciiBackground = memo(() => {
     }
 
     updateSize();
-    glowCyan = makeGlowSprite('rgba(0,255,255,0.35)', 8);
-    glowYellow = makeGlowSprite('rgba(255,255,0,0.5)', 14);
+    const glowCyan = makeGlowSprite('rgba(0,255,255,0.35)', 8);
+    const glowYellow = makeGlowSprite('rgba(255,255,0,0.5)', 14);
 
     // ---- Draw function ----
     const MOUSE_RADIUS = 150;

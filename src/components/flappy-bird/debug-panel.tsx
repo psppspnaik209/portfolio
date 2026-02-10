@@ -14,7 +14,13 @@ interface DebugPanelProps {
   speed: number;
 }
 
-const DebugPanel = ({ overrides, onChange, fps, score, speed }: DebugPanelProps) => {
+const DebugPanel = ({
+  overrides,
+  onChange,
+  fps,
+  score,
+  speed,
+}: DebugPanelProps) => {
   const [open, setOpen] = useState(false);
 
   const set = useCallback(
@@ -82,7 +88,13 @@ const DebugPanel = ({ overrides, onChange, fps, score, speed }: DebugPanelProps)
         minWidth: '200px',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginBottom: '2px',
+        }}
+      >
         <span style={{ color: '#00ff88', fontWeight: 700 }}>
           DEBUG | {fps} fps | Score: {score} | Spd: {speed.toFixed(1)}
         </span>

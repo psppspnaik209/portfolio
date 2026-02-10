@@ -112,7 +112,9 @@ export function useGame(): UseGameReturn {
       const now = performance.now();
       if (now - fpsTime >= 1000) {
         setFps(fpsFrames);
-        setCurrentSpeed(getEffectiveSpeed(s.score) * (overridesRef.current.speedMultiplier));
+        setCurrentSpeed(
+          getEffectiveSpeed(s.score) * overridesRef.current.speedMultiplier,
+        );
         fpsFrames = 0;
         fpsTime = now;
       }

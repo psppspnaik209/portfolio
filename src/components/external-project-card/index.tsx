@@ -95,15 +95,11 @@ const ExternalProjectCard = ({
             <div className="w-full">
               <div className="px-4">
                 <div className="text-center w-full">
-                  <h2
-                    className="font-medium text-center opacity-60 mb-2 hover:text-blue-400 transition-colors"
-                  >
+                  <h2 className="font-medium text-center opacity-60 mb-2 hover:text-blue-400 transition-colors">
                     {item.title}
                   </h2>
                   {item.imageUrl && (
-                    <div
-                      className="avatar opacity-90 hover:scale-110 transition-transform"
-                    >
+                    <div className="avatar opacity-90 hover:scale-110 transition-transform">
                       <div className="w-24 h-24 mask mask-squircle">
                         <LazyImage
                           src={item.imageUrl}
@@ -143,9 +139,7 @@ const ExternalProjectCard = ({
       >
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
-            <motion.div
-              className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow neon-glow liquid-card card-hover"
-            >
+            <motion.div className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow neon-glow liquid-card card-hover">
               <div className="card-body">
                 <motion.div
                   className="mx-3 flex items-center justify-between mb-2"
@@ -183,7 +177,7 @@ const ExternalProjectCard = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0 }}
           >
-            <motion.p className="py-4 hover:text-purple-400 transition-colors">
+            <motion.p className="py-4 link-glow-purple">
               {modalProject.description}
             </motion.p>
             <motion.a

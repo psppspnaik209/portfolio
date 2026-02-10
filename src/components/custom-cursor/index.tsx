@@ -62,8 +62,12 @@ const CustomCursor = memo(() => {
     glowSprite.height = GLOW_SIZE;
     const gc = glowSprite.getContext('2d')!;
     const grad = gc.createRadialGradient(
-      GLOW_SIZE / 2, GLOW_SIZE / 2, 0,
-      GLOW_SIZE / 2, GLOW_SIZE / 2, GLOW_SIZE / 2,
+      GLOW_SIZE / 2,
+      GLOW_SIZE / 2,
+      0,
+      GLOW_SIZE / 2,
+      GLOW_SIZE / 2,
+      GLOW_SIZE / 2,
     );
     grad.addColorStop(0, 'rgba(0,229,255,0.6)');
     grad.addColorStop(0.3, 'rgba(0,229,255,0.2)');
@@ -157,7 +161,12 @@ const CustomCursor = memo(() => {
   return createPortal(
     <div
       ref={containerRef}
-      style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 999999 }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        pointerEvents: 'none',
+        zIndex: 999999,
+      }}
     >
       {/* Canvas trail — no DOM elements re-rendered */}
       <canvas

@@ -9,9 +9,7 @@ import { useGame } from './use-game';
 const IS_DEV = import.meta.env.DEV;
 
 // Lazy-load dev debug panel
-const DebugPanel = IS_DEV
-  ? lazy(() => import('./debug-panel'))
-  : null;
+const DebugPanel = IS_DEV ? lazy(() => import('./debug-panel')) : null;
 
 const COLORS = {
   bg: '#060a14',

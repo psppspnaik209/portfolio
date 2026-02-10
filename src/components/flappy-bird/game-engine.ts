@@ -31,7 +31,9 @@ export function createGameState(): GameState {
 
 export function loadHighScore(): number {
   try {
-    return parseInt(localStorage.getItem(GAME_CONFIG.highScoreKey) || '0', 10) || 0;
+    return (
+      parseInt(localStorage.getItem(GAME_CONFIG.highScoreKey) || '0', 10) || 0
+    );
   } catch {
     return 0;
   }

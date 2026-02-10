@@ -12,7 +12,7 @@ const ListItem = ({
   onClick: () => void;
 }) => (
   <motion.li
-    className="mb-5 ml-4 cursor-pointer hover:scale-[1.01] transition-transform"
+    className="mb-5 ml-4 cursor-pointer list-item-hover"
     onClick={onClick}
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
