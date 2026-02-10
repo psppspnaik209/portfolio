@@ -9,6 +9,7 @@ import type {
   CityBuilding,
   Particle,
   ScorePop,
+  Collectible,
 } from './types';
 
 // ---- Color palette ----
@@ -133,6 +134,7 @@ export function drawFrame(ctx: CanvasRenderingContext2D, s: GameState): void {
     drawPipe(ctx, pipe.x, pipe.topHeight, pipe.gap, h);
   }
 
+  drawCollectibles(ctx, s.collectibles.activeCollectibles, frame);
   drawParticles(ctx, s.particles);
   drawBird(ctx, s.birdX, s.birdY, s.birdVelocity, frame);
   drawScorePops(ctx, s.scorePops);
@@ -142,6 +144,69 @@ export function drawFrame(ctx: CanvasRenderingContext2D, s: GameState): void {
   }
 
   ctx.restore();
+}
+
+// ---- Collectibles ----
+
+function drawCollectibles(
+  ctx: CanvasRenderingContext2D,
+  collectibles: Collectible[],
+  frame: number,
+): void {
+  for (const c of collectibles) {
+    if (c.collected) continue;
+
+    const bob = Math.sin(frame * 0.1) * 3;
+    const y = c.y + bob;
+
+    ctx.save();
+    ctx.translate(c.x, y);
+
+    // Glow background (Stronger)
+    const glowSize = 35 + Math.sin(frame * 0.15) * 5;
+    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, glowSize);
+    grad.addColorStop(0, 'rgba(0, 255, 255, 0.6)');
+    grad.addColorStop(1, 'rgba(0, 255, 255, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(0, 0, glowSize, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Diamond shape - Solid Background
+    ctx.fillStyle = '#0a1525'; // Dark blueish black
+    ctx.strokeStyle = '#00ffff';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, -22);
+    ctx.lineTo(22, 0);
+    ctx.lineTo(0, 22);
+    ctx.lineTo(-22, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Inner rim
+    ctx.strokeStyle = 'rgba(0,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, -16);
+    ctx.lineTo(16, 0);
+    ctx.lineTo(0, 16);
+    ctx.lineTo(-16, 0);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Text char (Larger, bold)
+    ctx.fillStyle = '#ffffff';
+    ctx.font = "900 24px 'Orbitron', monospace"; // Larger font
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#00ffff';
+    ctx.shadowBlur = 10;
+    ctx.fillText(c.char, 0, 2); 
+
+    ctx.restore();
+  }
 }
 
 // ---- Star field ----

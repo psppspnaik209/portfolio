@@ -4,10 +4,48 @@
 // ============================================
 
 import { GAME_CONFIG, getEffectiveGap, getEffectiveSpeed } from './config';
-import type { GameState, DebugOverrides } from './types';
+import type {
+  GameState,
+  DebugOverrides,
+  CollectiblesState,
+} from './types';
+
+const CUSTOM_WORDS = ['Hire Me', 'TNBB', 'Mikhial'];
+// Basic XOR "encryption" to prevent widely obvious string search
+// Key: 'flappy'
+// Basic XOR "encryption" to prevent widely obvious string search
+// Key: 'flappy'
+const ENCRYPTED_LINK = 'DhgVAANDSUMYHwUNE0IDFV8dNxtVB0kuATQCIQ=='; // Encrypted
+const REAL_LINK = decryptLink(ENCRYPTED_LINK);
+
+/* 
+// Utility to generate encrypted links
+function getEncryptedLink(link: string): string {
+  const key = 'flappy';
+  let res = '';
+  for (let i = 0; i < link.length; i++) {
+    res += String.fromCharCode(link.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  }
+  return btoa(res);
+} 
+*/
+
+function decryptLink(encrypted: string): string {
+  try {
+    const data = atob(encrypted);
+    const key = 'flappy';
+    let res = '';
+    for (let i = 0; i < data.length; i++) {
+      res += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return res;
+  } catch {
+    return '';
+  }
+}
 
 /** Create the initial game state */
-export function createGameState(): GameState {
+export function createGameState(skills: string[] = []): GameState {
   return {
     birdY: 0,
     birdVelocity: 0,
@@ -24,7 +62,102 @@ export function createGameState(): GameState {
     animId: 0,
     birdX: 0,
     godMode: false,
+    collectibles: createCollectiblesState(skills),
   };
+}
+
+function createCollectiblesState(skills: string[]): CollectiblesState {
+  // Merge skills and custom words
+  let allWords = [...new Set([...skills, ...CUSTOM_WORDS])];
+  
+  // Filter out empty/spaces and sort by length
+  allWords = allWords
+    .filter((w) => w.trim().length > 0)
+    .sort((a, b) => a.length - b.length);
+
+  // Dynamic Total: Use ALL words. No slicing.
+  const totalItems = allWords.length;
+
+  // Load progress
+  const saved = loadProgress();
+
+  return {
+    targetWords: allWords,
+    currentWordIndex: saved.wordIndex,
+    currentCharIndex: saved.charIndex,
+    collectedWords: saved.collectedWords,
+    keyFragments: saved.keyFragments,
+    activeCollectibles: [],
+    lastCollectibleTime: 0,
+    spawnCooldown: 3 + Math.floor(Math.random() * 2), // Initial delay: 3-4 pipes
+    isRewardUnlocked: saved.keyFragments >= totalItems && totalItems > 0,
+    rewardLink: saved.keyFragments >= totalItems && totalItems > 0 ? REAL_LINK : '',
+  };
+}
+
+// ---- Persistence ----
+
+const STORAGE_KEY_PROGRESS = 'flappy_progress_v2'; // Bumped version
+
+interface SavedProgress {
+  wordIndex: number;
+  charIndex: number;
+  collectedWords: string[];
+  keyFragments: number;
+}
+
+// Unicode-safe Base64 helpers
+function toBase64(str: string) {
+  return btoa(
+    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+      String.fromCharCode(parseInt(p1, 16)),
+    ),
+  );
+}
+
+function fromBase64(str: string) {
+  return decodeURIComponent(
+    atob(str)
+      .split('')
+      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+      .join(''),
+  );
+}
+
+function loadProgress(): SavedProgress {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PROGRESS);
+    if (!raw)
+      return {
+        wordIndex: 0,
+        charIndex: 0,
+        collectedWords: [],
+        keyFragments: 0,
+      };
+
+    // Safe decode
+    const json = fromBase64(raw);
+    const data = JSON.parse(json);
+    return data;
+  } catch {
+    return { wordIndex: 0, charIndex: 0, collectedWords: [], keyFragments: 0 };
+  }
+}
+
+function saveProgress(state: CollectiblesState): void {
+  try {
+    // Only save essential data
+    const data: SavedProgress = {
+      wordIndex: state.currentWordIndex,
+      charIndex: state.currentCharIndex,
+      collectedWords: state.collectedWords,
+      keyFragments: state.keyFragments,
+    };
+    const json = JSON.stringify(data);
+    localStorage.setItem(STORAGE_KEY_PROGRESS, toBase64(json));
+  } catch {
+    /* ignore */
+  }
 }
 
 // ---- High score persistence ----
@@ -47,15 +180,117 @@ export function saveHighScore(score: number): void {
   }
 }
 
+// ---- Collectible Spawning & Logic ----
+
+export function spawnCollectible(s: GameState): void {
+  const cState = s.collectibles;
+
+  // Check if we have words left
+  if (cState.currentWordIndex >= cState.targetWords.length) return;
+
+  // Cooldown check
+  if (cState.spawnCooldown > 0) {
+    cState.spawnCooldown--;
+    return;
+  }
+
+  // Ensure reasonable gap from last one
+  // (Though cooldown handles logic, this is a safety check vs screen clutter)
+  if (cState.activeCollectibles.length > 0) return;
+
+  const currentWord = cState.targetWords[cState.currentWordIndex];
+  // Ignore spaces
+  let char = currentWord[cState.currentCharIndex];
+  if (char === ' ') {
+    // Skip spaces immediately
+    cState.currentCharIndex++;
+    if (cState.currentCharIndex >= currentWord.length) {
+      completeWord(s);
+      return; 
+    }
+    char = currentWord[cState.currentCharIndex];
+  }
+
+  if (s.pipes.length < 1) return;
+  
+  // Placement: Align with the LAST pipe spawned (which is at s.w)
+  // We want it in the gap of this new pipe.
+  const lastPipe = s.pipes[s.pipes.length - 1]; // This is the new one at right edge
+  
+  // Actually the prompt says "vertical gap between 2 pipes".
+  // Wait, "vertical gap" implies the hole. "between 2 pipes" implies horizontal.
+  // User clarify: "I meant the place where gain a point, that is the vertical gap between 2 pipes, not the horizontal middle point between two adjacent pipes."
+  // So: Inside the gap of a single pipe column.
+  
+  // Position: Center of the gap.
+  // X: aligned with pipe.x + pipeWidth/2
+  // Y: pipe.topHeight + pipe.gap/2
+  
+  const spawnX = lastPipe.x + GAME_CONFIG.pipeWidth / 2;
+  const spawnY = lastPipe.topHeight + lastPipe.gap / 2;
+
+  cState.activeCollectibles.push({
+    x: spawnX,
+    y: spawnY,
+    baseY: spawnY,
+    char: char,
+    w: 40, // Larger for visibility
+    h: 40,
+    collected: false,
+  });
+  
+  // Set cooldown for NEXT letter
+  // "Letter frequency: Every 1-2 pipes"
+  cState.spawnCooldown = 1 + Math.floor(Math.random() * 2);
+}
+
+function completeWord(s: GameState) {
+  const cState = s.collectibles;
+  const word = cState.targetWords[cState.currentWordIndex];
+
+  cState.collectedWords.push(word);
+  cState.currentWordIndex++;
+  cState.currentCharIndex = 0;
+
+  // Increment Fragments
+  cState.keyFragments++;
+  
+  const total = cState.targetWords.length;
+
+  if (cState.keyFragments >= total && total > 0) {
+    cState.isRewardUnlocked = true;
+    cState.rewardLink = REAL_LINK;
+  }
+
+  // Save progress
+  saveProgress(cState);
+  
+  // Cooldown for NEXT WORD
+  // "Word completion delay: 4-5 pipes"
+  cState.spawnCooldown = 4 + Math.floor(Math.random() * 2);
+
+  // Effect
+  s.scorePops.push({
+    x: s.birdX,
+    y: s.birdY - 50,
+    frame: 0,
+    value: 999, 
+  });
+}
+
 // ---- Pipe spawning ----
 
 export function spawnPipe(s: GameState, overrides?: DebugOverrides): void {
   const gap = overrides?.pipeGap ?? getEffectiveGap(s.score);
   const minTop = GAME_CONFIG.minPipeTop;
   const maxTop = s.h - gap - minTop;
-  if (maxTop <= minTop) return; // canvas too small
+  if (maxTop <= minTop) return; 
   const topH = minTop + Math.random() * (maxTop - minTop);
+  
   s.pipes.push({ x: s.w, topHeight: topH, gap, scored: false });
+
+  // Verify and Trigger Spawn
+  spawnCollectible(s);
 }
 
 // ---- Particles ----
@@ -139,6 +374,16 @@ export function updateGameState(
   for (const pipe of s.pipes) pipe.x -= effectiveSpeed;
   s.pipes = s.pipes.filter((p) => p.x + GAME_CONFIG.pipeWidth > -20);
 
+  // Move Collectibles
+  s.collectibles.activeCollectibles.forEach((c) => {
+    c.x -= effectiveSpeed;
+    // Bobbing effect
+    c.y = c.baseY + Math.sin(s.frame * 0.05) * 10;
+  });
+  s.collectibles.activeCollectibles = s.collectibles.activeCollectibles.filter(
+    (c) => c.x > -50 && !c.collected,
+  );
+
   // Spawn pipes
   if (now - s.lastPipeTime > GAME_CONFIG.pipeFrequencyMs) {
     spawnPipe(s, overrides);
@@ -201,6 +446,42 @@ export function updateGameState(
     }
   }
 
+  // Collectible Collision
+  for (const c of s.collectibles.activeCollectibles) {
+    if (
+      !c.collected &&
+      Math.abs(s.birdX - c.x) < 30 &&
+      Math.abs(s.birdY - c.y) < 30
+    ) {
+      c.collected = true;
+      s.collectibles.currentCharIndex++;
+
+      // Check word completion
+      const currentWord =
+        s.collectibles.targetWords[s.collectibles.currentWordIndex];
+      // Skip next space if any
+      if (
+        currentWord &&
+        s.collectibles.currentCharIndex < currentWord.length &&
+        currentWord[s.collectibles.currentCharIndex] === ' '
+      ) {
+        s.collectibles.currentCharIndex++;
+      }
+
+      if (currentWord && s.collectibles.currentCharIndex >= currentWord.length) {
+        completeWord(s);
+      }
+
+      // Special particle or sound effect here
+      s.scorePops.push({
+        x: c.x,
+        y: c.y,
+        frame: 0,
+        value: -1, // -1 indicating "letter collected"
+      });
+    }
+  }
+
   // Trail particles
   if (s.frame % 4 === 0) emitTrailParticle(s);
 
@@ -244,7 +525,25 @@ export function startGame(s: GameState, overrides?: DebugOverrides): void {
   s.frame = 0;
   s.phase = 'playing';
   s.highScore = loadHighScore();
+  s.collectibles.activeCollectibles = []; // Clear active but keep progress
   const force = overrides?.jumpForce ?? GAME_CONFIG.jumpForce;
   s.birdVelocity = force;
   spawnPipe(s, overrides);
+}
+
+// ---- Debug Actions ----
+
+export function debugCompleteWord(s: GameState): void {
+  completeWord(s);
+}
+
+export function debugUnlockAll(s: GameState): void {
+  const total = s.collectibles.targetWords.length;
+  s.collectibles.keyFragments = total;
+  s.collectibles.isRewardUnlocked = true;
+  s.collectibles.rewardLink = REAL_LINK;
+  s.collectibles.collectedWords = [...s.collectibles.targetWords]; 
+  s.collectibles.currentWordIndex = total;
+  s.collectibles.currentCharIndex = 0;
+  saveProgress(s.collectibles);
 }

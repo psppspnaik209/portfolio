@@ -61,6 +61,49 @@ export interface GameState {
   godMode: boolean;
 }
 
+export interface Collectible {
+  x: number;
+  y: number;
+  char: string;
+  w: number;
+  h: number;
+  collected: boolean;
+  baseY: number; // For floating animation
+}
+
+export interface CollectiblesState {
+  targetWords: string[];
+  currentWordIndex: number;
+  currentCharIndex: number;
+  collectedWords: string[];
+  keyFragments: number; // 0..45
+  activeCollectibles: Collectible[];
+  lastCollectibleTime: number; // ms timestamp
+  spawnCooldown: number; // Number of pipes to wait before next spawn
+  // Encryption / Reward related
+  isRewardUnlocked: boolean;
+  rewardLink: string;
+}
+
+export interface GameState {
+  birdY: number;
+  birdVelocity: number;
+  pipes: Pipe[];
+  particles: Particle[];
+  scorePops: ScorePop[];
+  score: number;
+  highScore: number;
+  phase: GamePhase;
+  lastPipeTime: number;
+  frame: number;
+  w: number;
+  h: number;
+  animId: number;
+  birdX: number;
+  godMode: boolean;
+  collectibles: CollectiblesState;
+}
+
 export interface DebugOverrides {
   gravity: number | null;
   jumpForce: number | null;

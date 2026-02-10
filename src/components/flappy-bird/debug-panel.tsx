@@ -12,6 +12,8 @@ interface DebugPanelProps {
   fps: number;
   score: number;
   speed: number;
+  onCompleteWord: () => void;
+  onUnlockAll: () => void;
 }
 
 const DebugPanel = ({
@@ -20,6 +22,8 @@ const DebugPanel = ({
   fps,
   score,
   speed,
+  onCompleteWord,
+  onUnlockAll,
 }: DebugPanelProps) => {
   const [open, setOpen] = useState(false);
 
@@ -187,6 +191,39 @@ const DebugPanel = ({
           checked={overrides.godMode}
           onChange={(e) => set('godMode', e.target.checked)}
         />
+      </div>
+
+      <div style={{ ...row, marginTop: '8px', borderTop: '1px solid #333', paddingTop: '8px' }}>
+        <button 
+          onClick={onCompleteWord}
+          style={{
+            background: 'rgba(0,255,255,0.1)',
+            border: '1px solid rgba(0,255,255,0.3)',
+            color: '#00ffff',
+            fontSize: '9px',
+            padding: '4px',
+            cursor: 'pointer',
+            flex: 1
+          }}
+        >
+          COMPLETE WORD
+        </button>
+      </div>
+      <div style={row}>
+        <button 
+          onClick={onUnlockAll}
+          style={{
+            background: 'rgba(255,0,255,0.1)',
+            border: '1px solid rgba(255,0,255,0.3)',
+            color: '#ff00ff',
+            fontSize: '9px',
+            padding: '4px',
+            cursor: 'pointer',
+            flex: 1
+          }}
+        >
+          UNLOCK ALL
+        </button>
       </div>
     </div>
   );

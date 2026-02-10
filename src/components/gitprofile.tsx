@@ -376,7 +376,7 @@ const GitProfile = ({ config }: { config: Config }) => {
 
                       {/* Flappy Bird Mini-Game */}
                       <motion.div variants={itemVariants} className="">
-                        <FlappyBirdGame />
+                        <FlappyBirdGame skills={sanitizedConfig.skills} />
                       </motion.div>
                     </div>
                   </Suspense>

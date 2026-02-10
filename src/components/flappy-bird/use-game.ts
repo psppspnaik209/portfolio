@@ -9,6 +9,8 @@ import {
   performJump,
   startGame as engineStart,
   loadHighScore,
+  debugCompleteWord,
+  debugUnlockAll,
 } from './game-engine';
 import { drawFrame, regenerateScene } from './renderer';
 import { getEffectiveSpeed } from './config';
@@ -25,12 +27,24 @@ interface UseGameReturn {
   start: () => void;
   overrides: DebugOverrides;
   setOverrides: (o: DebugOverrides) => void;
+  // Collectibles
+  collectedWords: string[];
+  targetWords: string[];
+  currentWordIndex: number;
+  currentCharIndex: number;
+  keyFragments: number;
+  isRewardUnlocked: boolean;
+  rewardLink: string;
+  debugCompleteWord: () => void;
+  debugUnlockAll: () => void;
+  goToMenu: () => void;
 }
 
-export function useGame(): UseGameReturn {
+export function useGame(skills: string[] = []): UseGameReturn {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const stateRef = useRef(createGameState());
+  // Pass skills to create initial state
+  const stateRef = useRef(createGameState(skills));
   const overridesRef = useRef<DebugOverrides>({
     gravity: null,
     jumpForce: null,
@@ -47,6 +61,15 @@ export function useGame(): UseGameReturn {
   const [currentSpeed, setCurrentSpeed] = useState(0);
   const [overrides, _setOverrides] = useState(overridesRef.current);
 
+  // Collectibles State
+  const [collectedWords, setCollectedWords] = useState<string[]>([]);
+  const [targetWords, setTargetWords] = useState<string[]>([]);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentCharIndex, setCurrentCharIndex] = useState(0);
+  const [keyFragments, setKeyFragments] = useState(0);
+  const [isRewardUnlocked, setIsRewardUnlocked] = useState(false);
+  const [rewardLink, setRewardLink] = useState('');
+
   const setOverrides = useCallback((o: DebugOverrides) => {
     overridesRef.current = o;
     _setOverrides(o);
@@ -55,9 +78,24 @@ export function useGame(): UseGameReturn {
   // Sync engine phase → React state
   const syncPhase = useCallback(() => {
     const s = stateRef.current;
+    
+    // Core
     setPhase((prev) => (prev !== s.phase ? s.phase : prev));
     setScore((prev) => (prev !== s.score ? s.score : prev));
     setHighScore((prev) => (prev !== s.highScore ? s.highScore : prev));
+
+    // Collectibles (optimizing to not re-render every frame if possible, 
+    // but React batching handles it mostly ok. For high perf, use refs, but this is simple UI).
+    // Let's just sync them.
+    if (s.collectibles) {
+      setCollectedWords(s.collectibles.collectedWords);
+      setTargetWords(s.collectibles.targetWords);
+      setCurrentWordIndex(s.collectibles.currentWordIndex);
+      setCurrentCharIndex(s.collectibles.currentCharIndex);
+      setKeyFragments(s.collectibles.keyFragments);
+      setIsRewardUnlocked(s.collectibles.isRewardUnlocked);
+      setRewardLink(s.collectibles.rewardLink);
+    }
   }, []);
 
   const start = useCallback(() => {
@@ -68,6 +106,11 @@ export function useGame(): UseGameReturn {
   const jump = useCallback(() => {
     performJump(stateRef.current, overridesRef.current);
   }, []);
+
+  const goToMenu = useCallback(() => {
+    stateRef.current.phase = 'idle';
+    syncPhase();
+  }, [syncPhase]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -97,6 +140,18 @@ export function useGame(): UseGameReturn {
     resize();
     s.highScore = loadHighScore();
     setHighScore(s.highScore);
+    
+    // Init local state from engine
+    const c = s.collectibles;
+    if (c) {
+      setCollectedWords(c.collectedWords);
+      setTargetWords(c.targetWords);
+      setCurrentWordIndex(c.currentWordIndex);
+      setCurrentCharIndex(c.currentCharIndex);
+      setKeyFragments(c.keyFragments);
+      setIsRewardUnlocked(c.isRewardUnlocked);
+      setRewardLink(c.rewardLink);
+    }
 
     // FPS tracking
     let fpsFrames = 0;
@@ -164,5 +219,15 @@ export function useGame(): UseGameReturn {
     start,
     overrides,
     setOverrides,
+    collectedWords,
+    targetWords,
+    currentWordIndex,
+    currentCharIndex,
+    keyFragments,
+    isRewardUnlocked,
+    rewardLink,
+    debugCompleteWord: () => debugCompleteWord(stateRef.current),
+    debugUnlockAll: () => debugUnlockAll(stateRef.current),
+    goToMenu,
   };
 }

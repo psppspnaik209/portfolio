@@ -19,7 +19,7 @@ const COLORS = {
   magentaDim: 'rgba(255,0,255,0.5)',
 };
 
-const FlappyBirdGame = () => {
+const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
   const [isDesktop] = useState(() =>
     typeof window !== 'undefined'
       ? window.matchMedia('(pointer: fine)').matches
@@ -37,7 +37,16 @@ const FlappyBirdGame = () => {
     start,
     overrides,
     setOverrides,
-  } = useGame();
+    targetWords,
+    currentWordIndex,
+    currentCharIndex,
+    keyFragments,
+    isRewardUnlocked,
+    rewardLink,
+    debugCompleteWord,
+    debugUnlockAll,
+    goToMenu,
+  } = useGame(skills);
 
   if (!isDesktop) return null;
 
@@ -80,21 +89,160 @@ const FlappyBirdGame = () => {
               HIGH SCORE: {highScore}
             </span>
           )}
+          
+          <div style={dividerStyle} className="my-2 h-[1px] w-32 bg-cyan-500/30" />
+          
+          {/* Progress Section */}
+          <div style={{ textAlign: 'center', marginTop: '10px' }}>
+            <div style={{...hintStyle, color: COLORS.cyan, marginBottom: '4px'}}>
+              COLLECTIBLES ({keyFragments}/{targetWords.length})
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: '4px', 
+              maxWidth: '300px', 
+              justifyContent: 'center',
+              maxHeight: '120px',
+              overflowY: 'auto',
+              padding: '4px'
+            }}>
+              {targetWords.map((word, i) => {
+                const isCollected = i < currentWordIndex;
+                const isCurrent = i === currentWordIndex;
+                let color = '#555';
+                let bg = 'transparent';
+                let border = '1px solid transparent';
+                
+                if (isCollected) {
+                  color = COLORS.cyan;
+                  bg = 'rgba(0,255,255,0.1)';
+                  border = '1px solid rgba(0,255,255,0.2)';
+                } else if (isCurrent) {
+                  color = '#fff';
+                  bg = 'rgba(255,0,255,0.1)';
+                  border = '1px dashed rgba(255,0,255,0.5)';
+                }
+
+                return (
+                  <span key={i} style={{
+                    fontSize: '10px',
+                    padding: '2px 6px',
+                    background: bg,
+                    border: border,
+                    borderRadius: '4px',
+                    color: color,
+                    opacity: isCollected || isCurrent ? 1 : 0.5
+                  }}>
+                    {word}
+                  </span>
+                );
+              })}
+            </div>
+            
+            {isRewardUnlocked ? (
+               <a 
+                 href={rewardLink} 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 style={{
+                   display: 'inline-block',
+                   marginTop: '12px',
+                   color: '#00ff00',
+                   textShadow: '0 0 10px #00ff00',
+                   textDecoration: 'none',
+                   fontWeight: 'bold',
+                   fontSize: '14px',
+                   border: '1px solid #00ff00',
+                   padding: '4px 12px',
+                   borderRadius: '4px',
+                   cursor: 'pointer'
+                 }}
+               >
+                 🔓 SECRET REWARD UNLOCKED
+               </a>
+            ) : (
+              <div style={{
+                marginTop: '12px',
+                color: '#555',
+                fontSize: '12px',
+                fontFamily: 'monospace'
+              }}>
+                🔒 REWARD LOCKED ({Math.floor((keyFragments / targetWords.length) * 100)}%)
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ---- PLAYING: HUD ---- */}
+      {phase === 'playing' && currentWordIndex < targetWords.length && (
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          gap: '2px',
+          background: 'rgba(0,0,0,0.3)',
+          padding: '4px 12px',
+          borderRadius: '8px',
+          pointerEvents: 'none'
+        }}>
+          {targetWords[currentWordIndex].split('').map((char, i) => {
+            const isCollected = i < currentCharIndex;
+            return (
+              <span key={i} style={{
+                fontFamily: "'Orbitron', monospace",
+                fontSize: '24px',
+                fontWeight: 900,
+                color: isCollected ? COLORS.cyan : 'rgba(255,255,255,0.15)',
+                textShadow: isCollected ? `0 0 10px ${COLORS.cyan}` : 'none',
+                minWidth: '16px',
+                textAlign: 'center'
+              }}>
+                {char === ' ' ? '\u00A0' : char}
+              </span>
+            );
+          })}
         </div>
       )}
 
       {/* ---- DEAD: game over ---- */}
       {phase === 'dead' && (
-        <div style={{ ...overlayStyle, background: 'rgba(6,10,20,0.75)' }}>
+        <div style={{ ...overlayStyle, background: 'rgba(6,10,20,0.85)' }}>
           <h2 style={gameOverTitleStyle}>GAME OVER</h2>
           <div style={scoreRowStyle}>
             <ScoreBox label="SCORE" value={score} color={COLORS.cyan} />
             <div style={dividerStyle} />
             <ScoreBox label="BEST" value={highScore} color={COLORS.magenta} />
           </div>
+          
+           {/* Progress Mini-View */}
+           <div style={{ marginTop: '16px', textAlign: 'center' }}>
+            <div style={{...hintStyle, fontSize: '10px'}}>Current Word Progress</div>
+            <div style={{ color: COLORS.magenta, fontSize: '14px', marginTop: '4px' }}>
+               {targetWords[currentWordIndex] || "ALL FILTERED"}
+            </div>
+          </div>
+
           <button onClick={start} style={retryBtnStyle}>
             ↻ RETRY
           </button>
+          
+          <button 
+            onClick={goToMenu} 
+            style={{
+              ...retryBtnStyle,
+              background: 'rgba(255,255,255,0.1)',
+              marginTop: '8px',
+              fontSize: '10px',
+              padding: '6px 12px'
+            }}
+          >
+            MAIN MENU
+          </button>
+
           <span style={hintStyle}>PRESS ENTER TO RETRY</span>
         </div>
       )}
@@ -108,6 +256,8 @@ const FlappyBirdGame = () => {
             fps={fps}
             score={score}
             speed={currentSpeed}
+            onCompleteWord={debugCompleteWord}
+            onUnlockAll={debugUnlockAll}
           />
         </Suspense>
       )}
