@@ -3,7 +3,7 @@
 // Renders canvas + HTML overlays (play/game-over)
 // ============================================
 
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { useGame } from './use-game';
 
 const IS_DEV = import.meta.env.DEV;
@@ -25,6 +25,11 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
       ? window.matchMedia('(pointer: fine)').matches
       : false,
   );
+  
+  
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false); // New: for Pause menu
 
   const {
     canvasRef,
@@ -41,12 +46,44 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
     currentWordIndex,
     currentCharIndex,
     keyFragments,
+    wordsCollectedInRun, // Destructure
     isRewardUnlocked,
     rewardLink,
     debugCompleteWord,
     debugUnlockAll,
     goToMenu,
+    resetProgress,
   } = useGame(skills);
+
+  // Global Key Listener for Pause
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Escape') {
+        if (phase === 'playing') {
+          // Toggle Pause
+          if (isPaused) {
+              // Resume
+              setIsPaused(false);
+              setShowQuitConfirm(false);
+              setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
+          } else {
+              // Pause
+              setIsPaused(true);
+              // Force hard pause
+              setOverrides({ ...overrides, speedMultiplier: 0, gravity: 0 }); 
+          }
+        } else if (isPaused) {
+           // If already paused, Escape resumes? Or closes menus?
+           // Let's make Escape resume.
+           setIsPaused(false);
+           setShowQuitConfirm(false);
+           setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [phase, isPaused, overrides, setOverrides]);
 
   if (!isDesktop) return null;
 
@@ -75,6 +112,32 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
           cursor: phase === 'playing' ? 'pointer' : 'default',
         }}
       />
+      
+      {/* ---- Pause Button (Visible during play) ---- */}
+      {phase === 'playing' && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setOverrides({ ...overrides, speedMultiplier: 0, gravity: 0 });
+            setIsPaused(true);
+          }}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            zIndex: 50,
+            background: 'rgba(0,0,0,0.5)',
+            border: `1px solid ${COLORS.cyanDim}`,
+            color: COLORS.cyan,
+            borderRadius: '4px',
+            padding: '4px 8px',
+            cursor: 'pointer',
+            fontFamily: "'Orbitron', monospace",
+          }}
+        >
+          II
+        </button>
+      )}
 
       {/* ---- IDLE: play button ---- */}
       {phase === 'idle' && (
@@ -140,6 +203,51 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
               })}
             </div>
             
+            {/* Reset Progress Button */}
+             <div style={{ marginTop: '16px' }}>
+                {!showResetConfirm ? (
+                  <button 
+                    onClick={() => setShowResetConfirm(true)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid #ff4444',
+                      color: '#ff4444',
+                      fontSize: '10px',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontFamily: "'Orbitron', monospace",
+                      opacity: 0.7
+                    }}
+                  >
+                    RESET PROGRESS
+                  </button>
+                ) : (
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+                    <span style={{ fontSize: '10px', color: '#ff4444' }}>ARE YOU SURE?</span>
+                    <button 
+                      onClick={() => {
+                         resetProgress(); 
+                         setShowResetConfirm(false);
+                      }}
+                      style={{
+                         background: '#ff4444', color: '#fff', border: 'none', padding: '2px 6px', borderRadius: '2px', fontSize: '10px', cursor: 'pointer'
+                      }}
+                    >
+                      YES
+                    </button>
+                    <button 
+                      onClick={() => setShowResetConfirm(false)}
+                      style={{
+                         background: 'transparent', border: '1px solid #555', color: '#555', padding: '2px 6px', borderRadius: '2px', fontSize: '10px', cursor: 'pointer'
+                      }}
+                    >
+                      NO
+                    </button>
+                  </div>
+                )}
+             </div>
+
             {isRewardUnlocked ? (
                <a 
                  href={rewardLink} 
@@ -179,7 +287,7 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
       {phase === 'playing' && currentWordIndex < targetWords.length && (
         <div style={{
           position: 'absolute',
-          top: '20px',
+          top: '80px', // Lowered from 20px
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex',
@@ -187,7 +295,8 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
           background: 'rgba(0,0,0,0.3)',
           padding: '4px 12px',
           borderRadius: '8px',
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          zIndex: 5 // Ensure it's above some things but below overlays
         }}>
           {targetWords[currentWordIndex].split('').map((char, i) => {
             const isCollected = i < currentCharIndex;
@@ -207,43 +316,118 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
           })}
         </div>
       )}
+      
+      {/* ---- PAUSE MENU ---- */}
+      {isPaused && (
+        <div style={{ ...overlayStyle, background: 'rgba(0,0,0,0.85)' }}>
+             <h2 style={{ ...titleStyle, fontSize: '18px' }}>PAUSED</h2>
+             
+             {!showQuitConfirm ? (
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+                 <button 
+                    onClick={() => {
+                       setIsPaused(false);
+                       setShowQuitConfirm(false);
+                       setOverrides({ ...overrides, speedMultiplier: 1, gravity: null }); // Restore defaults
+                    }}
+                    style={playBtnStyle}
+                 >
+                   RESUME
+                 </button>
+                 <button 
+                    onClick={() => setShowQuitConfirm(true)}
+                    style={{ ...retryBtnStyle, background: COLORS.cyan, color: COLORS.bg, opacity: 1 }}
+                 >
+                   MAIN MENU
+                 </button>
+               </div>
+             ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                   <p style={{ color: COLORS.cyan, fontFamily: "'Orbitron', monospace", fontSize: '14px', marginBottom: '8px' }}>
+                     RETURN TO MENU? <br/>
+                     <span style={{ fontSize: '10px', opacity: 0.7 }}>CURRENT RUN PROGRESS WILL BE LOST</span>
+                   </p>
+                   <button 
+                      onClick={() => {
+                          setIsPaused(false);
+                          setShowQuitConfirm(false);
+                          goToMenu();
+                          setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
+                      }}
+                      style={{ ...retryBtnStyle, background: '#ff4444', color: '#fff', border: 'none' }}
+                   >
+                     YES, EXIT
+                   </button>
+                   <button 
+                      onClick={() => setShowQuitConfirm(false)}
+                      style={{ ...retryBtnStyle, background: 'transparent' }}
+                   >
+                     NO, BACK
+                   </button>
+                </div>
+             )}
+        </div>
+      )}
 
       {/* ---- DEAD: game over ---- */}
       {phase === 'dead' && (
-        <div style={{ ...overlayStyle, background: 'rgba(6,10,20,0.85)' }}>
+        <div style={{ ...overlayStyle, background: 'rgba(6,10,20,0.95)' }}>
           <h2 style={gameOverTitleStyle}>GAME OVER</h2>
+          
+          {/* Scoring Detail */}
+          <div style={{ 
+             display: 'flex', 
+             flexDirection: 'column', 
+             alignItems: 'center', 
+             gap: '4px',
+             marginBottom: '16px',
+             background: 'rgba(0,255,255,0.05)',
+             padding: '12px',
+             borderRadius: '8px',
+             border: '1px solid rgba(0,255,255,0.1)'
+          }}>
+             <div style={{ fontSize: '12px', color: '#888', fontFamily: 'monospace' }}>
+                BASE SCORE: {score}
+             </div>
+             <div style={{ fontSize: '12px', color: COLORS.magenta, fontFamily: 'monospace' }}>
+                MULTIPLIER: x{(1 + wordsCollectedInRun * 0.2).toFixed(1)} <span style={{ opacity: 0.5 }}>({wordsCollectedInRun} WORDS)</span>
+             </div>
+             <div style={{ width: '100%', height: '1px', background: '#333', margin: '4px 0' }} />
+             <div style={{ fontSize: '24px', color: COLORS.cyan, fontWeight: 'bold', fontFamily: "'Orbitron', monospace" }}>
+                {Math.round(score * (1 + wordsCollectedInRun * 0.2))}
+             </div>
+             <div style={{ fontSize: '10px', color: '#666' }}>FINAL SCORE</div>
+          </div>
+
           <div style={scoreRowStyle}>
-            <ScoreBox label="SCORE" value={score} color={COLORS.cyan} />
-            <div style={dividerStyle} />
+            {/* Show High Score separately */}
             <ScoreBox label="BEST" value={highScore} color={COLORS.magenta} />
           </div>
           
            {/* Progress Mini-View */}
-           <div style={{ marginTop: '16px', textAlign: 'center' }}>
-            <div style={{...hintStyle, fontSize: '10px'}}>Current Word Progress</div>
-            <div style={{ color: COLORS.magenta, fontSize: '14px', marginTop: '4px' }}>
+           <div style={{ marginTop: '12px', textAlign: 'center' }}>
+            <div style={{...hintStyle, fontSize: '10px'}}>Word Progress</div>
+            <div style={{ color: COLORS.cyan, fontSize: '14px', marginTop: '2px' }}>
                {targetWords[currentWordIndex] || "ALL FILTERED"}
             </div>
           </div>
 
-          <button onClick={start} style={retryBtnStyle}>
-            ↻ RETRY
-          </button>
-          
-          <button 
-            onClick={goToMenu} 
-            style={{
-              ...retryBtnStyle,
-              background: 'rgba(255,255,255,0.1)',
-              marginTop: '8px',
-              fontSize: '10px',
-              padding: '6px 12px'
-            }}
-          >
-            MAIN MENU
-          </button>
-
-          <span style={hintStyle}>PRESS ENTER TO RETRY</span>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+            <button onClick={start} style={retryBtnStyle}>
+              ↻ RETRY
+            </button>
+            <button 
+              onClick={goToMenu} 
+              style={{
+                ...retryBtnStyle,
+                background: COLORS.cyan, // More visible
+                color: COLORS.bg,
+                fontWeight: 900
+              }}
+            >
+              MENU
+            </button>
+          </div>
         </div>
       )}
 

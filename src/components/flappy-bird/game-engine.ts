@@ -89,7 +89,9 @@ function createCollectiblesState(skills: string[]): CollectiblesState {
     keyFragments: saved.keyFragments,
     activeCollectibles: [],
     lastCollectibleTime: 0,
-    spawnCooldown: 3 + Math.floor(Math.random() * 2), // Initial delay: 3-4 pipes
+    spawnCooldown: 0, 
+    wordsCollectedInRun: 0,
+    pipesSinceWord: 0,
     isRewardUnlocked: saved.keyFragments >= totalItems && totalItems > 0,
     rewardLink: saved.keyFragments >= totalItems && totalItems > 0 ? REAL_LINK : '',
   };
@@ -188,21 +190,58 @@ export function spawnCollectible(s: GameState): void {
   // Check if we have words left
   if (cState.currentWordIndex >= cState.targetWords.length) return;
 
-  // Cooldown check
-  if (cState.spawnCooldown > 0) {
-    cState.spawnCooldown--;
-    return;
-  }
+  // Rule 1: First character spawns from SECOND pipe ever.
+  // Rule 2: Subsequent words spawn exactly 2 pipes after completion.
+  
+  // We need to know if we are in the "active" phase for a word.
+  // If we are mid-word (charIndex > 0), we spawn every 1-2 pipes (let's say 2 to be safe/paced).
+  // If charIndex == 0, we check our specific "start" conditions.
 
-  // Ensure reasonable gap from last one
-  // (Though cooldown handles logic, this is a safety check vs screen clutter)
-  if (cState.activeCollectibles.length > 0) return;
+  if (cState.activeCollectibles.length > 0) return; // Wait for screen clear
+
+  // Initial Game Start Logic
+  // We use s.pipes.length to track "pipes spawned this run" roughly, 
+  // but better to track a dedicated counter in GameState if we wanted precision.
+  // However, `spawnCollectible` is called *right after* `spawnPipe`. 
+  // So s.pipes.length represents the TOTAL pipes spawned this session (if we don't clear them).
+  // Actually s.pipes gets filtered. We need a robust counter.
+  // Let's use `s.score` as a proxy for distance? No, score is passed pipes.
+  
+  // Simplification: 
+  // If charIndex == 0 (Start of word)
+  //   If wordsCollectedInRun == 0 -> Wait for 2nd pipe (Pipe #2).
+  //   If wordsCollectedInRun > 0  -> Wait for pipesSinceWord == 2.
+  
+  // We need to track `pipesSpawnedSinceLastWord` explicitly?
+  // We added `pipesSinceWord` to types.
+  
+  if (cState.currentCharIndex === 0) {
+    // We are waiting to start a word
+    if (cState.wordsCollectedInRun === 0) {
+      // First word of the run
+      // We want it at 2nd pipe.
+      // How do we know it's the 2nd pipe?
+      // We can check if s.score == 1? No, score happens when passing.
+      // We can rely on a run-level pipe counter? 
+      // Let's use `pipesSinceWord` as "Total Pipes Spawned" for the first word case?
+      // Actually `pipesSinceWord` increments on every spawnPipe.
+      if (cState.pipesSinceWord < 2) return;
+    } else {
+      // Subsequent words
+      if (cState.pipesSinceWord < 2) return;
+    }
+  } else {
+     // Mid-word spacing: Every 2 pipes?
+     if (cState.spawnCooldown > 0) {
+       cState.spawnCooldown--;
+       return;
+     }
+  }
 
   const currentWord = cState.targetWords[cState.currentWordIndex];
   // Ignore spaces
   let char = currentWord[cState.currentCharIndex];
   if (char === ' ') {
-    // Skip spaces immediately
     cState.currentCharIndex++;
     if (cState.currentCharIndex >= currentWord.length) {
       completeWord(s);
@@ -213,19 +252,7 @@ export function spawnCollectible(s: GameState): void {
 
   if (s.pipes.length < 1) return;
   
-  // Placement: Align with the LAST pipe spawned (which is at s.w)
-  // We want it in the gap of this new pipe.
-  const lastPipe = s.pipes[s.pipes.length - 1]; // This is the new one at right edge
-  
-  // Actually the prompt says "vertical gap between 2 pipes".
-  // Wait, "vertical gap" implies the hole. "between 2 pipes" implies horizontal.
-  // User clarify: "I meant the place where gain a point, that is the vertical gap between 2 pipes, not the horizontal middle point between two adjacent pipes."
-  // So: Inside the gap of a single pipe column.
-  
-  // Position: Center of the gap.
-  // X: aligned with pipe.x + pipeWidth/2
-  // Y: pipe.topHeight + pipe.gap/2
-  
+  const lastPipe = s.pipes[s.pipes.length - 1]; 
   const spawnX = lastPipe.x + GAME_CONFIG.pipeWidth / 2;
   const spawnY = lastPipe.topHeight + lastPipe.gap / 2;
 
@@ -234,14 +261,13 @@ export function spawnCollectible(s: GameState): void {
     y: spawnY,
     baseY: spawnY,
     char: char,
-    w: 40, // Larger for visibility
+    w: 40,
     h: 40,
     collected: false,
   });
   
-  // Set cooldown for NEXT letter
-  // "Letter frequency: Every 1-2 pipes"
-  cState.spawnCooldown = 1 + Math.floor(Math.random() * 2);
+  // Set cooldown for NEXT letter within same word
+  cState.spawnCooldown = 2; // Fixed spacing
 }
 
 function completeWord(s: GameState) {
@@ -251,6 +277,10 @@ function completeWord(s: GameState) {
   cState.collectedWords.push(word);
   cState.currentWordIndex++;
   cState.currentCharIndex = 0;
+  
+  // Run logic
+  cState.wordsCollectedInRun++;
+  cState.pipesSinceWord = 0; // Reset counter for the 2-pipe delay
 
   // Increment Fragments
   cState.keyFragments++;
@@ -265,10 +295,6 @@ function completeWord(s: GameState) {
   // Save progress
   saveProgress(cState);
   
-  // Cooldown for NEXT WORD
-  // "Word completion delay: 4-5 pipes"
-  cState.spawnCooldown = 4 + Math.floor(Math.random() * 2);
-
   // Effect
   s.scorePops.push({
     x: s.birdX,
@@ -288,6 +314,9 @@ export function spawnPipe(s: GameState, overrides?: DebugOverrides): void {
   const topH = minTop + Math.random() * (maxTop - minTop);
   
   s.pipes.push({ x: s.w, topHeight: topH, gap, scored: false });
+
+  // Increment pipe counter for spawning logic
+  s.collectibles.pipesSinceWord++;
 
   // Verify and Trigger Spawn
   spawnCollectible(s);
@@ -359,6 +388,9 @@ export function updateGameState(
     return;
   }
 
+  // Hard Pause if speedMultiplier is 0
+  if (overrides?.speedMultiplier === 0) return;
+
   const now = Date.now();
   const gravity = overrides?.gravity ?? GAME_CONFIG.gravity;
   const speedMul = overrides?.speedMultiplier ?? 1;
@@ -394,13 +426,17 @@ export function updateGameState(
   for (const pipe of s.pipes) {
     if (!pipe.scored && pipe.x + GAME_CONFIG.pipeWidth < s.birdX) {
       pipe.scored = true;
-      s.score++;
+      
+      // Scoring Multiplier Logic
+      // Base: 1 point per pipe. Multiplier applied at GAME OVER.
+      s.score += 1;
+
       // Score pop effect
       s.scorePops.push({
         x: s.birdX + 20,
         y: s.birdY - 20,
         frame: 0,
-        value: s.score,
+        value: 1, 
       });
       emitScoreParticles(s, pipe.x + GAME_CONFIG.pipeWidth);
       if (s.score > s.highScore) {
@@ -525,7 +561,10 @@ export function startGame(s: GameState, overrides?: DebugOverrides): void {
   s.frame = 0;
   s.phase = 'playing';
   s.highScore = loadHighScore();
-  s.collectibles.activeCollectibles = []; // Clear active but keep progress
+  s.collectibles.activeCollectibles = []; 
+  s.collectibles.wordsCollectedInRun = 0;
+  s.collectibles.pipesSinceWord = 0;
+  s.collectibles.spawnCooldown = 0;
   const force = overrides?.jumpForce ?? GAME_CONFIG.jumpForce;
   s.birdVelocity = force;
   spawnPipe(s, overrides);

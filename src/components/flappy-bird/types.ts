@@ -80,6 +80,8 @@ export interface CollectiblesState {
   activeCollectibles: Collectible[];
   lastCollectibleTime: number; // ms timestamp
   spawnCooldown: number; // Number of pipes to wait before next spawn
+  wordsCollectedInRun: number; // For score multiplier
+  pipesSinceWord: number; // For precise spawn timing
   // Encryption / Reward related
   isRewardUnlocked: boolean;
   rewardLink: string;

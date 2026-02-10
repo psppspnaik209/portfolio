@@ -33,11 +33,13 @@ interface UseGameReturn {
   currentWordIndex: number;
   currentCharIndex: number;
   keyFragments: number;
+  wordsCollectedInRun: number; // Added
   isRewardUnlocked: boolean;
   rewardLink: string;
   debugCompleteWord: () => void;
   debugUnlockAll: () => void;
-  goToMenu: () => void;
+  goToMenu: () => void; // Already added?
+  resetProgress: () => void;
 }
 
 export function useGame(skills: string[] = []): UseGameReturn {
@@ -67,6 +69,7 @@ export function useGame(skills: string[] = []): UseGameReturn {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [keyFragments, setKeyFragments] = useState(0);
+  const [wordsCollectedInRun, setWordsCollectedInRun] = useState(0); // Added
   const [isRewardUnlocked, setIsRewardUnlocked] = useState(false);
   const [rewardLink, setRewardLink] = useState('');
 
@@ -93,6 +96,7 @@ export function useGame(skills: string[] = []): UseGameReturn {
       setCurrentWordIndex(s.collectibles.currentWordIndex);
       setCurrentCharIndex(s.collectibles.currentCharIndex);
       setKeyFragments(s.collectibles.keyFragments);
+      setWordsCollectedInRun(s.collectibles.wordsCollectedInRun); // Sync
       setIsRewardUnlocked(s.collectibles.isRewardUnlocked);
       setRewardLink(s.collectibles.rewardLink);
     }
@@ -224,10 +228,23 @@ export function useGame(skills: string[] = []): UseGameReturn {
     currentWordIndex,
     currentCharIndex,
     keyFragments,
+    wordsCollectedInRun, // Added
     isRewardUnlocked,
     rewardLink,
     debugCompleteWord: () => debugCompleteWord(stateRef.current),
     debugUnlockAll: () => debugUnlockAll(stateRef.current),
     goToMenu,
+    resetProgress: () => {
+      // Clear local storage and state
+      localStorage.removeItem('flappy_progress_v2');
+      const s = stateRef.current;
+      s.collectibles.collectedWords = [];
+      s.collectibles.currentWordIndex = 0;
+      s.collectibles.currentCharIndex = 0;
+      s.collectibles.keyFragments = 0;
+      s.collectibles.isRewardUnlocked = false;
+      s.collectibles.rewardLink = '';
+      syncPhase();
+    }
   };
 }
