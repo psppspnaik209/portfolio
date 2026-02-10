@@ -30,7 +30,7 @@ const GithubProjectCard = lazy(() => import('./github-project-card'));
 const ExternalProjectCard = lazy(() => import('./external-project-card'));
 const BlogCard = lazy(() => import('./blog-card'));
 const PublicationCard = lazy(() => import('./publication-card'));
-const FlappyBirdGame = lazy(() => import('./flappy-bird-game'));
+const FlappyBirdGame = lazy(() => import('./flappy-bird'));
 import CustomCursor from './custom-cursor';
 
 const containerVariants = {
