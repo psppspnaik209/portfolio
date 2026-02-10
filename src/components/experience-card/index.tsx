@@ -85,6 +85,7 @@ const ExperienceCard = ({
         className="card shadow-2xl compact bg-base-100/85 border border-primary/20  rounded-xl neon-glow liquid-card"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.03, y: -4 }}
         transition={{ duration: 0.2 }}
       >
         <div className="card-body">

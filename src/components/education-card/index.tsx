@@ -86,6 +86,7 @@ const EducationCard = ({
   return (
     <motion.div
       className="card shadow-2xl compact bg-base-100/85 border border-primary/20  rounded-xl  neon-glow glitch liquid-card"
+      whileHover={{ scale: 1.03, y: -4 }}
       data-text="Education"
     >
       <div className="card-body">

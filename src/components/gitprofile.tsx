@@ -283,10 +283,7 @@ const GitProfile = ({ config }: { config: Config }) => {
                       )}
 
                       {sanitizedConfig.certifications.length !== 0 && (
-                        <motion.div
-                          className="card-hover"
-                          variants={itemVariants}
-                        >
+                        <motion.div variants={itemVariants}>
                           <CertificationCard
                             loading={loading}
                             certifications={sanitizedConfig.certifications}
@@ -354,10 +351,7 @@ const GitProfile = ({ config }: { config: Config }) => {
                       )}
 
                       {sanitizedConfig.experiences.length !== 0 && (
-                        <motion.div
-                          className="card-hover"
-                          variants={itemVariants}
-                        >
+                        <motion.div variants={itemVariants}>
                           <ExperienceCard
                             loading={loading}
                             experiences={sanitizedConfig.experiences}
@@ -365,10 +359,7 @@ const GitProfile = ({ config }: { config: Config }) => {
                         </motion.div>
                       )}
                       {sanitizedConfig.educations.length !== 0 && (
-                        <motion.div
-                          className="card-hover"
-                          variants={itemVariants}
-                        >
+                        <motion.div variants={itemVariants}>
                           <EducationCard
                             loading={loading}
                             educations={sanitizedConfig.educations}

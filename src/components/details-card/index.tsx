@@ -19,6 +19,7 @@ import {
   FaStackOverflow,
   FaTelegram,
   FaYoutube,
+  FaUniversity,
 } from 'react-icons/fa';
 import { FaSquareThreads } from 'react-icons/fa6';
 import { MdLocationOn } from 'react-icons/md';
@@ -307,7 +308,7 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
                 <ListItem
                   icon={<FaLinkedin />}
                   title="LinkedIn:"
-                  value={social.linkedin}
+                  value={`linkedin.com/in/${social.linkedin}`}
                   link={`https://www.linkedin.com/in/${social.linkedin}`}
                 />
               )}
@@ -442,7 +443,7 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
                   social.email.map((emailItem, idx) => (
                     <ListItem
                       key={`email-${idx}`}
-                      icon={<RiMailFill />}
+                      icon={idx === 1 ? <FaUniversity /> : <RiMailFill />}
                       title="Email:"
                       value={emailItem}
                       link={`mailto:${emailItem}`}

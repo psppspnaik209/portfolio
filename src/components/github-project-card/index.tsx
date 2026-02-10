@@ -5,6 +5,18 @@ import { MdInsertLink } from 'react-icons/md';
 import { getLanguageColor, skeleton } from '../../utils';
 import { GithubProject } from '../../interfaces/github-project';
 import Modal from '../modal'; // Import the new Modal component
+import FFLockerVideo from '../../assets/demo/FFLocker.mp4';
+import MicMuteNetVideo from '../../assets/demo/MicMuteNet.mp4';
+import SenscribeVideo from '../../assets/demo/Senscribe.MP4';
+import FlutterGenAiVideo from '../../assets/demo/flutter_gen_ai.webm';
+
+const getVideoPath = (projectName: string) => {
+  if (projectName.includes('FFLocker')) return FFLockerVideo;
+  if (projectName.includes('MicMuteNet')) return MicMuteNetVideo;
+  if (projectName.includes('Capstone')) return SenscribeVideo;
+  if (projectName.includes('flutter_gen_ai')) return FlutterGenAiVideo;
+  return null;
+};
 
 const GithubProjectCard = ({
   header,
@@ -202,6 +214,16 @@ const GithubProjectCard = ({
             <motion.p className="py-4 link-glow-purple">
               {modalProject.description}
             </motion.p>
+            {getVideoPath(modalProject.name) && (
+              <video
+                src={getVideoPath(modalProject.name)}
+                controls
+                autoPlay
+                loop
+                muted
+                className="w-full rounded-lg mb-4 shadow-lg border border-primary/20"
+              />
+            )}
             <motion.a
               href={modalProject.html_url}
               target="_blank"
