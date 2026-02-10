@@ -30,7 +30,7 @@ const GithubProjectCard = lazy(() => import('./github-project-card'));
 const ExternalProjectCard = lazy(() => import('./external-project-card'));
 const BlogCard = lazy(() => import('./blog-card'));
 const PublicationCard = lazy(() => import('./publication-card'));
-const RobotModel = lazy(() => import('./robot-model'));
+const FlappyBirdGame = lazy(() => import('./flappy-bird-game'));
 import CustomCursor from './custom-cursor';
 
 const containerVariants = {
@@ -374,9 +374,9 @@ const GitProfile = ({ config }: { config: Config }) => {
                         </motion.div>
                       )}
 
-                      {/* 3D Robot Model */}
+                      {/* Flappy Bird Mini-Game */}
                       <motion.div variants={itemVariants} className="">
-                        <RobotModel />
+                        <FlappyBirdGame />
                       </motion.div>
                     </div>
                   </Suspense>
