@@ -15,7 +15,7 @@ const ListItem = ({
   link?: string;
 }) => (
   <motion.li
-    className="mb-5 ml-4 list-item-hover"
+    className="mb-5 ml-6 list-item-hover"
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     transition={{ duration: 0.2 }}

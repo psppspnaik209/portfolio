@@ -138,9 +138,18 @@ const CONFIG = {
       position: 'Full Stack Developer Intern',
       from: 'Jun 2025',
       to: 'Aug 2025',
+      companyLink: 'https://www.attention.ad/',
+      description:
+        'Built a social broadcasting service in TypeScript (TS) and Node.js using Twitter/X API to auto amplify Clanker minted ERC 20 tokens on the Base network. Shipped a real time analytics dashboard (TS) for on chain telemetry: token trading volume, cumulative fee earnings, and leaderboard rankings with low latency updates. Integrated Stripe (payments) and Alchemy (on chain data); exposed resilient REST APIs with idempotent webhooks, retry logic, and structured logging for a robust tokenization backend.',
+    },
+    {
+      company: 'Indo Welsh Company',
+      position: 'AI/ML Engineer',
+      from: 'Jan 2025',
+      to: 'May 2025',
       companyLink: '',
       description:
-        'Collaborated on a 5-member full-stack team using TypeScript/Node.js REST APIs to refactor and create a Web 3 Crypto Prodcut. Integrated Twitter/X, Clanker, Privy, Alchemy, Stripe, Grok, OpenAl API for metadata caching, rate-limiting, trending-topic feeds, Authorizations, Payments, Base Network, Token Trading, and Image generation. Developed Uniswap modules for on-chain liquidity queries and real-time token pricing and trading. Updated front-end: token-explore pages, leaderboards, profiles, and price-history charts. Built a unified responsive user dashboard, created Franchising, Sponsorship, and Memathon tabs. Created Backend API and Front-End design docs to accelerate developer documentation.',
+        'Designed and deployed multiple ML models for analytics, forecasting, and automation initiatives using Python, PyTorch, and scikit-learn, improving operational efficiency by 20%. Developed an LLM-based chatbot integrated with LangChain and vector databases to automate client support, reducing manual response time by 24%. Constructed a computer vision defect detection system using transfer learning (EfficientNet), cutting manual inspection time by 35%. Collaborated with backend developers to build scalable APIs in FastAPI, deploying on Kubernetes for high availability and latency under 120ms. Established MLOps pipelines using MLflow, Airflow, and Prometheus, automating model training and performance monitoring.',
     },
   ],
   certifications: [
