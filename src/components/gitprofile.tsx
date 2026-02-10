@@ -30,7 +30,7 @@ const GithubProjectCard = lazy(() => import('./github-project-card'));
 const ExternalProjectCard = lazy(() => import('./external-project-card'));
 const BlogCard = lazy(() => import('./blog-card'));
 const PublicationCard = lazy(() => import('./publication-card'));
-const FlappyBirdGame = lazy(() => import('./flappy-bird'));
+
 import CustomCursor from './custom-cursor';
 
 const containerVariants = {
@@ -281,36 +281,12 @@ const GitProfile = ({ config }: { config: Config }) => {
                           />
                         </motion.div>
                       )}
-                      {sanitizedConfig.experiences.length !== 0 && (
-                        <motion.div
-                          className="card-hover"
-                          variants={itemVariants}
-                        >
-                          <ExperienceCard
-                            loading={loading}
-                            experiences={sanitizedConfig.experiences}
-                          />
-                        </motion.div>
-                      )}
+
                       {sanitizedConfig.certifications.length !== 0 && (
-                        <motion.div
-                          className="card-hover"
-                          variants={itemVariants}
-                        >
+                        <motion.div variants={itemVariants}>
                           <CertificationCard
                             loading={loading}
                             certifications={sanitizedConfig.certifications}
-                          />
-                        </motion.div>
-                      )}
-                      {sanitizedConfig.educations.length !== 0 && (
-                        <motion.div
-                          className="card-hover"
-                          variants={itemVariants}
-                        >
-                          <EducationCard
-                            loading={loading}
-                            educations={sanitizedConfig.educations}
                           />
                         </motion.div>
                       )}
@@ -374,10 +350,22 @@ const GitProfile = ({ config }: { config: Config }) => {
                         </motion.div>
                       )}
 
-                      {/* Flappy Bird Mini-Game */}
-                      <motion.div variants={itemVariants} className="">
-                        <FlappyBirdGame skills={sanitizedConfig.skills} />
-                      </motion.div>
+                      {sanitizedConfig.experiences.length !== 0 && (
+                        <motion.div variants={itemVariants}>
+                          <ExperienceCard
+                            loading={loading}
+                            experiences={sanitizedConfig.experiences}
+                          />
+                        </motion.div>
+                      )}
+                      {sanitizedConfig.educations.length !== 0 && (
+                        <motion.div variants={itemVariants}>
+                          <EducationCard
+                            loading={loading}
+                            educations={sanitizedConfig.educations}
+                          />
+                        </motion.div>
+                      )}
                     </div>
                   </Suspense>
                 </motion.div>

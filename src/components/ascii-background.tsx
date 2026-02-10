@@ -13,196 +13,123 @@ import { useRef, useEffect, memo } from 'react';
 const AsciiBackground = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
-  const isRunningRef = useRef(false);
 
   useEffect(() => {
-    const cvs = canvasRef.current;
-    if (!cvs) return;
-    const context = cvs.getContext('2d', { alpha: false });
-    if (!context) return;
-    const canvas = cvs;
-    const ctx = context;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    if (isRunningRef.current) return;
-    isRunningRef.current = true;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
 
-    // ---- Sizing ----
-    let W = 0;
-    let H = 0;
-    let cols = 0;
-    const FONT_SIZE = 12;
-    const GRID_SPACING = 50;
-    const CHARS = '01#%@$&*+-/\\|~<>[]{}()=!"£€¥¢§°';
+    // Configuration
+    const PARTICLE_COUNT = 60;
+    const CONNECTION_DISTANCE = 150;
+    const MOUSE_DISTANCE = 200;
 
-    // Pre-created offscreen canvases
-    let gridCanvas: OffscreenCanvas | HTMLCanvasElement;
-
-    const drops: number[] = [];
-    // Per-column speed so we don't call Math.random() every frame
-    const speeds: number[] = [];
-
-    let mouseX = -9999;
-    let mouseY = -9999;
-
-    // ---- Pre-render glow sprites ----
-    function makeGlowSprite(color: string, radius: number): HTMLCanvasElement {
-      const c = document.createElement('canvas');
-      const s = radius * 4;
-      c.width = s;
-      c.height = s;
-      const g = c.getContext('2d')!;
-      const grad = g.createRadialGradient(
-        s / 2,
-        s / 2,
-        0,
-        s / 2,
-        s / 2,
-        radius,
-      );
-      grad.addColorStop(0, color);
-      grad.addColorStop(1, 'transparent');
-      g.fillStyle = grad;
-      g.fillRect(0, 0, s, s);
-      return c;
+    interface Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      color: string;
     }
 
-    // ---- Build grid onto offscreen canvas ----
-    function buildGridCanvas() {
-      try {
-        gridCanvas = new OffscreenCanvas(W, H);
-      } catch {
-        // Fallback for browsers without OffscreenCanvas
-        gridCanvas = document.createElement('canvas');
-        gridCanvas.width = W;
-        gridCanvas.height = H;
-      }
-      const gc = gridCanvas.getContext('2d')!;
-      gc.strokeStyle = 'rgba(0, 255, 255, 0.1)';
-      gc.lineWidth = 1;
-      gc.beginPath();
-      for (let x = 0; x < W; x += GRID_SPACING) {
-        gc.moveTo(x + 0.5, 0);
-        gc.lineTo(x + 0.5, H);
-      }
-      for (let y = 0; y < H; y += GRID_SPACING) {
-        gc.moveTo(0, y + 0.5);
-        gc.lineTo(W, y + 0.5);
-      }
-      gc.stroke();
-    }
+    let particles: Particle[] = [];
+    const mouse = { x: -1000, y: -1000 };
 
-    function updateSize() {
-      W = window.innerWidth;
-      H = window.innerHeight;
-      canvas.width = W;
-      canvas.height = H;
-
-      const newCols = Math.floor(W / FONT_SIZE) + 2;
-      // Extend arrays if needed, preserve existing positions
-      for (let i = cols; i < newCols; i++) {
-        drops[i] = Math.random() * (H / FONT_SIZE);
-        speeds[i] = 2 + Math.random() * 3;
-      }
-      cols = newCols;
-
-      buildGridCanvas();
-      // Fill canvas with solid black to start
-      ctx.fillStyle = '#0f0f23';
-      ctx.fillRect(0, 0, W, H);
-    }
-
-    updateSize();
-    const glowCyan = makeGlowSprite('rgba(0,255,255,0.35)', 8);
-    const glowYellow = makeGlowSprite('rgba(255,255,0,0.5)', 14);
-
-    // ---- Draw function ----
-    const MOUSE_RADIUS = 150;
-    const MOUSE_RADIUS_SQ = MOUSE_RADIUS * MOUSE_RADIUS;
-
-    function draw() {
-      // Trail fade — slightly higher alpha clears faster, less GPU compositing buildup
-      ctx.fillStyle = 'rgba(15, 15, 35, 0.18)';
-      ctx.fillRect(0, 0, W, H);
-
-      // Blit cached grid
-      ctx.drawImage(gridCanvas as CanvasImageSource, 0, 0);
-
-      // Draw falling characters
-      ctx.font = `${FONT_SIZE}px monospace`;
-
-      for (let i = 0; i < cols; i++) {
-        const x = i * FONT_SIZE;
-        const realY = (drops[i] * FONT_SIZE) % H;
-
-        // Distance check (squared, no sqrt)
-        const dx = x - mouseX;
-        const dy = realY - mouseY;
-        const distSq = dx * dx + dy * dy;
-        const isNear = distSq < MOUSE_RADIUS_SQ;
-
-        if (isNear) {
-          ctx.fillStyle = '#ffff00';
-          // Stamp glow sprite instead of shadowBlur
-          ctx.drawImage(
-            glowYellow,
-            x - glowYellow.width / 2 + FONT_SIZE / 2,
-            realY - glowYellow.height / 2,
-          );
-        } else {
-          ctx.fillStyle = '#00ffff';
-          // Stamp subtle cyan glow
-          ctx.drawImage(
-            glowCyan,
-            x - glowCyan.width / 2 + FONT_SIZE / 2,
-            realY - glowCyan.height / 2,
-          );
-        }
-
-        const charIdx = (i * 7 + (drops[i] | 0)) % CHARS.length;
-        ctx.fillText(CHARS[charIdx], x, realY + (isNear ? -50 : 0));
-
-        drops[i] += speeds[i] / FONT_SIZE;
-        if (drops[i] * FONT_SIZE > H + FONT_SIZE) {
-          drops[i] = 0;
-          speeds[i] = 2 + Math.random() * 3;
-        }
-      }
-    }
-
-    // ---- Animation loop throttled to ~30 fps ----
-    const FRAME_INTERVAL = 1000 / 30;
-    let lastFrameTime = 0;
-
-    function animate(now: number) {
-      if (!isRunningRef.current) return;
-      animationRef.current = requestAnimationFrame(animate);
-
-      if (now - lastFrameTime < FRAME_INTERVAL) return;
-      lastFrameTime = now;
-
-      draw();
-    }
-    animationRef.current = requestAnimationFrame(animate);
-
-    // ---- Event listeners ----
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      initParticles();
     };
 
-    const handleResize = () => updateSize();
+    const initParticles = () => {
+      particles = [];
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          size: Math.random() * 2 + 1,
+          color: Math.random() > 0.5 ? '#00ffff' : '#ffff00', // Cyan or Yellow
+        });
+      }
+    };
 
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('resize', handleResize);
+    const drawLine = (p1: Particle, p2: Particle, dist: number) => {
+      const opacity = 1 - dist / CONNECTION_DISTANCE;
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = `rgba(0, 255, 255, ${opacity * 0.2})`; // Faint Cyan connections
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    };
+
+    const animate = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Update and draw particles
+      particles.forEach((p, index) => {
+        // Move
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Bounce off walls
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        // Mouse interaction (push away)
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MOUSE_DISTANCE) {
+          const angle = Math.atan2(dy, dx);
+          const force = (MOUSE_DISTANCE - dist) / MOUSE_DISTANCE;
+          p.x += Math.cos(angle) * force * 2;
+          p.y += Math.sin(angle) * force * 2;
+        }
+
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+
+        // Connect particles
+        for (let j = index + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx2 = p.x - p2.x;
+          const dy2 = p.y - p2.y;
+          const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+
+          if (dist2 < CONNECTION_DISTANCE) {
+            drawLine(p, p2, dist2);
+          }
+        }
+      });
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    resize();
+    animate();
 
     return () => {
-      isRunningRef.current = false;
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', resize);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
   }, []);
 
@@ -210,7 +137,7 @@ const AsciiBackground = memo(() => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 z-0 pointer-events-none"
-      style={{ backgroundColor: '#0f0f23', willChange: 'transform' }}
+      style={{ backgroundColor: '#0f0f23' }} // Dark Cyberpunk Blue
     />
   );
 });

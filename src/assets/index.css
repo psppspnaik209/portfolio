@@ -13,6 +13,11 @@
   }
 }
 
+body.is-fullscreen,
+body.is-fullscreen * {
+  cursor: auto !important;
+}
+
 /* GLOBAL RESET FOR HOVER DELAY - CRITICAL FOR RESPONSIVENESS */
 * {
   transition-delay: 0s !important;
@@ -107,6 +112,8 @@ svg {
     transform 0.2s ease,
     box-shadow 0.2s ease;
   will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .card-hover:hover {
@@ -122,6 +129,8 @@ svg {
     transform 0.2s ease,
     box-shadow 0.2s ease;
   will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .card-3d:hover {
@@ -140,6 +149,9 @@ svg {
   border-radius: 0.5rem;
   padding: 0.25rem;
   margin: -0.25rem;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .list-item-hover:hover {
