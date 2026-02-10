@@ -216,12 +216,21 @@ const GithubProjectCard = ({
             </motion.p>
             {getVideoPath(modalProject.name) && (
               <video
-                src={getVideoPath(modalProject.name)}
+                src={getVideoPath(modalProject.name) as string}
+                ref={(ref) => {
+                  if (ref) {
+                    if (modalProject.name.includes('Capstone')) {
+                      ref.muted = false;
+                      ref.volume = 0.1;
+                    } else {
+                      ref.muted = true;
+                    }
+                  }
+                }}
                 controls
                 autoPlay
                 loop
-                muted
-                className="w-full rounded-lg mb-4 shadow-lg border border-primary/20"
+                className="w-full rounded-lg mb-4 shadow-lg border border-primary/20 max-h-[60vh] object-contain cursor-auto"
               />
             )}
             <motion.a
