@@ -76,6 +76,36 @@ const ListItem: React.FC<{
     }
   };
 
+  if (link) {
+    return (
+      <motion.a
+        href={link}
+        target="_blank"
+        rel="noreferrer"
+        className="flex justify-start py-2 px-1 items-center detail-row-hover text-base-content"
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0 }}
+      >
+        <div className="flex-grow font-medium gap-2 flex items-center my-1 text-base-content">
+          <div className="icon-pop transition-transform">{icon}</div> {title}
+        </div>
+        <div
+          className={`${
+            skeleton ? 'flex-grow' : ''
+          } text-sm font-normal text-right mr-2 ml-3 truncate text-base-content`}
+          style={{
+            wordBreak: 'break-word',
+          }}
+        >
+          <span className="flex justify-start py-2 px-1 items-center link-glow">
+            {value}
+          </span>
+        </div>
+      </motion.a>
+    );
+  }
+
   return (
     <motion.div
       className="flex justify-start py-2 px-1 items-center detail-row-hover"
@@ -90,25 +120,14 @@ const ListItem: React.FC<{
       <div
         className={`${
           skeleton ? 'flex-grow' : ''
-        } text-sm font-normal text-right mr-2 ml-3 ${link ? 'truncate' : ''}`}
+        } text-sm font-normal text-right mr-2 ml-3`}
         style={{
           wordBreak: 'break-word',
         }}
       >
-        {link ? (
-          <a
-            href={link}
-            target="_blank"
-            rel="noreferrer"
-            className="flex justify-start py-2 px-1 items-center link-glow"
-          >
-            {value}
-          </a>
-        ) : (
-          <span className="flex justify-start py-2 px-1 items-center">
-            {value}
-          </span>
-        )}
+        <span className="flex justify-start py-2 px-1 items-center">
+          {value}
+        </span>
       </div>
     </motion.div>
   );
