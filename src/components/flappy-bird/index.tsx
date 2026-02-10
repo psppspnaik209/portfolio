@@ -28,7 +28,7 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [showQuitConfirm, setShowQuitConfirm] = useState(false); // New: for Pause menu
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   const {
     canvasRef,
@@ -45,17 +45,16 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
     currentWordIndex,
     currentCharIndex,
     keyFragments,
-    wordsCollectedInRun, // Destructure
+    wordsCollectedInRun,
     isRewardUnlocked,
     rewardLink,
     debugCompleteWord,
     debugUnlockAll,
     goToMenu,
     resetProgress,
-    adjustTime, // New helper
+    adjustTime,
   } = useGame(skills);
 
-  // New State
   const [pauseStartTime, setPauseStartTime] = useState(0);
   const [countDown, setCountDown] = useState<number | null>(null);
 
@@ -160,7 +159,7 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
         </button>
       )}
 
-      {/* ---- PLAYING: Score Overlay (New Format) ---- */}
+      {/* ---- PLAYING: Score Overlay ---- */}
       {phase === 'playing' && (
         <div
           style={{

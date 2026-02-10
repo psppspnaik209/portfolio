@@ -33,12 +33,12 @@ interface UseGameReturn {
   currentWordIndex: number;
   currentCharIndex: number;
   keyFragments: number;
-  wordsCollectedInRun: number; // Added
+  wordsCollectedInRun: number;
   isRewardUnlocked: boolean;
   rewardLink: string;
   debugCompleteWord: () => void;
   debugUnlockAll: () => void;
-  goToMenu: () => void; // Already added?
+  goToMenu: () => void;
   resetProgress: () => void;
   adjustTime: (delta: number) => void;
 }
@@ -70,7 +70,7 @@ export function useGame(skills: string[] = []): UseGameReturn {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [keyFragments, setKeyFragments] = useState(0);
-  const [wordsCollectedInRun, setWordsCollectedInRun] = useState(0); // Added
+  const [wordsCollectedInRun, setWordsCollectedInRun] = useState(0);
   const [isRewardUnlocked, setIsRewardUnlocked] = useState(false);
   const [rewardLink, setRewardLink] = useState('');
 
@@ -88,9 +88,7 @@ export function useGame(skills: string[] = []): UseGameReturn {
     setScore((prev) => (prev !== s.score ? s.score : prev));
     setHighScore((prev) => (prev !== s.highScore ? s.highScore : prev));
 
-    // Collectibles (optimizing to not re-render every frame if possible,
-    // but React batching handles it mostly ok. For high perf, use refs, but this is simple UI).
-    // Let's just sync them.
+    // Collectibles
     if (s.collectibles) {
       setCollectedWords(s.collectibles.collectedWords);
       setTargetWords(s.collectibles.targetWords);
@@ -248,12 +246,6 @@ export function useGame(skills: string[] = []): UseGameReturn {
       syncPhase();
     },
     adjustTime: (delta: number) => {
-      // Import this? Or just move impl here?
-      // It's in engine.
-      // We need to import it at top of file first.
-      // But we can't easily add import with replace_file if we don't touch top.
-      // Wait, `use-game.ts` imports from `./game-engine`.
-      // I need to add `adjustGameTime` to imports.
       const s = stateRef.current;
       s.lastPipeTime += delta;
     },

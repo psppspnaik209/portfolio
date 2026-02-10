@@ -9,22 +9,8 @@ import type { GameState, DebugOverrides, CollectiblesState } from './types';
 const CUSTOM_WORDS = ['Hire Me', 'TNBB', 'Mikhial'];
 // Basic XOR "encryption" to prevent widely obvious string search
 // Key: 'flappy'
-// Basic XOR "encryption" to prevent widely obvious string search
-// Key: 'flappy'
 const ENCRYPTED_LINK = 'DhgVAANDSUMYHwUNE0IDFV8dNxtVB0kuATQCIQ=='; // Encrypted
 const REAL_LINK = decryptLink(ENCRYPTED_LINK);
-
-/* 
-// Utility to generate encrypted links
-function getEncryptedLink(link: string): string {
-  const key = 'flappy';
-  let res = '';
-  for (let i = 0; i < link.length; i++) {
-    res += String.fromCharCode(link.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-  }
-  return btoa(res);
-} 
-*/
 
 function decryptLink(encrypted: string): string {
   try {
@@ -98,7 +84,7 @@ function createCollectiblesState(skills: string[]): CollectiblesState {
 
 // ---- Persistence ----
 
-const STORAGE_KEY_PROGRESS = 'flappy_progress_v2'; // Bumped version
+const STORAGE_KEY_PROGRESS = 'flappy_progress_v2';
 
 interface SavedProgress {
   wordIndex: number;
@@ -191,46 +177,21 @@ export function spawnCollectible(s: GameState): void {
 
   // Rule 1: First character spawns from SECOND pipe ever.
   // Rule 2: Subsequent words spawn exactly 2 pipes after completion.
-
-  // We need to know if we are in the "active" phase for a word.
-  // If we are mid-word (charIndex > 0), we spawn every 1-2 pipes (let's say 2 to be safe/paced).
-  // If charIndex == 0, we check our specific "start" conditions.
+  // Rule 3: Mid-word spawns occur every 2 pipes (spawnCooldown).
 
   if (cState.activeCollectibles.length > 0) return; // Wait for screen clear
 
-  // Initial Game Start Logic
-  // We use s.pipes.length to track "pipes spawned this run" roughly,
-  // but better to track a dedicated counter in GameState if we wanted precision.
-  // However, `spawnCollectible` is called *right after* `spawnPipe`.
-  // So s.pipes.length represents the TOTAL pipes spawned this session (if we don't clear them).
-  // Actually s.pipes gets filtered. We need a robust counter.
-  // Let's use `s.score` as a proxy for distance? No, score is passed pipes.
-
-  // Simplification:
-  // If charIndex == 0 (Start of word)
-  //   If wordsCollectedInRun == 0 -> Wait for 2nd pipe (Pipe #2).
-  //   If wordsCollectedInRun > 0  -> Wait for pipesSinceWord == 2.
-
-  // We need to track `pipesSpawnedSinceLastWord` explicitly?
-  // We added `pipesSinceWord` to types.
-
   if (cState.currentCharIndex === 0) {
-    // We are waiting to start a word
+    // Waiting to start a word
     if (cState.wordsCollectedInRun === 0) {
-      // First word of the run
-      // We want it at 2nd pipe.
-      // How do we know it's the 2nd pipe?
-      // We can check if s.score == 1? No, score happens when passing.
-      // We can rely on a run-level pipe counter?
-      // Let's use `pipesSinceWord` as "Total Pipes Spawned" for the first word case?
-      // Actually `pipesSinceWord` increments on every spawnPipe.
+      // First word of the run: Start at 2nd pipe
       if (cState.pipesSinceWord < 2) return;
     } else {
-      // Subsequent words
+      // Subsequent words: Wait for 2 pipes since last word completion
       if (cState.pipesSinceWord < 2) return;
     }
   } else {
-    // Mid-word spacing: Every 2 pipes?
+    // Mid-word spacing: Every 2 pipes
     if (cState.spawnCooldown > 0) {
       cState.spawnCooldown--;
       return;
