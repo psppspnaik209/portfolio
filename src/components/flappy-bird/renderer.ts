@@ -203,7 +203,7 @@ function drawCollectibles(
     ctx.textBaseline = 'middle';
     ctx.shadowColor = '#00ffff';
     ctx.shadowBlur = 10;
-    ctx.fillText(c.char, 0, 2); 
+    ctx.fillText(c.char, 0, 2);
 
     ctx.restore();
   }
@@ -526,22 +526,4 @@ function drawScorePops(ctx: CanvasRenderingContext2D, pops: ScorePop[]): void {
     ctx.fillText('+1', sp.x, sp.y + yOff);
     ctx.restore();
   }
-}
-
-// ---- Live score HUD ----
-
-function drawLiveScore(
-  ctx: CanvasRenderingContext2D,
-  score: number,
-  w: number,
-): void {
-  ctx.save();
-  ctx.font = "bold 28px 'Orbitron', monospace";
-  ctx.textAlign = 'center';
-  ctx.fillStyle = C.scoreColor;
-  ctx.shadowColor = C.scoreShadow;
-  ctx.shadowBlur = 10;
-  ctx.fillText(String(score), w / 2, 36);
-  ctx.shadowBlur = 0;
-  ctx.restore();
 }

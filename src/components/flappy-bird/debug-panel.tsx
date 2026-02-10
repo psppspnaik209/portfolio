@@ -193,8 +193,15 @@ const DebugPanel = ({
         />
       </div>
 
-      <div style={{ ...row, marginTop: '8px', borderTop: '1px solid #333', paddingTop: '8px' }}>
-        <button 
+      <div
+        style={{
+          ...row,
+          marginTop: '8px',
+          borderTop: '1px solid #333',
+          paddingTop: '8px',
+        }}
+      >
+        <button
           onClick={onCompleteWord}
           style={{
             background: 'rgba(0,255,255,0.1)',
@@ -203,14 +210,14 @@ const DebugPanel = ({
             fontSize: '9px',
             padding: '4px',
             cursor: 'pointer',
-            flex: 1
+            flex: 1,
           }}
         >
           COMPLETE WORD
         </button>
       </div>
       <div style={row}>
-        <button 
+        <button
           onClick={onUnlockAll}
           style={{
             background: 'rgba(255,0,255,0.1)',
@@ -219,7 +226,7 @@ const DebugPanel = ({
             fontSize: '9px',
             padding: '4px',
             cursor: 'pointer',
-            flex: 1
+            flex: 1,
           }}
         >
           UNLOCK ALL

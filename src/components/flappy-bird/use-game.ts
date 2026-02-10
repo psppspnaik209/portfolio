@@ -82,13 +82,13 @@ export function useGame(skills: string[] = []): UseGameReturn {
   // Sync engine phase → React state
   const syncPhase = useCallback(() => {
     const s = stateRef.current;
-    
+
     // Core
     setPhase((prev) => (prev !== s.phase ? s.phase : prev));
     setScore((prev) => (prev !== s.score ? s.score : prev));
     setHighScore((prev) => (prev !== s.highScore ? s.highScore : prev));
 
-    // Collectibles (optimizing to not re-render every frame if possible, 
+    // Collectibles (optimizing to not re-render every frame if possible,
     // but React batching handles it mostly ok. For high perf, use refs, but this is simple UI).
     // Let's just sync them.
     if (s.collectibles) {
@@ -145,7 +145,7 @@ export function useGame(skills: string[] = []): UseGameReturn {
     resize();
     s.highScore = loadHighScore();
     setHighScore(s.highScore);
-    
+
     // Init local state from engine
     const c = s.collectibles;
     if (c) {
@@ -249,13 +249,13 @@ export function useGame(skills: string[] = []): UseGameReturn {
     },
     adjustTime: (delta: number) => {
       // Import this? Or just move impl here?
-      // It's in engine. 
+      // It's in engine.
       // We need to import it at top of file first.
       // But we can't easily add import with replace_file if we don't touch top.
       // Wait, `use-game.ts` imports from `./game-engine`.
       // I need to add `adjustGameTime` to imports.
       const s = stateRef.current;
-      s.lastPipeTime += delta; 
-    }
+      s.lastPipeTime += delta;
+    },
   };
 }

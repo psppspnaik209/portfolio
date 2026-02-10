@@ -25,12 +25,10 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
       ? window.matchMedia('(pointer: fine)').matches
       : false,
   );
-  
-  
+
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false); // New: for Pause menu
-
 
   const {
     canvasRef,
@@ -63,23 +61,23 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
 
   // Countdown Effect
   useEffect(() => {
-     if (countDown === null) return;
-     if (countDown > 0) {
-        const timer = setTimeout(() => setCountDown(countDown - 1), 1000);
-        return () => clearTimeout(timer);
-     } else if (countDown === 0) {
-        // Resume!
-        setIsPaused(false);
-        setCountDown(null);
-        setShowQuitConfirm(false);
-        
-        // Adjust Time to prevent spawn glitch
-        const now = Date.now();
-        const duration = now - pauseStartTime;
-        adjustTime(duration);
+    if (countDown === null) return;
+    if (countDown > 0) {
+      const timer = setTimeout(() => setCountDown(countDown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (countDown === 0) {
+      // Resume!
+      setIsPaused(false);
+      setCountDown(null);
+      setShowQuitConfirm(false);
 
-        setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
-     }
+      // Adjust Time to prevent spawn glitch
+      const now = Date.now();
+      const duration = now - pauseStartTime;
+      adjustTime(duration);
+
+      setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
+    }
   }, [countDown, pauseStartTime, overrides, setOverrides, adjustTime]);
 
   // Global Key Listener for Pause
@@ -89,18 +87,18 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
         if (phase === 'playing') {
           // Toggle Pause
           if (isPaused) {
-              // Only resume if not already confirming quit? 
-              // Or just start countdown
-              if (countDown === null) {
-                 setCountDown(3);
-              }
+            // Only resume if not already confirming quit?
+            // Or just start countdown
+            if (countDown === null) {
+              setCountDown(3);
+            }
           } else {
-              // Pause
-              setIsPaused(true);
-              setPauseStartTime(Date.now());
-              setOverrides({ ...overrides, speedMultiplier: 0, gravity: 0 }); 
+            // Pause
+            setIsPaused(true);
+            setPauseStartTime(Date.now());
+            setOverrides({ ...overrides, speedMultiplier: 0, gravity: 0 });
           }
-        } 
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -134,7 +132,7 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
           cursor: phase === 'playing' ? 'pointer' : 'default',
         }}
       />
-      
+
       {/* ---- Pause Button (Visible during play) ---- */}
       {phase === 'playing' && !isPaused && (
         <button
@@ -164,7 +162,8 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
 
       {/* ---- PLAYING: Score Overlay (New Format) ---- */}
       {phase === 'playing' && (
-         <div style={{
+        <div
+          style={{
             position: 'absolute',
             top: '36px',
             width: '100%',
@@ -177,13 +176,14 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
             fontWeight: 'bold',
             fontSize: '28px',
             color: COLORS.cyan,
-            textShadow: '0 0 10px #ff00ff'
-         }}>
-            <span>{score}</span>
-            <span style={{ fontSize: '14px', opacity: 0.8, color: '#fff' }}>
-              {(1 + wordsCollectedInRun * 0.2).toFixed(1)}x
-            </span>
-         </div>
+            textShadow: '0 0 10px #ff00ff',
+          }}
+        >
+          <span>{score}</span>
+          <span style={{ fontSize: '14px', opacity: 0.8, color: '#fff' }}>
+            {(1 + wordsCollectedInRun * 0.2).toFixed(1)}x
+          </span>
+        </div>
       )}
 
       {/* ---- IDLE: play button ---- */}
@@ -199,31 +199,38 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
               HIGH SCORE: {highScore}
             </span>
           )}
-          
-          <div style={dividerStyle} className="my-2 h-[1px] w-32 bg-cyan-500/30" />
-          
+
+          <div
+            style={dividerStyle}
+            className="my-2 h-[1px] w-32 bg-cyan-500/30"
+          />
+
           {/* Progress Section */}
           <div style={{ textAlign: 'center', marginTop: '10px' }}>
-            <div style={{...hintStyle, color: COLORS.cyan, marginBottom: '4px'}}>
+            <div
+              style={{ ...hintStyle, color: COLORS.cyan, marginBottom: '4px' }}
+            >
               COLLECTIBLES ({keyFragments}/{targetWords.length})
             </div>
-            <div style={{ 
-              display: 'flex', 
-              flexWrap: 'wrap', 
-              gap: '4px', 
-              maxWidth: '300px', 
-              justifyContent: 'center',
-              maxHeight: '120px',
-              overflowY: 'auto',
-              padding: '4px'
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '4px',
+                maxWidth: '300px',
+                justifyContent: 'center',
+                maxHeight: '120px',
+                overflowY: 'auto',
+                padding: '4px',
+              }}
+            >
               {targetWords.map((word, i) => {
                 const isCollected = i < currentWordIndex;
                 const isCurrent = i === currentWordIndex;
                 let color = '#555';
                 let bg = 'transparent';
                 let border = '1px solid transparent';
-                
+
                 if (isCollected) {
                   color = COLORS.cyan;
                   bg = 'rgba(0,255,255,0.1)';
@@ -235,95 +242,122 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
                 }
 
                 return (
-                  <span key={i} style={{
-                    fontSize: '10px',
-                    padding: '2px 6px',
-                    background: bg,
-                    border: border,
-                    borderRadius: '4px',
-                    color: color,
-                    opacity: isCollected || isCurrent ? 1 : 0.5
-                  }}>
+                  <span
+                    key={i}
+                    style={{
+                      fontSize: '10px',
+                      padding: '2px 6px',
+                      background: bg,
+                      border: border,
+                      borderRadius: '4px',
+                      color: color,
+                      opacity: isCollected || isCurrent ? 1 : 0.5,
+                    }}
+                  >
                     {word}
                   </span>
                 );
               })}
             </div>
-            
+
             {/* Reset Progress Button */}
-             <div style={{ marginTop: '16px' }}>
-                {!showResetConfirm ? (
-                  <button 
-                    onClick={() => setShowResetConfirm(true)}
+            <div style={{ marginTop: '16px' }}>
+              {!showResetConfirm ? (
+                <button
+                  onClick={() => setShowResetConfirm(true)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid #ff4444',
+                    color: '#ff4444',
+                    fontSize: '10px',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontFamily: "'Orbitron', monospace",
+                    opacity: 0.7,
+                  }}
+                >
+                  RESET PROGRESS
+                </button>
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '8px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <span style={{ fontSize: '10px', color: '#ff4444' }}>
+                    ARE YOU SURE?
+                  </span>
+                  <button
+                    onClick={() => {
+                      resetProgress();
+                      setShowResetConfirm(false);
+                    }}
                     style={{
-                      background: 'transparent',
-                      border: '1px solid #ff4444',
-                      color: '#ff4444',
+                      background: '#ff4444',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '2px 6px',
+                      borderRadius: '2px',
                       fontSize: '10px',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
                       cursor: 'pointer',
-                      fontFamily: "'Orbitron', monospace",
-                      opacity: 0.7
                     }}
                   >
-                    RESET PROGRESS
+                    YES
                   </button>
-                ) : (
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
-                    <span style={{ fontSize: '10px', color: '#ff4444' }}>ARE YOU SURE?</span>
-                    <button 
-                      onClick={() => {
-                         resetProgress(); 
-                         setShowResetConfirm(false);
-                      }}
-                      style={{
-                         background: '#ff4444', color: '#fff', border: 'none', padding: '2px 6px', borderRadius: '2px', fontSize: '10px', cursor: 'pointer'
-                      }}
-                    >
-                      YES
-                    </button>
-                    <button 
-                      onClick={() => setShowResetConfirm(false)}
-                      style={{
-                         background: 'transparent', border: '1px solid #555', color: '#555', padding: '2px 6px', borderRadius: '2px', fontSize: '10px', cursor: 'pointer'
-                      }}
-                    >
-                      NO
-                    </button>
-                  </div>
-                )}
-             </div>
+                  <button
+                    onClick={() => setShowResetConfirm(false)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid #555',
+                      color: '#555',
+                      padding: '2px 6px',
+                      borderRadius: '2px',
+                      fontSize: '10px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    NO
+                  </button>
+                </div>
+              )}
+            </div>
 
             {isRewardUnlocked ? (
-               <a 
-                 href={rewardLink} 
-                 target="_blank" 
-                 rel="noopener noreferrer"
-                 style={{
-                   display: 'inline-block',
-                   marginTop: '12px',
-                   color: '#00ff00',
-                   textShadow: '0 0 10px #00ff00',
-                   textDecoration: 'none',
-                   fontWeight: 'bold',
-                   fontSize: '14px',
-                   border: '1px solid #00ff00',
-                   padding: '4px 12px',
-                   borderRadius: '4px',
-                   cursor: 'pointer'
-                 }}
-               >
-                 🔓 SECRET REWARD UNLOCKED
-               </a>
+              <a
+                href={rewardLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block',
+                  marginTop: '12px',
+                  color: '#00ff00',
+                  textShadow: '0 0 10px #00ff00',
+                  textDecoration: 'none',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  border: '1px solid #00ff00',
+                  padding: '4px 12px',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                🔓 SECRET REWARD UNLOCKED
+              </a>
             ) : (
-              <div style={{
-                marginTop: '12px',
-                color: '#555',
-                fontSize: '12px',
-                fontFamily: 'monospace'
-              }}>
-                🔒 REWARD LOCKED ({Math.floor((keyFragments / targetWords.length) * 100)}%)
+              <div
+                style={{
+                  marginTop: '12px',
+                  color: '#555',
+                  fontSize: '12px',
+                  fontFamily: 'monospace',
+                }}
+              >
+                🔒 REWARD LOCKED (
+                {Math.floor((keyFragments / targetWords.length) * 100)}%)
               </div>
             )}
           </div>
@@ -332,95 +366,144 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
 
       {/* ---- PLAYING: HUD ---- */}
       {phase === 'playing' && currentWordIndex < targetWords.length && (
-        <div style={{
-          position: 'absolute',
-          top: '80px', // Lowered from 20px
-          left: '50%',
-          transform: 'translateX(-50%)',
-          display: 'flex',
-          gap: '2px',
-          background: 'rgba(0,0,0,0.3)',
-          padding: '4px 12px',
-          borderRadius: '8px',
-          pointerEvents: 'none',
-          zIndex: 5 // Ensure it's above some things but below overlays
-        }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: '80px', // Lowered from 20px
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            gap: '2px',
+            background: 'rgba(0,0,0,0.3)',
+            padding: '4px 12px',
+            borderRadius: '8px',
+            pointerEvents: 'none',
+            zIndex: 5, // Ensure it's above some things but below overlays
+          }}
+        >
           {targetWords[currentWordIndex].split('').map((char, i) => {
             const isCollected = i < currentCharIndex;
             return (
-              <span key={i} style={{
-                fontFamily: "'Orbitron', monospace",
-                fontSize: '24px',
-                fontWeight: 900,
-                color: isCollected ? COLORS.cyan : 'rgba(255,255,255,0.15)',
-                textShadow: isCollected ? `0 0 10px ${COLORS.cyan}` : 'none',
-                minWidth: '16px',
-                textAlign: 'center'
-              }}>
+              <span
+                key={i}
+                style={{
+                  fontFamily: "'Orbitron', monospace",
+                  fontSize: '24px',
+                  fontWeight: 900,
+                  color: isCollected ? COLORS.cyan : 'rgba(255,255,255,0.15)',
+                  textShadow: isCollected ? `0 0 10px ${COLORS.cyan}` : 'none',
+                  minWidth: '16px',
+                  textAlign: 'center',
+                }}
+              >
                 {char === ' ' ? '\u00A0' : char}
               </span>
             );
           })}
         </div>
       )}
-      
+
       {/* ---- PAUSE MENU ---- */}
       {isPaused && (
         <div style={{ ...overlayStyle, background: 'rgba(0,0,0,0.85)' }}>
-             
-             {countDown !== null ? (
-                // Countdown View
-                <div style={{ fontSize: '64px', color: COLORS.cyan, fontWeight: 900, animation: 'pulse 0.5s infinite'}}>
-                  {countDown === 0 ? 'GO!' : countDown}
+          {countDown !== null ? (
+            // Countdown View
+            <div
+              style={{
+                fontSize: '64px',
+                color: COLORS.cyan,
+                fontWeight: 900,
+                animation: 'pulse 0.5s infinite',
+              }}
+            >
+              {countDown === 0 ? 'GO!' : countDown}
+            </div>
+          ) : (
+            <>
+              <h2 style={{ ...titleStyle, fontSize: '18px' }}>PAUSED</h2>
+
+              {!showQuitConfirm ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                    alignItems: 'center',
+                  }}
+                >
+                  <button
+                    onClick={() => setCountDown(3)} // Start countdown
+                    style={playBtnStyle}
+                  >
+                    RESUME
+                  </button>
+                  <button
+                    onClick={() => setShowQuitConfirm(true)}
+                    style={{
+                      ...retryBtnStyle,
+                      background: COLORS.cyan,
+                      color: COLORS.bg,
+                      opacity: 1,
+                      border: 'none',
+                    }}
+                  >
+                    MAIN MENU
+                  </button>
                 </div>
-             ) : (
-               <>
-                 <h2 style={{ ...titleStyle, fontSize: '18px' }}>PAUSED</h2>
-                 
-                 {!showQuitConfirm ? (
-                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
-                     <button 
-                        onClick={() => setCountDown(3)} // Start countdown
-                        style={playBtnStyle}
-                     >
-                       RESUME
-                     </button>
-                     <button 
-                        onClick={() => setShowQuitConfirm(true)}
-                        style={{ ...retryBtnStyle, background: COLORS.cyan, color: COLORS.bg, opacity: 1, border: 'none' }}
-                     >
-                       MAIN MENU
-                     </button>
-                   </div>
-                 ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-                       <p style={{ color: COLORS.cyan, fontFamily: "'Orbitron', monospace", fontSize: '14px', marginBottom: '8px' }}>
-                         RETURN TO MENU? <br/>
-                         <span style={{ fontSize: '10px', opacity: 0.7 }}>CURRENT RUN PROGRESS WILL BE LOST</span>
-                       </p>
-                       <div style={{ display: 'flex', gap: '12px' }}>
-                         <button 
-                            onClick={() => {
-                                setIsPaused(false);
-                                setShowQuitConfirm(false);
-                                goToMenu();
-                                setOverrides({ ...overrides, speedMultiplier: 1, gravity: null });
-                            }}
-                            style={{ ...retryBtnStyle, background: '#ff4444', color: '#fff', border: 'none' }}
-                         >
-                           YES
-                         </button>
-                         <button 
-                            onClick={() => setShowQuitConfirm(false)}
-                            style={{ ...retryBtnStyle }}
-                         >
-                           NO
-                         </button>
-                       </div>
-                    </div>
-                 )}
-               </>
-             )}
+              ) : (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    alignItems: 'center',
+                  }}
+                >
+                  <p
+                    style={{
+                      color: COLORS.cyan,
+                      fontFamily: "'Orbitron', monospace",
+                      fontSize: '14px',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    RETURN TO MENU? <br />
+                    <span style={{ fontSize: '10px', opacity: 0.7 }}>
+                      CURRENT RUN PROGRESS WILL BE LOST
+                    </span>
+                  </p>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      onClick={() => {
+                        setIsPaused(false);
+                        setShowQuitConfirm(false);
+                        goToMenu();
+                        setOverrides({
+                          ...overrides,
+                          speedMultiplier: 1,
+                          gravity: null,
+                        });
+                      }}
+                      style={{
+                        ...retryBtnStyle,
+                        background: '#ff4444',
+                        color: '#fff',
+                        border: 'none',
+                      }}
+                    >
+                      YES
+                    </button>
+                    <button
+                      onClick={() => setShowQuitConfirm(false)}
+                      style={{ ...retryBtnStyle }}
+                    >
+                      NO
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
 
@@ -428,42 +511,75 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
       {phase === 'dead' && (
         <div style={{ ...overlayStyle, background: 'rgba(6,10,20,0.95)' }}>
           <h2 style={gameOverTitleStyle}>GAME OVER</h2>
-          
+
           {/* Scoring Detail */}
-          <div style={{ 
-             display: 'flex', 
-             flexDirection: 'column', 
-             alignItems: 'center', 
-             gap: '4px',
-             marginBottom: '16px',
-             background: 'rgba(0,255,255,0.05)',
-             padding: '12px',
-             borderRadius: '8px',
-             border: '1px solid rgba(0,255,255,0.1)'
-          }}>
-             <div style={{ fontSize: '12px', color: '#888', fontFamily: 'monospace' }}>
-                BASE SCORE: {score}
-             </div>
-             <div style={{ fontSize: '12px', color: COLORS.magenta, fontFamily: 'monospace' }}>
-                MULTIPLIER: x{(1 + wordsCollectedInRun * 0.2).toFixed(1)} <span style={{ opacity: 0.5 }}>({wordsCollectedInRun} WORDS)</span>
-             </div>
-             <div style={{ width: '100%', height: '1px', background: '#333', margin: '4px 0' }} />
-             <div style={{ fontSize: '24px', color: COLORS.cyan, fontWeight: 'bold', fontFamily: "'Orbitron', monospace" }}>
-                {Math.round(score * (1 + wordsCollectedInRun * 0.2))}
-             </div>
-             <div style={{ fontSize: '10px', color: '#666' }}>FINAL SCORE</div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '4px',
+              marginBottom: '16px',
+              background: 'rgba(0,255,255,0.05)',
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid rgba(0,255,255,0.1)',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '12px',
+                color: '#888',
+                fontFamily: 'monospace',
+              }}
+            >
+              BASE SCORE: {score}
+            </div>
+            <div
+              style={{
+                fontSize: '12px',
+                color: COLORS.magenta,
+                fontFamily: 'monospace',
+              }}
+            >
+              MULTIPLIER: x{(1 + wordsCollectedInRun * 0.2).toFixed(1)}{' '}
+              <span style={{ opacity: 0.5 }}>
+                ({wordsCollectedInRun} WORDS)
+              </span>
+            </div>
+            <div
+              style={{
+                width: '100%',
+                height: '1px',
+                background: '#333',
+                margin: '4px 0',
+              }}
+            />
+            <div
+              style={{
+                fontSize: '24px',
+                color: COLORS.cyan,
+                fontWeight: 'bold',
+                fontFamily: "'Orbitron', monospace",
+              }}
+            >
+              {Math.round(score * (1 + wordsCollectedInRun * 0.2))}
+            </div>
+            <div style={{ fontSize: '10px', color: '#666' }}>FINAL SCORE</div>
           </div>
 
           <div style={scoreRowStyle}>
             {/* Show High Score separately */}
             <ScoreBox label="BEST" value={highScore} color={COLORS.magenta} />
           </div>
-          
-           {/* Progress Mini-View */}
-           <div style={{ marginTop: '12px', textAlign: 'center' }}>
-            <div style={{...hintStyle, fontSize: '10px'}}>Word Progress</div>
-            <div style={{ color: COLORS.cyan, fontSize: '14px', marginTop: '2px' }}>
-               {targetWords[currentWordIndex] || "ALL FILTERED"}
+
+          {/* Progress Mini-View */}
+          <div style={{ marginTop: '12px', textAlign: 'center' }}>
+            <div style={{ ...hintStyle, fontSize: '10px' }}>Word Progress</div>
+            <div
+              style={{ color: COLORS.cyan, fontSize: '14px', marginTop: '2px' }}
+            >
+              {targetWords[currentWordIndex] || 'ALL FILTERED'}
             </div>
           </div>
 
@@ -471,13 +587,13 @@ const FlappyBirdGame = ({ skills }: { skills: string[] }) => {
             <button onClick={start} style={retryBtnStyle}>
               ↻ RETRY
             </button>
-            <button 
-              onClick={goToMenu} 
+            <button
+              onClick={goToMenu}
               style={{
                 ...retryBtnStyle,
                 background: COLORS.cyan, // More visible
                 color: COLORS.bg,
-                fontWeight: 900
+                fontWeight: 900,
               }}
             >
               MENU

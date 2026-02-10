@@ -49,8 +49,7 @@ const CONFIG = {
           title: 'City & Disaster Simulation',
           description:
             'Solo Developed a city growth simulation in C++ that models residential, commercial, and industrial zones while incorporating pollution spread, disaster simulations, and resource allocation. Designed and implemented efficient data structures for effective zone management and region analysis. Followed modular coding practices and employed Git for version control, and design documents in UML format.',
-          imageUrl:
-            'https://i.ibb.co/MxzQqzdD/windsimulation.jpg',
+          imageUrl: 'https://i.ibb.co/MxzQqzdD/windsimulation.jpg',
           link: 'https://example.com',
         },
       ],

@@ -4,11 +4,7 @@
 // ============================================
 
 import { GAME_CONFIG, getEffectiveGap, getEffectiveSpeed } from './config';
-import type {
-  GameState,
-  DebugOverrides,
-  CollectiblesState,
-} from './types';
+import type { GameState, DebugOverrides, CollectiblesState } from './types';
 
 const CUSTOM_WORDS = ['Hire Me', 'TNBB', 'Mikhial'];
 // Basic XOR "encryption" to prevent widely obvious string search
@@ -36,7 +32,9 @@ function decryptLink(encrypted: string): string {
     const key = 'flappy';
     let res = '';
     for (let i = 0; i < data.length; i++) {
-      res += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+      res += String.fromCharCode(
+        data.charCodeAt(i) ^ key.charCodeAt(i % key.length),
+      );
     }
     return res;
   } catch {
@@ -69,7 +67,7 @@ export function createGameState(skills: string[] = []): GameState {
 function createCollectiblesState(skills: string[]): CollectiblesState {
   // Merge skills and custom words
   let allWords = [...new Set([...skills, ...CUSTOM_WORDS])];
-  
+
   // Filter out empty/spaces and sort by length
   allWords = allWords
     .filter((w) => w.trim().length > 0)
@@ -89,11 +87,12 @@ function createCollectiblesState(skills: string[]): CollectiblesState {
     keyFragments: saved.keyFragments,
     activeCollectibles: [],
     lastCollectibleTime: 0,
-    spawnCooldown: 0, 
+    spawnCooldown: 0,
     wordsCollectedInRun: 0,
     pipesSinceWord: 0,
     isRewardUnlocked: saved.keyFragments >= totalItems && totalItems > 0,
-    rewardLink: saved.keyFragments >= totalItems && totalItems > 0 ? REAL_LINK : '',
+    rewardLink:
+      saved.keyFragments >= totalItems && totalItems > 0 ? REAL_LINK : '',
   };
 }
 
@@ -192,7 +191,7 @@ export function spawnCollectible(s: GameState): void {
 
   // Rule 1: First character spawns from SECOND pipe ever.
   // Rule 2: Subsequent words spawn exactly 2 pipes after completion.
-  
+
   // We need to know if we are in the "active" phase for a word.
   // If we are mid-word (charIndex > 0), we spawn every 1-2 pipes (let's say 2 to be safe/paced).
   // If charIndex == 0, we check our specific "start" conditions.
@@ -200,21 +199,21 @@ export function spawnCollectible(s: GameState): void {
   if (cState.activeCollectibles.length > 0) return; // Wait for screen clear
 
   // Initial Game Start Logic
-  // We use s.pipes.length to track "pipes spawned this run" roughly, 
+  // We use s.pipes.length to track "pipes spawned this run" roughly,
   // but better to track a dedicated counter in GameState if we wanted precision.
-  // However, `spawnCollectible` is called *right after* `spawnPipe`. 
+  // However, `spawnCollectible` is called *right after* `spawnPipe`.
   // So s.pipes.length represents the TOTAL pipes spawned this session (if we don't clear them).
   // Actually s.pipes gets filtered. We need a robust counter.
   // Let's use `s.score` as a proxy for distance? No, score is passed pipes.
-  
-  // Simplification: 
+
+  // Simplification:
   // If charIndex == 0 (Start of word)
   //   If wordsCollectedInRun == 0 -> Wait for 2nd pipe (Pipe #2).
   //   If wordsCollectedInRun > 0  -> Wait for pipesSinceWord == 2.
-  
+
   // We need to track `pipesSpawnedSinceLastWord` explicitly?
   // We added `pipesSinceWord` to types.
-  
+
   if (cState.currentCharIndex === 0) {
     // We are waiting to start a word
     if (cState.wordsCollectedInRun === 0) {
@@ -222,7 +221,7 @@ export function spawnCollectible(s: GameState): void {
       // We want it at 2nd pipe.
       // How do we know it's the 2nd pipe?
       // We can check if s.score == 1? No, score happens when passing.
-      // We can rely on a run-level pipe counter? 
+      // We can rely on a run-level pipe counter?
       // Let's use `pipesSinceWord` as "Total Pipes Spawned" for the first word case?
       // Actually `pipesSinceWord` increments on every spawnPipe.
       if (cState.pipesSinceWord < 2) return;
@@ -231,11 +230,11 @@ export function spawnCollectible(s: GameState): void {
       if (cState.pipesSinceWord < 2) return;
     }
   } else {
-     // Mid-word spacing: Every 2 pipes?
-     if (cState.spawnCooldown > 0) {
-       cState.spawnCooldown--;
-       return;
-     }
+    // Mid-word spacing: Every 2 pipes?
+    if (cState.spawnCooldown > 0) {
+      cState.spawnCooldown--;
+      return;
+    }
   }
 
   const currentWord = cState.targetWords[cState.currentWordIndex];
@@ -245,14 +244,14 @@ export function spawnCollectible(s: GameState): void {
     cState.currentCharIndex++;
     if (cState.currentCharIndex >= currentWord.length) {
       completeWord(s);
-      return; 
+      return;
     }
     char = currentWord[cState.currentCharIndex];
   }
 
   if (s.pipes.length < 1) return;
-  
-  const lastPipe = s.pipes[s.pipes.length - 1]; 
+
+  const lastPipe = s.pipes[s.pipes.length - 1];
   const spawnX = lastPipe.x + GAME_CONFIG.pipeWidth / 2;
   const spawnY = lastPipe.topHeight + lastPipe.gap / 2;
 
@@ -265,7 +264,7 @@ export function spawnCollectible(s: GameState): void {
     h: 40,
     collected: false,
   });
-  
+
   // Set cooldown for NEXT letter within same word
   cState.spawnCooldown = 2; // Fixed spacing
 }
@@ -277,14 +276,14 @@ function completeWord(s: GameState) {
   cState.collectedWords.push(word);
   cState.currentWordIndex++;
   cState.currentCharIndex = 0;
-  
+
   // Run logic
   cState.wordsCollectedInRun++;
   cState.pipesSinceWord = 0; // Reset counter for the 2-pipe delay
 
   // Increment Fragments
   cState.keyFragments++;
-  
+
   const total = cState.targetWords.length;
 
   if (cState.keyFragments >= total && total > 0) {
@@ -294,13 +293,13 @@ function completeWord(s: GameState) {
 
   // Save progress
   saveProgress(cState);
-  
+
   // Effect
   s.scorePops.push({
     x: s.birdX,
     y: s.birdY - 50,
     frame: 0,
-    value: 999, 
+    value: 999,
   });
 }
 
@@ -310,9 +309,9 @@ export function spawnPipe(s: GameState, overrides?: DebugOverrides): void {
   const gap = overrides?.pipeGap ?? getEffectiveGap(s.score);
   const minTop = GAME_CONFIG.minPipeTop;
   const maxTop = s.h - gap - minTop;
-  if (maxTop <= minTop) return; 
+  if (maxTop <= minTop) return;
   const topH = minTop + Math.random() * (maxTop - minTop);
-  
+
   s.pipes.push({ x: s.w, topHeight: topH, gap, scored: false });
 
   // Increment pipe counter for spawning logic
@@ -426,7 +425,7 @@ export function updateGameState(
   for (const pipe of s.pipes) {
     if (!pipe.scored && pipe.x + GAME_CONFIG.pipeWidth < s.birdX) {
       pipe.scored = true;
-      
+
       // Scoring Multiplier Logic
       // Base: 1 point per pipe. Multiplier applied at GAME OVER.
       s.score += 1;
@@ -436,7 +435,7 @@ export function updateGameState(
         x: s.birdX + 20,
         y: s.birdY - 20,
         frame: 0,
-        value: 1, 
+        value: 1,
       });
       emitScoreParticles(s, pipe.x + GAME_CONFIG.pipeWidth);
       if (s.score > s.highScore) {
@@ -504,7 +503,10 @@ export function updateGameState(
         s.collectibles.currentCharIndex++;
       }
 
-      if (currentWord && s.collectibles.currentCharIndex >= currentWord.length) {
+      if (
+        currentWord &&
+        s.collectibles.currentCharIndex >= currentWord.length
+      ) {
         completeWord(s);
       }
 
@@ -561,7 +563,7 @@ export function startGame(s: GameState, overrides?: DebugOverrides): void {
   s.frame = 0;
   s.phase = 'playing';
   s.highScore = loadHighScore();
-  s.collectibles.activeCollectibles = []; 
+  s.collectibles.activeCollectibles = [];
   s.collectibles.wordsCollectedInRun = 0;
   s.collectibles.pipesSinceWord = 0;
   s.collectibles.spawnCooldown = 0;
@@ -589,7 +591,7 @@ export function debugUnlockAll(s: GameState): void {
   s.collectibles.keyFragments = total;
   s.collectibles.isRewardUnlocked = true;
   s.collectibles.rewardLink = REAL_LINK;
-  s.collectibles.collectedWords = [...s.collectibles.targetWords]; 
+  s.collectibles.collectedWords = [...s.collectibles.targetWords];
   s.collectibles.currentWordIndex = total;
   s.collectibles.currentCharIndex = 0;
   saveProgress(s.collectibles);
