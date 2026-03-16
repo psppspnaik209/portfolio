@@ -13,7 +13,7 @@ const PublicationCard = ({
     const array = [];
     for (let index = 0; index < publications.length; index++) {
       array.push(
-        <div className="card glass-card hover:border-white/10 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group cursor-pointer" key={index}>
+        <div className="card glass-card relative overflow-hidden group cursor-pointer card-hover" key={index}>
           <div className="p-8 h-full w-full">
             <div className="flex items-center flex-col">
               <div className="w-full">
@@ -76,7 +76,7 @@ const PublicationCard = ({
   const renderPublications = () => {
     return publications.map((item, index) => (
       <a
-        className="card glass-card hover:border-white/10 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group cursor-pointer"
+        className="card glass-card relative overflow-hidden group cursor-pointer card-hover"
         key={index}
         href={item.link}
         target="_blank"
@@ -122,7 +122,7 @@ const PublicationCard = ({
       <div className="col-span-1 lg:col-span-2">
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
-            <div className="card compact bg-base-100/85 border border-primary/20  rounded-xl shadow neon-glow liquid-card">
+            <div className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow">
               <div className="card-body">
                 <div className="mx-3 flex items-center justify-between mb-2">
                   <h5 className="card-title">

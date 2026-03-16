@@ -85,8 +85,7 @@ const EducationCard = ({
 
   return (
     <motion.div
-      className="card glass-card hover:border-white/10 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group"
-      whileHover={{ scale: 1.03, y: -4 }}
+      className="card glass-card relative overflow-hidden group card-hover"
       data-text="Education"
     >
       <div className="card-body">

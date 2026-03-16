@@ -82,11 +82,10 @@ const ExternalProjectCard = ({
   const renderExternalProjects = () => {
     return externalProjects.map((item, index) => (
       <motion.div
-        className="card glass-card hover:border-white/10 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group cursor-pointer card-3d"
+        className="card glass-card relative overflow-hidden group cursor-pointer card-3d"
         key={index}
         onClick={() => setModalProject(item)}
         initial={{ opacity: 0, y: 20 }}
-        whileHover={{ scale: 1.05, y: -5 }}
         whileInView={{ opacity: 1, y: 0 }}
         animate={{ scale: 1, zIndex: 1 }}
         transition={{ duration: 0.2, delay: 0 }}
@@ -141,7 +140,7 @@ const ExternalProjectCard = ({
       >
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
-            <motion.div className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow neon-glow liquid-card card-hover">
+            <motion.div className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow card-hover">
               <div className="card-body">
                 <motion.div
                   className="mx-3 flex items-center justify-between mb-2"
