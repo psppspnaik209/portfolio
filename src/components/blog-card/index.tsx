@@ -95,7 +95,7 @@ const BlogCard = ({
     return articles && articles.length ? (
       articles.slice(0, blog.limit).map((article, index) => (
         <a
-          className="card shadow-2xl compact bg-base-100/85 border border-accent/20  rounded-xl cursor-pointer neon-glow liquid-card"
+          className="card glass-card hover:border-white/10 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group cursor-pointer"
           key={index}
           href={article.link}
           onClick={(e) => {

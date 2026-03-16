@@ -248,7 +248,7 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
   };
 
   return (
-    <motion.div className="card shadow-2xl compact bg-base-100/85 border border-primary/20 rounded-xl card-hover neon-glow liquid-card">
+    <motion.div className="card glass-card hover:border-white/10 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group card-hover">
       <div className="card-body">
         <div className="text-base-content text-opacity-60">
           {loading || !profile ? (

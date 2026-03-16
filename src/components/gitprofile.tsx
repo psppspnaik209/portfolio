@@ -243,133 +243,171 @@ const GitProfile = ({ config }: { config: Config }) => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0 }}
             >
-              <motion.div
-                className="grid grid-cols-1 lg:grid-cols-3 gap-6 rounded-none"
-                variants={containerVariants}
-                initial="hidden"
-                animate="show"
-              >
-                <motion.div className="col-span-1" variants={itemVariants}>
-                  <Suspense fallback={<div></div>}>
-                    <div className="grid grid-cols-1 gap-6">
-                      <motion.div variants={itemVariants}>
-                        <AvatarCard
-                          profile={profile}
-                          loading={loading}
-                          avatarRing={
-                            sanitizedConfig.themeConfig.displayAvatarRing
-                          }
-                          resumeFileUrl={sanitizedConfig.resume.fileUrl}
-                        />
-                      </motion.div>
-                      <motion.div variants={itemVariants}>
-                        <DetailsCard
-                          profile={profile}
-                          loading={loading}
-                          github={sanitizedConfig.github}
-                          social={sanitizedConfig.social}
-                        />
-                      </motion.div>
-                      {sanitizedConfig.skills.length !== 0 && (
-                        <motion.div
-                          className="card-hover"
-                          variants={itemVariants}
-                        >
-                          <SkillCard
-                            loading={loading}
-                            skills={sanitizedConfig.skills}
-                          />
-                        </motion.div>
-                      )}
-
-                      {sanitizedConfig.certifications.length !== 0 && (
-                        <motion.div variants={itemVariants}>
-                          <CertificationCard
-                            loading={loading}
-                            certifications={sanitizedConfig.certifications}
-                          />
-                        </motion.div>
-                      )}
-                    </div>
-                  </Suspense>
-                </motion.div>
-                <motion.div
-                  className="lg:col-span-2 col-span-1"
-                  variants={itemVariants}
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 w-full max-w-7xl mx-auto">
+                
+                {/* Left Pane - Sticky Sidebar */}
+                <motion.div 
+                  className="w-full lg:w-[40%] flex flex-col gap-6 lg:sticky lg:top-12 lg:h-[calc(100vh-6rem)] lg:overflow-y-auto pb-8 no-scrollbar"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
                 >
-                  <Suspense fallback={<div></div>}>
-                    <div className="grid grid-cols-1 gap-6 relative z-10">
-                      {sanitizedConfig.projects.github.display && (
-                        <motion.div
-                          className="card-hover"
-                          variants={itemVariants}
-                        >
-                          <GithubProjectCard
-                            header={sanitizedConfig.projects.github.header}
-                            limit={
-                              sanitizedConfig.projects.github.automatic.limit
-                            }
-                            githubProjects={githubProjects}
-                            loading={loading}
-                            username={sanitizedConfig.github.username}
-                          />
-                        </motion.div>
-                      )}
-                      {sanitizedConfig.publications.length !== 0 && (
-                        <motion.div variants={itemVariants}>
-                          <PublicationCard
-                            loading={loading}
-                            publications={sanitizedConfig.publications}
-                          />
-                        </motion.div>
-                      )}
-                      {sanitizedConfig.projects.external.projects.length !==
-                        0 && (
-                        <motion.div
-                          className="card-hover"
-                          variants={itemVariants}
-                        >
-                          <ExternalProjectCard
-                            loading={loading}
-                            header={sanitizedConfig.projects.external.header}
-                            externalProjects={
-                              sanitizedConfig.projects.external.projects
-                            }
-                          />
-                        </motion.div>
-                      )}
-                      {sanitizedConfig.blog.display && (
-                        <motion.div variants={itemVariants}>
-                          <BlogCard
-                            loading={loading}
-                            googleAnalyticsId={
-                              sanitizedConfig.googleAnalytics.id
-                            }
-                            blog={sanitizedConfig.blog}
-                          />
-                        </motion.div>
-                      )}
+                  <motion.div variants={itemVariants}>
+                    <AvatarCard
+                      profile={profile}
+                      loading={loading}
+                      avatarRing={
+                        sanitizedConfig.themeConfig.displayAvatarRing
+                      }
+                      resumeFileUrl={sanitizedConfig.resume.fileUrl}
+                    />
+                  </motion.div>
+                  <motion.div variants={itemVariants}>
+                    <DetailsCard
+                      profile={profile}
+                      loading={loading}
+                      github={sanitizedConfig.github}
+                      social={sanitizedConfig.social}
+                    />
+                  </motion.div>
 
-                      {sanitizedConfig.experiences.length !== 0 && (
+                  {/* Navigation Index (Desktop Only) */}
+                  <motion.nav variants={itemVariants} className="hidden lg:flex flex-col gap-2 mt-4 pl-4 border-l-2 border-white/10">
+                    <span className="text-xs font-cyber tracking-widest text-[#00ffff] mb-2 font-bold uppercase">Index</span>
+                    <a href="#projects" className="text-sm text-base-content/60 hover:text-white hover:translate-x-2 transition-all cursor-pointer">01. Projects</a>
+                    <a href="#experience" className="text-sm text-base-content/60 hover:text-white hover:translate-x-2 transition-all cursor-pointer">02. Experience</a>
+                    <a href="#education" className="text-sm text-base-content/60 hover:text-white hover:translate-x-2 transition-all cursor-pointer">03. Education</a>
+                    <a href="#skills" className="text-sm text-base-content/60 hover:text-white hover:translate-x-2 transition-all cursor-pointer">04. Skills</a>
+                  </motion.nav>
+                </motion.div>
+
+                {/* Right Pane - Scrollable Main Content */}
+                <motion.div
+                  className="w-full lg:w-[60%] flex flex-col gap-10 pb-24"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
+                >
+                  <Suspense fallback={<div className="h-32 mb-6 skeleton rounded-xl"></div>}>
+                    
+                    {/* Projects Section */}
+                    <div id="projects" className="scroll-mt-24">
+                      <h2 className="text-2xl font-cyber font-bold mb-6 text-white flex items-center gap-4">
+                        <span className="text-[#00ffff] text-sm">01.</span> Projects
+                        <div className="h-px bg-gradient-to-r from-white/20 to-transparent flex-grow ml-2"></div>
+                      </h2>
+                      <div className="space-y-6">
+                        {sanitizedConfig.projects.github.display && (
+                          <motion.div className="card-hover w-full" variants={itemVariants}>
+                            <GithubProjectCard
+                              header={sanitizedConfig.projects.github.header}
+                              limit={sanitizedConfig.projects.github.automatic.limit}
+                              githubProjects={githubProjects}
+                              loading={loading}
+                              username={sanitizedConfig.github.username}
+                            />
+                          </motion.div>
+                        )}
+                        {sanitizedConfig.projects.external.projects.length !== 0 && (
+                          <motion.div className="card-hover w-full" variants={itemVariants}>
+                            <ExternalProjectCard
+                              loading={loading}
+                              header={sanitizedConfig.projects.external.header}
+                              externalProjects={sanitizedConfig.projects.external.projects}
+                            />
+                          </motion.div>
+                        )}
+                        {sanitizedConfig.publications.length !== 0 && (
+                          <motion.div variants={itemVariants}>
+                            <PublicationCard
+                              loading={loading}
+                              publications={sanitizedConfig.publications}
+                            />
+                          </motion.div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Experience Section */}
+                    {sanitizedConfig.experiences.length !== 0 && (
+                      <div id="experience" className="scroll-mt-24">
+                        <h2 className="text-2xl font-cyber font-bold mb-6 text-white flex items-center gap-4">
+                          <span className="text-[#00ffff] text-sm">02.</span> Experience
+                          <div className="h-px bg-gradient-to-r from-white/20 to-transparent flex-grow ml-2"></div>
+                        </h2>
                         <motion.div variants={itemVariants}>
                           <ExperienceCard
                             loading={loading}
                             experiences={sanitizedConfig.experiences}
                           />
                         </motion.div>
-                      )}
-                      {sanitizedConfig.educations.length !== 0 && (
-                        <motion.div variants={itemVariants}>
-                          <EducationCard
+                      </div>
+                    )}
+
+                    {/* Education & Certs */}
+                    {(sanitizedConfig.educations.length !== 0 || sanitizedConfig.certifications.length !== 0) && (
+                      <div id="education" className="scroll-mt-24">
+                        <h2 className="text-2xl font-cyber font-bold mb-6 text-white flex items-center gap-4">
+                          <span className="text-[#00ffff] text-sm">03.</span> Education
+                          <div className="h-px bg-gradient-to-r from-white/20 to-transparent flex-grow ml-2"></div>
+                        </h2>
+                        <div className="space-y-6">
+                          {sanitizedConfig.educations.length !== 0 && (
+                            <motion.div variants={itemVariants}>
+                              <EducationCard
+                                loading={loading}
+                                educations={sanitizedConfig.educations}
+                              />
+                            </motion.div>
+                          )}
+                          {sanitizedConfig.certifications.length !== 0 && (
+                            <motion.div variants={itemVariants}>
+                              <CertificationCard
+                                loading={loading}
+                                certifications={sanitizedConfig.certifications}
+                              />
+                            </motion.div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Skills Section */}
+                    {sanitizedConfig.skills.length !== 0 && (
+                      <div id="skills" className="scroll-mt-24">
+                        <h2 className="text-2xl font-cyber font-bold mb-6 text-white flex items-center gap-4">
+                          <span className="text-[#00ffff] text-sm">04.</span> Skills
+                          <div className="h-px bg-gradient-to-r from-white/20 to-transparent flex-grow ml-2"></div>
+                        </h2>
+                        <motion.div className="card-hover pointer-events-auto" variants={itemVariants}>
+                          <SkillCard
                             loading={loading}
-                            educations={sanitizedConfig.educations}
+                            skills={sanitizedConfig.skills}
                           />
                         </motion.div>
-                      )}
-                    </div>
+                      </div>
+                    )}
+
+                    {/* Blog Section */}
+                    {sanitizedConfig.blog.display && (
+                      <div id="blog" className="scroll-mt-24">
+                        <h2 className="text-2xl font-cyber font-bold mb-6 text-white flex items-center gap-4">
+                          <span className="text-[#00ffff] text-sm">05.</span> Writing
+                          <div className="h-px bg-gradient-to-r from-white/20 to-transparent flex-grow ml-2"></div>
+                        </h2>
+                        <motion.div variants={itemVariants}>
+                          <BlogCard
+                            loading={loading}
+                            googleAnalyticsId={sanitizedConfig.googleAnalytics.id}
+                            blog={sanitizedConfig.blog}
+                          />
+                        </motion.div>
+                      </div>
+                    )}
+
                   </Suspense>
                 </motion.div>
-              </motion.div>
+              </div>
             </motion.div>
           </>
         )}

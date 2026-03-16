@@ -100,7 +100,7 @@ const GithubProjectCard = ({
   const renderProjects = () => {
     return githubProjects.map((item, index) => (
       <motion.div
-        className="card shadow-2xl compact bg-base-100/85 border border-accent/20 rounded-xl cursor-pointer neon-glow liquid-card card-3d"
+        className="card glass-card hover:border-white/10 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group cursor-pointer card-3d"
         key={index}
         onClick={() => setModalProject(item)}
         initial={{ opacity: 0, y: 20 }}

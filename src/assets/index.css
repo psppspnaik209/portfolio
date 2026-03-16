@@ -219,70 +219,66 @@ svg {
 }
 
 /* ============================================
-   STATIC STYLES
+   PREMIUM GLASSMORPHISM & AMBIENT BACKGROUNDS
    ============================================ */
 
+body {
+  background-color: #050510; /* Very deep dark tint */
+}
+
+/* Base Glass Card */
 .glass-card {
-  background: rgba(0, 25, 50, 0.75);
-  border: 1px solid rgba(0, 255, 255, 0.2);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(15, 23, 42, 0.4); /* Slate dark transparent */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
+/* Ambient Animated Mesh Background */
 .bg-animation {
-  position: relative;
-  background: transparent;
-  overflow: hidden;
-}
-
-.bg-animation::before {
-  content: '';
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(
-    circle at 50% 50%,
-    rgba(0, 255, 255, 0.05) 0%,
-    transparent 70%
-  );
-  animation: pulse 4s ease-in-out infinite alternate;
-  z-index: -1;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  overflow: hidden;
+  background: radial-gradient(circle at 15% 50%, rgba(20, 50, 100, 0.3), transparent 50%),
+              radial-gradient(circle at 85% 30%, rgba(0, 100, 100, 0.2), transparent 50%);
+  animation: mesh-shift 25s ease-in-out infinite alternate;
 }
 
-@keyframes pulse {
+@keyframes mesh-shift {
   0% {
-    opacity: 0.5;
+    transform: scale(1.1) translate(0%, 0%);
+  }
+  50% {
+    transform: scale(1.3) translate(5%, 5%);
   }
   100% {
-    opacity: 0.8;
+    transform: scale(1.1) translate(-2%, 8%);
   }
 }
 
 .cyber-grid {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: linear-gradient(
-      rgba(0, 255, 255, 0.35) 1px,
-      transparent 1px
-    ),
-    linear-gradient(90deg, rgba(0, 255, 255, 0.35) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: grid-move 20s linear infinite;
+  width: 100vw;
+  height: 100vh;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: grid-move-slow 30s linear infinite;
   z-index: -1;
+  pointer-events: none;
 }
 
-@keyframes grid-move {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(50px, 50px);
-  }
+@keyframes grid-move-slow {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(60px, 60px); }
 }
 
 @keyframes cosmic {

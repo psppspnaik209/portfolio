@@ -82,7 +82,7 @@ const ExperienceCard = ({
   return (
     <>
       <motion.div
-        className="card shadow-2xl compact bg-base-100/85 border border-primary/20  rounded-xl neon-glow liquid-card"
+        className="card glass-card hover:border-white/10 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.03, y: -4 }}

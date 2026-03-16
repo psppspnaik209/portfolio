@@ -21,7 +21,7 @@ const SkillCard = ({
   };
 
   return (
-    <div className="card shadow-2xl compact bg-base-100/85 border border-primary/20 rounded-xl card-hover neon-glow liquid-card">
+    <div className="card glass-card hover:border-white/10 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group card-hover">
       <div className="card-body">
         <div className="mx-3">
           <h5 className="card-title">
