@@ -11,7 +11,7 @@
 import { useEffect, useRef, memo, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-const TRAIL_LENGTH = 16;
+const TRAIL_LENGTH = 8;
 const CURSOR_SIZE = 16;
 
 const CustomCursor = memo(() => {

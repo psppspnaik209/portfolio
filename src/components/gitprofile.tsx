@@ -243,11 +243,11 @@ const GitProfile = ({ config }: { config: Config }) => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0 }}
             >
-              <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 w-full max-w-7xl mx-auto">
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start w-full max-w-7xl mx-auto">
                 
                 {/* Left Pane - Sticky Sidebar */}
                 <motion.div 
-                  className="w-full lg:w-[40%] flex flex-col gap-6 lg:sticky lg:top-12 lg:h-[calc(100vh-6rem)] lg:overflow-y-auto pb-8 no-scrollbar"
+                  className="w-full lg:w-[40%] flex flex-col gap-6 lg:sticky lg:top-12"
                   variants={containerVariants}
                   initial="hidden"
                   animate="show"
