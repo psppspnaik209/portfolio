@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { SanitizedEducation } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
+import { MagicCard } from '../ui/magic-card';
 
 const ListItem = ({
   time,
@@ -84,11 +85,7 @@ const EducationCard = ({
   };
 
   return (
-    <motion.div
-      className="card shadow-2xl compact bg-base-100/85 border border-primary/20  rounded-xl  neon-glow glitch liquid-card"
-      whileHover={{ scale: 1.03, y: -4 }}
-      data-text="Education"
-    >
+    <MagicCard className="card shadow" data-text="Education">
       <div className="card-body">
         <motion.div
           className="mx-3"
@@ -124,7 +121,7 @@ const EducationCard = ({
           </ol>
         </div>
       </div>
-    </motion.div>
+    </MagicCard>
   );
 };
 
