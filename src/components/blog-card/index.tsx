@@ -6,6 +6,7 @@ import { formatDistance } from 'date-fns';
 import { SanitizedBlog } from '../../interfaces/sanitized-config';
 import { ga, skeleton } from '../../utils';
 import { Article } from '../../interfaces/article';
+import { MagicCard } from '../ui/magic-card';
 
 const BlogCard = ({
   loading,
@@ -95,7 +96,6 @@ const BlogCard = ({
     return articles && articles.length ? (
       articles.slice(0, blog.limit).map((article, index) => (
         <a
-          className="card glass-card relative overflow-hidden group cursor-pointer card-hover"
           key={index}
           href={article.link}
           onClick={(e) => {
@@ -114,50 +114,52 @@ const BlogCard = ({
             window?.open(article.link, '_blank');
           }}
         >
-          <div className="p-8 h-full w-full">
-            <div className="flex items-center flex-col md:flex-row">
-              <div className="avatar mb-5 md:mb-0 opacity-90">
-                <div className="w-24 h-24 mask mask-squircle">
-                  <LazyImage
-                    src={article.thumbnail}
-                    alt={'thumbnail'}
-                    placeholder={skeleton({
-                      widthCls: 'w-full',
-                      heightCls: 'h-full',
-                      shape: '',
-                    })}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <div className="flex items-start px-4">
-                  <div className="text-center md:text-left w-full">
-                    <h2 className="font-medium text-base-content opacity-60">
-                      {article.title}
-                    </h2>
-                    <p className="text-base-content opacity-50 text-xs">
-                      {formatDistance(article.publishedAt, new Date(), {
-                        addSuffix: true,
+          <MagicCard className="cursor-pointer">
+            <div className="p-8 h-full w-full">
+              <div className="flex items-center flex-col md:flex-row">
+                <div className="avatar mb-5 md:mb-0 opacity-90">
+                  <div className="w-24 h-24 mask mask-squircle">
+                    <LazyImage
+                      src={article.thumbnail}
+                      alt={'thumbnail'}
+                      placeholder={skeleton({
+                        widthCls: 'w-full',
+                        heightCls: 'h-full',
+                        shape: '',
                       })}
-                    </p>
-                    <p className="mt-3 text-base-content text-opacity-60 text-sm">
-                      {article.description}
-                    </p>
-                    <div className="mt-4 flex items-center flex-wrap justify-center md:justify-start">
-                      {article.categories.map((category, index2) => (
-                        <div
-                          className="py-2 px-4 text-xs leading-3 rounded-full bg-base-300 mr-1 mb-1 opacity-50 text-base-content"
-                          key={index2}
-                        >
-                          #{category}
-                        </div>
-                      ))}
+                    />
+                  </div>
+                </div>
+                <div className="w-full">
+                  <div className="flex items-start px-4">
+                    <div className="text-center md:text-left w-full">
+                      <h2 className="font-medium text-base-content opacity-60">
+                        {article.title}
+                      </h2>
+                      <p className="text-base-content opacity-50 text-xs">
+                        {formatDistance(article.publishedAt, new Date(), {
+                          addSuffix: true,
+                        })}
+                      </p>
+                      <p className="mt-3 text-base-content text-opacity-60 text-sm">
+                        {article.description}
+                      </p>
+                      <div className="mt-4 flex items-center flex-wrap justify-center md:justify-start">
+                        {article.categories.map((category, index2) => (
+                          <div
+                            className="py-2 px-4 text-xs leading-3 rounded-full bg-base-300 mr-1 mb-1 opacity-50 text-base-content"
+                            key={index2}
+                          >
+                            #{category}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </MagicCard>
         </a>
       ))
     ) : (
@@ -174,8 +176,8 @@ const BlogCard = ({
     <div className="col-span-1 lg:col-span-2">
       <div className="grid grid-cols-2 gap-6">
         <div className="col-span-2">
-          <div
-            className={`card compact bg-base-100/85 border border-primary/20 rounded-xl shadow ${
+          <MagicCard
+            className={`card compact shadow ${
               loading || (articles && articles.length)
                 ? 'shadow-lg'
                 : 'shadow-2xl'
@@ -199,7 +201,7 @@ const BlogCard = ({
                 </div>
               </div>
             </div>
-          </div>
+          </MagicCard>
         </div>
       </div>
     </div>

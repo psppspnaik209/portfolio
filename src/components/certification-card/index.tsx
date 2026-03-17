@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { SanitizedCertification } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
+import { MagicCard } from '../ui/magic-card';
 
 const ListItem = ({
   year,
@@ -80,10 +81,7 @@ const CertificationCard = ({
   };
 
   return (
-    <motion.div
-      className="card glass-card relative overflow-hidden group card-hover"
-      data-text="Certifications"
-    >
+    <MagicCard className="card shadow" data-text="Certifications">
       <div className="card-body">
         <motion.div
           className="mx-3"
@@ -121,7 +119,7 @@ const CertificationCard = ({
           </ol>
         </div>
       </div>
-    </motion.div>
+    </MagicCard>
   );
 };
 

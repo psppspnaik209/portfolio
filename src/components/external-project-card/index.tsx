@@ -4,6 +4,8 @@ import LazyImage from '../lazy-image';
 import { skeleton } from '../../utils';
 import { SanitizedExternalProject } from '../../interfaces/sanitized-config';
 import Modal from '../modal'; // Import the new Modal component
+import { MagicCard } from '../ui/magic-card';
+import { Meteors } from '../ui/meteors';
 
 const ExternalProjectCard = ({
   externalProjects,
@@ -82,51 +84,54 @@ const ExternalProjectCard = ({
   const renderExternalProjects = () => {
     return externalProjects.map((item, index) => (
       <motion.div
-        className="card glass-card relative overflow-hidden group cursor-pointer card-3d"
         key={index}
-        onClick={() => setModalProject(item)}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         animate={{ scale: 1, zIndex: 1 }}
-        transition={{ duration: 0.2, delay: 0 }}
+        transition={{ duration: 0.2, delay: index * 0.1 }}
       >
-        <div className="p-8 h-full w-full">
-          <div className="flex items-center flex-col">
-            <div className="w-full">
-              <div className="px-4">
-                <div className="text-center w-full">
-                  <h2 className="font-medium text-center opacity-60 mb-2 link-glow">
-                    {' '}
-                    {item.title}
-                  </h2>
-                  {item.imageUrl && (
-                    <div className="avatar opacity-90 hover:scale-110 transition-transform">
-                      <div className="w-24 h-24 mask mask-squircle">
-                        <LazyImage
-                          src={item.imageUrl}
-                          alt={'thumbnail'}
-                          placeholder={skeleton({
-                            widthCls: 'w-full',
-                            heightCls: 'h-full',
-                            shape: '',
-                          })}
-                        />
+        <MagicCard
+          className="cursor-pointer"
+          onClick={() => setModalProject(item)}
+        >
+          <div className="p-8 h-full w-full">
+            <div className="flex items-center flex-col">
+              <div className="w-full">
+                <div className="px-4">
+                  <div className="text-center w-full">
+                    <h2 className="font-medium text-center opacity-60 mb-2 link-glow">
+                      {' '}
+                      {item.title}
+                    </h2>
+                    {item.imageUrl && (
+                      <div className="avatar opacity-90 hover:scale-110 transition-transform">
+                        <div className="w-24 h-24 mask mask-squircle">
+                          <LazyImage
+                            src={item.imageUrl}
+                            alt={'thumbnail'}
+                            placeholder={skeleton({
+                              widthCls: 'w-full',
+                              heightCls: 'h-full',
+                              shape: '',
+                            })}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  <motion.p
-                    className="mt-2 text-base-content text-opacity-60 text-sm text-justify truncate"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.2, delay: 0 }}
-                  >
-                    {item.description}
-                  </motion.p>
+                    )}
+                    <motion.p
+                      className="mt-2 text-base-content text-opacity-60 text-sm text-justify truncate"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2, delay: 0 }}
+                    >
+                      {item.description}
+                    </motion.p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </MagicCard>
       </motion.div>
     ));
   };
@@ -140,7 +145,8 @@ const ExternalProjectCard = ({
       >
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
-            <motion.div className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow card-hover">
+            <MagicCard className="card compact shadow relative overflow-hidden">
+              <Meteors number={10} />
               <div className="card-body">
                 <motion.div
                   className="mx-3 flex items-center justify-between mb-2"
@@ -163,7 +169,7 @@ const ExternalProjectCard = ({
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </MagicCard>
           </div>
         </div>
       </motion.div>
@@ -174,19 +180,25 @@ const ExternalProjectCard = ({
       >
         {modalProject && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0 }}
+            className="space-y-5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
           >
-            <motion.p className="py-4 link-glow-purple">
-              {modalProject.description}
-            </motion.p>
+            {/* Description */}
+            <div className="border-l-2 border-[#38bdf8]/40 pl-4">
+              <p className="text-white/70 text-sm leading-relaxed">
+                {modalProject.description}
+              </p>
+            </div>
+
+            {/* View Project Button */}
             <motion.a
               href={modalProject.link}
               target="_blank"
               rel="noreferrer"
-              className="btn hover:scale-105 transition-transform"
-              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg bg-[#38bdf8]/10 border border-[#38bdf8]/30 text-[#38bdf8] hover:bg-[#38bdf8]/20 hover:border-[#38bdf8]/50 transition-all duration-150"
+              whileTap={{ scale: 0.97 }}
             >
               View Project
             </motion.a>

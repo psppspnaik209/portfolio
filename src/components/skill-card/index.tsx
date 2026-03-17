@@ -1,4 +1,5 @@
 import { skeleton } from '../../utils';
+import { MagicCard } from '../ui/magic-card';
 
 const SkillCard = ({
   loading,
@@ -21,7 +22,7 @@ const SkillCard = ({
   };
 
   return (
-    <div className="card glass-card relative overflow-hidden group card-hover">
+    <MagicCard className="card shadow group">
       <div className="card-body">
         <div className="mx-3">
           <h5 className="card-title">
@@ -47,7 +48,7 @@ const SkillCard = ({
           </div>
         </div>
       </div>
-    </div>
+    </MagicCard>
   );
 };
 

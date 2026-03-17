@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { SanitizedPublication } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
+import { MagicCard } from '../ui/magic-card';
 
 const PublicationCard = ({
   publications,
@@ -13,7 +14,10 @@ const PublicationCard = ({
     const array = [];
     for (let index = 0; index < publications.length; index++) {
       array.push(
-        <div className="card glass-card relative overflow-hidden group cursor-pointer card-hover" key={index}>
+        <div
+          className="card glass-card relative overflow-hidden group cursor-pointer card-hover"
+          key={index}
+        >
           <div className="p-8 h-full w-full">
             <div className="flex items-center flex-col">
               <div className="w-full">
@@ -75,44 +79,42 @@ const PublicationCard = ({
 
   const renderPublications = () => {
     return publications.map((item, index) => (
-      <a
-        className="card glass-card relative overflow-hidden group cursor-pointer card-hover"
-        key={index}
-        href={item.link}
-        target="_blank"
-        rel="noreferrer"
-      >
-        <div className="p-8 h-full w-full">
-          <div className="flex items-center flex-col">
-            <div className="w-full">
-              <div className="px-4">
-                <div className="text-center w-full">
-                  <h2 className="font-medium opacity-60 mb-2">{item.title}</h2>
-                  {item.conferenceName && (
-                    <p className="text-base-content opacity-50 text-sm">
-                      {item.conferenceName}
-                    </p>
-                  )}
-                  {item.journalName && (
-                    <p className="text-base-content opacity-50 text-sm">
-                      {item.journalName}
-                    </p>
-                  )}
-                  {item.authors && (
-                    <p className="text-base-content opacity-50 text-sm">
-                      Author: {item.authors}
-                    </p>
-                  )}
-                  {item.description && (
-                    <p className="mt-2 text-base-content text-opacity-60 text-sm text-justify">
-                      {item.description}
-                    </p>
-                  )}
+      <a key={index} href={item.link} target="_blank" rel="noreferrer">
+        <MagicCard className="cursor-pointer">
+          <div className="p-8 h-full w-full">
+            <div className="flex items-center flex-col">
+              <div className="w-full">
+                <div className="px-4">
+                  <div className="text-center w-full">
+                    <h2 className="font-medium opacity-60 mb-2">
+                      {item.title}
+                    </h2>
+                    {item.conferenceName && (
+                      <p className="text-base-content opacity-50 text-sm">
+                        {item.conferenceName}
+                      </p>
+                    )}
+                    {item.journalName && (
+                      <p className="text-base-content opacity-50 text-sm">
+                        {item.journalName}
+                      </p>
+                    )}
+                    {item.authors && (
+                      <p className="text-base-content opacity-50 text-sm">
+                        Author: {item.authors}
+                      </p>
+                    )}
+                    {item.description && (
+                      <p className="mt-2 text-base-content text-opacity-60 text-sm text-justify">
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </MagicCard>
       </a>
     ));
   };
@@ -122,7 +124,7 @@ const PublicationCard = ({
       <div className="col-span-1 lg:col-span-2">
         <div className="grid grid-cols-2 gap-6">
           <div className="col-span-2">
-            <div className="card compact bg-base-100/85 border border-primary/20 rounded-xl shadow">
+            <MagicCard className="card compact shadow">
               <div className="card-body">
                 <div className="mx-3 flex items-center justify-between mb-2">
                   <h5 className="card-title">
@@ -141,7 +143,7 @@ const PublicationCard = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </MagicCard>
           </div>
         </div>
       </div>

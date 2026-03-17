@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { SanitizedExperience } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
 import Modal from '../modal'; // Import the new Modal component
+import { MagicCard } from '../ui/magic-card';
 
 const ListItem = ({
   experience,
@@ -82,44 +83,47 @@ const ExperienceCard = ({
   return (
     <>
       <motion.div
-        className="card glass-card relative overflow-hidden group card-hover"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
       >
-        <div className="card-body">
-          <motion.div
-            className="mx-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
-          >
-            <motion.h5 className="card-title">
-              {loading ? (
-                skeleton({ widthCls: 'w-32', heightCls: 'h-8' })
-              ) : (
-                <span className="text-base-content opacity-70">Experience</span>
-              )}
-            </motion.h5>
-          </motion.div>
-          <div className="text-base-content text-opacity-60">
-            <ol className="relative border-l border-primary/20 my-2 mx-4">
-              {loading ? (
-                renderSkeleton()
-              ) : (
-                <Fragment>
-                  {experiences.map((experience, index) => (
-                    <ListItem
-                      key={index}
-                      experience={experience}
-                      onClick={() => setModalExperience(experience)}
-                    />
-                  ))}
-                </Fragment>
-              )}
-            </ol>
+        <MagicCard className="card shadow group">
+          <div className="card-body">
+            <motion.div
+              className="mx-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              <motion.h5 className="card-title">
+                {loading ? (
+                  skeleton({ widthCls: 'w-32', heightCls: 'h-8' })
+                ) : (
+                  <span className="text-base-content opacity-70">
+                    Experience
+                  </span>
+                )}
+              </motion.h5>
+            </motion.div>
+            <div className="text-base-content text-opacity-60">
+              <ol className="relative border-l border-primary/20 my-2 mx-4">
+                {loading ? (
+                  renderSkeleton()
+                ) : (
+                  <Fragment>
+                    {experiences.map((experience, index) => (
+                      <ListItem
+                        key={index}
+                        experience={experience}
+                        onClick={() => setModalExperience(experience)}
+                      />
+                    ))}
+                  </Fragment>
+                )}
+              </ol>
+            </div>
           </div>
-        </div>
+        </MagicCard>
       </motion.div>
       <Modal
         isOpen={!!modalExperience}
@@ -128,17 +132,29 @@ const ExperienceCard = ({
       >
         {modalExperience && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            className="space-y-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <p className="text-sm text-base-content text-opacity-60">
-              {modalExperience.company}
-            </p>
-            <p className="text-xs text-base-content text-opacity-60">
-              {modalExperience.from} - {modalExperience.to}
-            </p>
-            <p className="py-4">{modalExperience.description}</p>
+            {/* Company & Date */}
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-[#38bdf8]/10 border border-[#38bdf8]/20 text-[#38bdf8]">
+                {modalExperience.company}
+              </span>
+              <span className="text-xs text-white/40 font-mono">
+                {modalExperience.from} — {modalExperience.to}
+              </span>
+            </div>
+
+            {/* Description */}
+            {modalExperience.description && (
+              <div className="border-l-2 border-[#38bdf8]/40 pl-4">
+                <p className="text-white/70 text-sm leading-relaxed">
+                  {modalExperience.description}
+                </p>
+              </div>
+            )}
           </motion.div>
         )}
       </Modal>

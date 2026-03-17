@@ -31,6 +31,8 @@ import {
   SanitizedSocial,
 } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
+import { MagicCard } from '../ui/magic-card';
+import { BorderBeam } from '../ui/border-beam';
 
 type Props = {
   profile: Profile | null;
@@ -248,7 +250,8 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
   };
 
   return (
-    <motion.div className="card glass-card relative overflow-hidden group card-hover">
+    <MagicCard className="card shadow group relative overflow-hidden">
+      <BorderBeam size={200} duration={15} delay={4} />
       <div className="card-body">
         <div className="text-base-content text-opacity-60">
           {loading || !profile ? (
@@ -461,7 +464,7 @@ const DetailsCard = ({ profile, loading, social, github }: Props) => {
           )}
         </div>
       </div>
-    </motion.div>
+    </MagicCard>
   );
 };
 

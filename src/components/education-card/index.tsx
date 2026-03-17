@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { SanitizedEducation } from '../../interfaces/sanitized-config';
 import { skeleton } from '../../utils';
+import { MagicCard } from '../ui/magic-card';
 
 const ListItem = ({
   time,
@@ -84,10 +85,7 @@ const EducationCard = ({
   };
 
   return (
-    <motion.div
-      className="card glass-card relative overflow-hidden group card-hover"
-      data-text="Education"
-    >
+    <MagicCard className="card shadow" data-text="Education">
       <div className="card-body">
         <motion.div
           className="mx-3"
@@ -123,7 +121,7 @@ const EducationCard = ({
           </ol>
         </div>
       </div>
-    </motion.div>
+    </MagicCard>
   );
 };
 

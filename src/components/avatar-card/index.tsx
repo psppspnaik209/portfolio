@@ -4,6 +4,10 @@ import { FALLBACK_IMAGE } from '../../constants';
 import { Profile } from '../../interfaces/profile';
 import { skeleton } from '../../utils';
 import LazyImage from '../lazy-image';
+import { MagicCard } from '../ui/magic-card';
+import { AnimatedShinyText } from '../ui/animated-shiny-text';
+import { Spotlight } from '../ui/spotlight';
+import { BorderBeam } from '../ui/border-beam';
 
 const _x = ['https://i.im', 'gur.com/AMn', 'SXrQ.png'].join('');
 
@@ -13,23 +17,6 @@ interface AvatarCardProps {
   avatarRing: boolean;
   resumeFileUrl?: string;
 }
-
-// Interactive name component with letter-by-letter hover animation
-const InteractiveName = ({ name }: { name: string }) => {
-  return (
-    <div className="flex justify-center flex-wrap cursor-default select-none">
-      {name.split('').map((letter, index) => (
-        <span
-          key={index}
-          className="inline-block text-3xl font-bold transition-all duration-150 hover:text-yellow-400 hover:-translate-y-2 hover:scale-110"
-          style={{ transitionDelay: '0ms' }}
-        >
-          {letter === ' ' ? '\u00A0' : letter}
-        </span>
-      ))}
-    </div>
-  );
-};
 
 /**
  * Renders an AvatarCard component.
@@ -41,13 +28,30 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
   resumeFileUrl,
 }): JSX.Element => {
   const [_a, _sA] = useState(false);
-
-  // Toggle between normal and alternate view
   const _click = () => _sA(!_a);
 
+  const displayName =
+    profile?.name && profile.name.trim().length > 0
+      ? profile.name
+      : 'Kaushik Naik Guguloth';
+
+  const displayBio =
+    profile?.bio && profile.bio.trim().length > 0
+      ? profile.bio
+      : 'Building modern, interactive, and intelligent software experiences.';
+
   return (
-    <motion.div className="card glass-card relative overflow-hidden group card-hover">
-      <div className="grid place-items-center py-6">
+    <MagicCard className="card shadow group relative overflow-hidden">
+      {/* Spotlight — cinematic reveal */}
+      <Spotlight
+        className="-top-40 left-0 md:left-10 md:-top-20"
+        fill="#38bdf8"
+      />
+
+      {/* Border beam — light traveling along card edge */}
+      <BorderBeam size={250} duration={12} delay={9} />
+
+      <div className="grid place-items-center py-6 relative z-10">
         {loading || !profile ? (
           <motion.div
             className="avatar opacity-90"
@@ -78,7 +82,6 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
                   : ''
               }`}
             >
-              {/* Default avatar - fades out when clicked */}
               <motion.div
                 className="absolute inset-0"
                 animate={{ opacity: _a ? 0 : 1 }}
@@ -94,8 +97,6 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
                   })}
                 />
               </motion.div>
-
-              {/* Alternate view - fades in when clicked */}
               <motion.div
                 className="absolute inset-0"
                 initial={{ opacity: 0 }}
@@ -108,23 +109,31 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
           </motion.div>
         )}
 
-        {/* Interactive name with letter hover animation */}
+        {/* Name — shiny text shimmer */}
         <div className="mb-2">
-          <InteractiveName name="Kaushik Naik Guguloth" />
+          {loading || !profile ? (
+            skeleton({ widthCls: 'w-48', heightCls: 'h-8' })
+          ) : (
+            <h1 className="text-4xl font-extrabold tracking-tight text-center">
+              <AnimatedShinyText className="!text-white" shimmerWidth={120}>
+                {displayName}
+              </AnimatedShinyText>
+            </h1>
+          )}
         </div>
 
-        {/* Bio */}
+        {/* Bio — clean fade, no gimmicky text-generate */}
         <motion.div
           className="text-center mx-auto px-8 mb-2"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0, delay: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
         >
-          <motion.div className="text-base-content text-opacity-60 font-mono text-sm">
+          <div className="text-base-content text-opacity-60 font-mono text-sm max-w-sm">
             {loading || !profile
               ? skeleton({ widthCls: 'w-48', heightCls: 'h-5' })
-              : profile.bio}
-          </motion.div>
+              : displayBio}
+          </div>
         </motion.div>
 
         {/* Resume button */}
@@ -142,7 +151,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             <motion.a
               href={resumeFileUrl}
               target="_blank"
-              className="btn btn-outline btn-sm text-xs mt-2 border-accent text-accent hover:bg-accent hover:text-base-100 shadow-lg shadow-accent/20 hover:scale-110 transition-transform"
+              className="btn btn-outline btn-sm text-xs mt-2 border-[#38bdf8] text-[#38bdf8] hover:bg-[#38bdf8] hover:text-base-100 shadow-lg shadow-sky-500/20 hover:scale-110 transition-transform"
               download
               rel="noreferrer"
               whileTap={{ scale: 0.95 }}
@@ -151,7 +160,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
             </motion.a>
           ))}
       </div>
-    </motion.div>
+    </MagicCard>
   );
 };
 
