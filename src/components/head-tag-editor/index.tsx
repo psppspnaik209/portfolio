@@ -13,7 +13,7 @@ type HeadTagEditorProps = {
 const HeadTagEditor: React.FC<HeadTagEditorProps> = ({ googleAnalyticsId }) => {
   return (
     <Helmet>
-      <meta name="theme-color" content={'#000000'} />
+      <meta name="theme-color" content={'#f5f1e8'} />
       {googleAnalyticsId && (
         <>
           <script

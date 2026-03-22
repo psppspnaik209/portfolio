@@ -5,6 +5,26 @@ interface Github {
   username: string;
 }
 
+interface ProjectMedia {
+  type: 'video' | 'image';
+  asset?: string;
+  src?: string;
+  alt?: string;
+  poster?: string;
+}
+
+interface ManualGitHubProject {
+  repo: string;
+  label?: string;
+  featured?: boolean;
+  eyebrow?: string;
+  summary?: string;
+  impact?: string;
+  stack?: string[];
+  ctaLabel?: string;
+  media?: ProjectMedia;
+}
+
 interface GitHubProjects {
   /**
    * Display GitHub projects?
@@ -67,7 +87,7 @@ interface GitHubProjects {
      *
      * example: ['my-project1', 'my-project2']
      */
-    projects?: Array<string>;
+    projects?: Array<string | ManualGitHubProject>;
   };
 }
 
@@ -85,12 +105,18 @@ interface ExternalProjects {
     description?: string;
     imageUrl?: string;
     link: string;
+    featured?: boolean;
+    eyebrow?: string;
+    summary?: string;
+    impact?: string;
+    stack?: string[];
+    media?: ProjectMedia;
+    ctaLabel?: string;
   }[];
 }
 
 interface Projects {
   github?: GitHubProjects;
-
   external?: ExternalProjects;
 }
 
@@ -210,7 +236,7 @@ interface Social {
   /**
    * Email
    */
-  email?: string;
+  email?: string | string[];
 }
 
 interface Resume {
@@ -226,6 +252,7 @@ interface Experience {
   from: string;
   to: string;
   companyLink?: string;
+  description?: string;
 }
 
 interface Certification {
@@ -240,6 +267,35 @@ interface Education {
   degree?: string;
   from: string;
   to: string;
+  link?: string;
+}
+
+interface PersonalCta {
+  label: string;
+  href: string;
+}
+
+interface PersonalMetric {
+  value: string;
+  label: string;
+}
+
+interface Personal {
+  name?: string;
+  headline?: string;
+  subheadline?: string;
+  intro?: string;
+  location?: string;
+  availability?: string;
+  primaryCta?: PersonalCta;
+  secondaryCta?: PersonalCta;
+  metrics?: PersonalMetric[];
+}
+
+interface CapabilityGroup {
+  title: string;
+  summary?: string;
+  items: string[];
 }
 
 interface Publication {
@@ -385,6 +441,16 @@ interface Config {
   social?: Social;
 
   /**
+   * Hero and authored intro content
+   */
+  personal?: Personal;
+
+  /**
+   * Curated capability groups
+   */
+  capabilities?: Array<CapabilityGroup>;
+
+  /**
    * Skill list
    */
   skills?: Array<string>;
@@ -405,7 +471,7 @@ interface Config {
   educations?: Array<Education>;
 
   /**
-   * Publication list
+   * Publications list
    */
   publications?: Array<Publication>;
 

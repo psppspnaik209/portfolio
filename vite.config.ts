@@ -28,10 +28,10 @@ export default defineConfig({
             },
             includeAssets: ['logo.png'],
             manifest: {
-              name: 'Portfolio',
-              short_name: 'Portfolio',
-              description: 'Personal Portfolio',
-              theme_color: '#000000',
+              name: 'Kaushik Naik Guguloth Portfolio',
+              short_name: 'KNG Portfolio',
+              description: 'Portfolio of Kaushik Naik Guguloth',
+              theme_color: '#f5f1e8',
               icons: [
                 {
                   src: 'logo.png',

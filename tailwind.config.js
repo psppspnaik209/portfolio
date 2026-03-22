@@ -6,7 +6,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        cyber: ['Orbitron', 'monospace'],
+        display: ['Sora', 'sans-serif'],
+        body: ['"IBM Plex Sans"', 'sans-serif'],
+        accent: ['"IBM Plex Mono"', 'monospace'],
+        cyber: ['Sora', 'sans-serif'],
       },
       animation: {
         spotlight: 'spotlight 2s ease 0.75s 1 forwards',

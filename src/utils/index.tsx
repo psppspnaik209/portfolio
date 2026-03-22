@@ -1,11 +1,17 @@
+import { useCallback, useState } from 'react';
 import { hotjar } from 'react-hotjar';
 import { LOCAL_STORAGE_KEY_NAME } from '../constants';
 import { DEFAULT_CUSTOM_THEME } from '../constants/default-custom-theme';
 import { DEFAULT_THEMES } from '../constants/default-themes';
 import colors from '../data/colors.json';
 import {
+  SanitizedCapability,
   SanitizedConfig,
+  SanitizedExternalProject,
+  SanitizedGitHubManualProject,
   SanitizedHotjar,
+  SanitizedPersonal,
+  SanitizedProjectMedia,
   SanitizedThemeConfig,
 } from '../interfaces/sanitized-config';
 
@@ -23,6 +29,81 @@ type Colors = {
   [key: string]: { color: string | null; url: string };
 };
 
+type ExternalProjectConfig = NonNullable<ExternalProjects['projects']>[number];
+
+const sanitizeProjectMedia = (
+  media?: ProjectMedia,
+): SanitizedProjectMedia | undefined => {
+  if (!media?.type) {
+    return undefined;
+  }
+
+  return {
+    type: media.type,
+    asset: media.asset,
+    src: media.src,
+    alt: media.alt,
+    poster: media.poster,
+  };
+};
+
+const sanitizeManualGitHubProject = (
+  project: string | ManualGitHubProject,
+): SanitizedGitHubManualProject => {
+  if (typeof project === 'string') {
+    return {
+      repo: project,
+      featured: false,
+      stack: [],
+    };
+  }
+
+  return {
+    repo: project.repo,
+    label: project.label,
+    featured: project.featured ?? false,
+    eyebrow: project.eyebrow,
+    summary: project.summary,
+    impact: project.impact,
+    stack: project.stack || [],
+    ctaLabel: project.ctaLabel,
+    media: sanitizeProjectMedia(project.media),
+  };
+};
+
+const sanitizeExternalProject = (
+  project: ExternalProjectConfig,
+): SanitizedExternalProject => ({
+  title: project.title,
+  description: project.description,
+  imageUrl: project.imageUrl,
+  link: project.link,
+  featured: project.featured ?? false,
+  eyebrow: project.eyebrow,
+  summary: project.summary,
+  impact: project.impact,
+  stack: project.stack || [],
+  media: sanitizeProjectMedia(project.media),
+  ctaLabel: project.ctaLabel,
+});
+
+const sanitizePersonal = (config: Config): SanitizedPersonal => ({
+  name: config?.personal?.name || 'Portfolio Owner',
+  headline: config?.personal?.headline || 'Software engineer',
+  subheadline: config?.personal?.subheadline,
+  intro: config?.personal?.intro,
+  location: config?.personal?.location,
+  availability: config?.personal?.availability,
+  primaryCta: config?.personal?.primaryCta,
+  secondaryCta: config?.personal?.secondaryCta,
+  metrics: config?.personal?.metrics || [],
+});
+
+const sanitizeCapabilities = (config: Config): SanitizedCapability[] =>
+  (config?.capabilities || []).filter(
+    (group) => group.title && group.items && group.items.length > 0,
+  );
+
 export const getSanitizedConfig = (
   config: Config,
 ): SanitizedConfig | Record<string, never> => {
@@ -34,7 +115,7 @@ export const getSanitizedConfig = (
       projects: {
         github: {
           display: config?.projects?.github?.display ?? true,
-          header: config?.projects?.github?.header || 'Github Projects',
+          header: config?.projects?.github?.header || 'Code Portfolio',
           mode: config?.projects?.github?.mode || 'automatic',
           automatic: {
             sortBy: config?.projects?.github?.automatic?.sortBy || 'stars',
@@ -50,14 +131,19 @@ export const getSanitizedConfig = (
                 | 'api'
                 | 'pinned') || 'api',
           },
-
           manual: {
-            projects: config?.projects?.github?.manual?.projects || [],
+            projects:
+              config?.projects?.github?.manual?.projects?.map(
+                sanitizeManualGitHubProject,
+              ) || [],
           },
         },
         external: {
-          header: config?.projects?.external?.header || 'My Projects',
-          projects: config?.projects?.external?.projects || [],
+          header: config?.projects?.external?.header || 'Additional Work',
+          projects:
+            config?.projects?.external?.projects
+              ?.filter((project) => project.title && project.link)
+              .map(sanitizeExternalProject) || [],
         },
       },
       seo: {
@@ -87,6 +173,8 @@ export const getSanitizedConfig = (
         telegram: config?.social?.telegram,
         researchGate: config?.social?.researchGate,
       },
+      personal: sanitizePersonal(config),
+      capabilities: sanitizeCapabilities(config),
       resume: {
         fileUrl: config?.resume?.fileUrl || '',
       },
@@ -241,8 +329,6 @@ export const getLanguageColor = (language: string): string => {
   }
 };
 
-import { useState, useCallback } from 'react';
-
 export const useCopyToClipboard = () => {
   const [isCopied, setIsCopied] = useState(false);
 
@@ -255,7 +341,7 @@ export const useCopyToClipboard = () => {
     try {
       await navigator.clipboard.writeText(text);
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 1500); // Reset after 1.5 seconds
+      setTimeout(() => setIsCopied(false), 1500);
       return true;
     } catch (error) {
       console.error('Failed to copy: ', error);
