@@ -1,27 +1,93 @@
+import { useCallback, useState } from 'react';
 import { hotjar } from 'react-hotjar';
-import { LOCAL_STORAGE_KEY_NAME } from '../constants';
-import { DEFAULT_CUSTOM_THEME } from '../constants/default-custom-theme';
-import { DEFAULT_THEMES } from '../constants/default-themes';
 import colors from '../data/colors.json';
 import {
+  SanitizedCapability,
   SanitizedConfig,
+  SanitizedExternalProject,
+  SanitizedGitHubManualProject,
   SanitizedHotjar,
-  SanitizedThemeConfig,
+  SanitizedPersonal,
+  SanitizedProjectMedia,
 } from '../interfaces/sanitized-config';
-
-export const isDarkishTheme = (appliedTheme: string): boolean => {
-  return ['dark', 'halloween', 'forest', 'black', 'luxury', 'dracula'].includes(
-    appliedTheme,
-  );
-};
-
-type EventParams = {
-  [key: string]: string;
-};
 
 type Colors = {
   [key: string]: { color: string | null; url: string };
 };
+
+type ExternalProjectConfig = NonNullable<ExternalProjects['projects']>[number];
+
+const sanitizeProjectMedia = (
+  media?: ProjectMedia,
+): SanitizedProjectMedia | undefined => {
+  if (!media?.type) {
+    return undefined;
+  }
+
+  return {
+    type: media.type,
+    asset: media.asset,
+    src: media.src,
+    alt: media.alt,
+    poster: media.poster,
+  };
+};
+
+const sanitizeManualGitHubProject = (
+  project: string | ManualGitHubProject,
+): SanitizedGitHubManualProject => {
+  if (typeof project === 'string') {
+    return {
+      repo: project,
+      featured: false,
+      stack: [],
+    };
+  }
+
+  return {
+    repo: project.repo,
+    label: project.label,
+    featured: project.featured ?? false,
+    eyebrow: project.eyebrow,
+    summary: project.summary,
+    impact: project.impact,
+    stack: project.stack || [],
+    ctaLabel: project.ctaLabel,
+    media: sanitizeProjectMedia(project.media),
+  };
+};
+
+const sanitizeExternalProject = (
+  project: ExternalProjectConfig,
+): SanitizedExternalProject => ({
+  title: project.title,
+  description: project.description,
+  imageUrl: project.imageUrl,
+  link: project.link,
+  featured: project.featured ?? false,
+  eyebrow: project.eyebrow,
+  summary: project.summary,
+  impact: project.impact,
+  stack: project.stack || [],
+  media: sanitizeProjectMedia(project.media),
+  ctaLabel: project.ctaLabel,
+});
+
+const sanitizePersonal = (config: Config): SanitizedPersonal => ({
+  name: config?.personal?.name || 'Portfolio Owner',
+  headline: config?.personal?.headline || 'Software engineer',
+  subheadline: config?.personal?.subheadline,
+  intro: config?.personal?.intro,
+  location: config?.personal?.location,
+  availability: config?.personal?.availability,
+  primaryCta: config?.personal?.primaryCta,
+  secondaryCta: config?.personal?.secondaryCta,
+});
+
+const sanitizeCapabilities = (config: Config): SanitizedCapability[] =>
+  (config?.capabilities || []).filter(
+    (group) => group.title && group.items && group.items.length > 0,
+  );
 
 export const getSanitizedConfig = (
   config: Config,
@@ -34,7 +100,7 @@ export const getSanitizedConfig = (
       projects: {
         github: {
           display: config?.projects?.github?.display ?? true,
-          header: config?.projects?.github?.header || 'Github Projects',
+          header: config?.projects?.github?.header || 'Code Portfolio',
           mode: config?.projects?.github?.mode || 'automatic',
           automatic: {
             sortBy: config?.projects?.github?.automatic?.sortBy || 'stars',
@@ -50,14 +116,19 @@ export const getSanitizedConfig = (
                 | 'api'
                 | 'pinned') || 'api',
           },
-
           manual: {
-            projects: config?.projects?.github?.manual?.projects || [],
+            projects:
+              config?.projects?.github?.manual?.projects?.map(
+                sanitizeManualGitHubProject,
+              ) || [],
           },
         },
         external: {
-          header: config?.projects?.external?.header || 'My Projects',
-          projects: config?.projects?.external?.projects || [],
+          header: config?.projects?.external?.header || 'Additional Work',
+          projects:
+            config?.projects?.external?.projects
+              ?.filter((project) => project.title)
+              .map(sanitizeExternalProject) || [],
         },
       },
       seo: {
@@ -87,10 +158,11 @@ export const getSanitizedConfig = (
         telegram: config?.social?.telegram,
         researchGate: config?.social?.researchGate,
       },
+      personal: sanitizePersonal(config),
+      capabilities: sanitizeCapabilities(config),
       resume: {
         fileUrl: config?.resume?.fileUrl || '',
       },
-      skills: config?.skills || [],
       experiences:
         config?.experiences?.filter(
           (experience) =>
@@ -108,7 +180,6 @@ export const getSanitizedConfig = (
         config?.educations?.filter(
           (item) => item.institution || item.degree || item.from || item.to,
         ) || [],
-      publications: config?.publications?.filter((item) => item.title) || [],
       googleAnalytics: {
         id: config?.googleAnalytics?.id,
       },
@@ -116,102 +187,12 @@ export const getSanitizedConfig = (
         id: config?.hotjar?.id,
         snippetVersion: config?.hotjar?.snippetVersion || 6,
       },
-      blog: {
-        username: config?.blog?.username || '',
-        source: config?.blog?.source || 'dev',
-        limit: config?.blog?.limit || 5,
-        display: !!config?.blog?.username && !!config?.blog?.source,
-      },
-      themeConfig: {
-        defaultTheme: config?.themeConfig?.defaultTheme || DEFAULT_THEMES[0],
-        disableSwitch: config?.themeConfig?.disableSwitch || false,
-        respectPrefersColorScheme:
-          config?.themeConfig?.respectPrefersColorScheme || false,
-        displayAvatarRing: config?.themeConfig?.displayAvatarRing ?? true,
-        themes: config?.themeConfig?.themes || DEFAULT_THEMES,
-        customTheme: {
-          primary:
-            config?.themeConfig?.customTheme?.primary ||
-            DEFAULT_CUSTOM_THEME.primary,
-          secondary:
-            config?.themeConfig?.customTheme?.secondary ||
-            DEFAULT_CUSTOM_THEME.secondary,
-          accent:
-            config?.themeConfig?.customTheme?.accent ||
-            DEFAULT_CUSTOM_THEME.accent,
-          neutral:
-            config?.themeConfig?.customTheme?.neutral ||
-            DEFAULT_CUSTOM_THEME.neutral,
-          'base-100':
-            config?.themeConfig?.customTheme?.['base-100'] ||
-            DEFAULT_CUSTOM_THEME['base-100'],
-          '--rounded-box':
-            config?.themeConfig?.customTheme?.['--rounded-box'] ||
-            DEFAULT_CUSTOM_THEME['--rounded-box'],
-          '--rounded-btn':
-            config?.themeConfig?.customTheme?.['--rounded-btn'] ||
-            DEFAULT_CUSTOM_THEME['--rounded-btn'],
-        },
-      },
       footer: config?.footer,
       enablePWA: config?.enablePWA ?? true,
     };
-  } catch (error) {
+  } catch {
     return {};
   }
-};
-
-export const getInitialTheme = (themeConfig: SanitizedThemeConfig): string => {
-  if (themeConfig.disableSwitch) {
-    return themeConfig.defaultTheme;
-  }
-
-  if (
-    typeof window !== 'undefined' &&
-    !(localStorage.getItem(LOCAL_STORAGE_KEY_NAME) === null)
-  ) {
-    const savedTheme = localStorage.getItem(LOCAL_STORAGE_KEY_NAME);
-
-    if (savedTheme && themeConfig.themes.includes(savedTheme)) {
-      return savedTheme;
-    }
-  }
-
-  if (themeConfig.respectPrefersColorScheme && !themeConfig.disableSwitch) {
-    return typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : themeConfig.defaultTheme;
-  }
-
-  return themeConfig.defaultTheme;
-};
-
-export const skeleton = ({
-  widthCls = null,
-  heightCls = null,
-  style = {} as React.CSSProperties,
-  shape = 'rounded-full',
-  className = null,
-}: {
-  widthCls?: string | null;
-  heightCls?: string | null;
-  style?: React.CSSProperties;
-  shape?: string;
-  className?: string | null;
-}): JSX.Element => {
-  const classNames = ['bg-base-300', 'animate-pulse', shape];
-  if (className) {
-    classNames.push(className);
-  }
-  if (widthCls) {
-    classNames.push(widthCls);
-  }
-  if (heightCls) {
-    classNames.push(heightCls);
-  }
-
-  return <div className={classNames.join(' ')} style={style} />;
 };
 
 export const setupHotjar = (hotjarConfig: SanitizedHotjar): void => {
@@ -219,17 +200,6 @@ export const setupHotjar = (hotjarConfig: SanitizedHotjar): void => {
     const snippetVersion = hotjarConfig?.snippetVersion || 6;
     hotjar.initialize({ id: parseInt(hotjarConfig.id), sv: snippetVersion });
   }
-};
-
-export const ga = {
-  event(action: string, params: EventParams): void {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any)?.gtag('event', action, params);
-    } catch (error) {
-      console.error(error);
-    }
-  },
 };
 
 export const getLanguageColor = (language: string): string => {
@@ -240,8 +210,6 @@ export const getLanguageColor = (language: string): string => {
     return 'gray';
   }
 };
-
-import { useState, useCallback } from 'react';
 
 export const useCopyToClipboard = () => {
   const [isCopied, setIsCopied] = useState(false);
@@ -255,7 +223,7 @@ export const useCopyToClipboard = () => {
     try {
       await navigator.clipboard.writeText(text);
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 1500); // Reset after 1.5 seconds
+      setTimeout(() => setIsCopied(false), 1500);
       return true;
     } catch (error) {
       console.error('Failed to copy: ', error);

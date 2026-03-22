@@ -5,6 +5,26 @@ interface Github {
   username: string;
 }
 
+interface ProjectMedia {
+  type: 'video' | 'image' | 'embed';
+  asset?: string;
+  src?: string;
+  alt?: string;
+  poster?: string;
+}
+
+interface ManualGitHubProject {
+  repo: string;
+  label?: string;
+  featured?: boolean;
+  eyebrow?: string;
+  summary?: string;
+  impact?: string;
+  stack?: string[];
+  ctaLabel?: string;
+  media?: ProjectMedia;
+}
+
 interface GitHubProjects {
   /**
    * Display GitHub projects?
@@ -67,7 +87,7 @@ interface GitHubProjects {
      *
      * example: ['my-project1', 'my-project2']
      */
-    projects?: Array<string>;
+    projects?: Array<string | ManualGitHubProject>;
   };
 }
 
@@ -84,13 +104,19 @@ interface ExternalProjects {
     title: string;
     description?: string;
     imageUrl?: string;
-    link: string;
+    link?: string;
+    featured?: boolean;
+    eyebrow?: string;
+    summary?: string;
+    impact?: string;
+    stack?: string[];
+    media?: ProjectMedia;
+    ctaLabel?: string;
   }[];
 }
 
 interface Projects {
   github?: GitHubProjects;
-
   external?: ExternalProjects;
 }
 
@@ -210,7 +236,7 @@ interface Social {
   /**
    * Email
    */
-  email?: string;
+  email?: string | string[];
 }
 
 interface Resume {
@@ -226,6 +252,7 @@ interface Experience {
   from: string;
   to: string;
   companyLink?: string;
+  description?: string;
 }
 
 interface Certification {
@@ -240,15 +267,29 @@ interface Education {
   degree?: string;
   from: string;
   to: string;
+  link?: string;
 }
 
-interface Publication {
+interface PersonalCta {
+  label: string;
+  href: string;
+}
+
+interface Personal {
+  name?: string;
+  headline?: string;
+  subheadline?: string;
+  intro?: string;
+  location?: string;
+  availability?: string;
+  primaryCta?: PersonalCta;
+  secondaryCta?: PersonalCta;
+}
+
+interface CapabilityGroup {
   title: string;
-  conferenceName?: string;
-  journalName?: string;
-  authors?: string;
-  link?: string;
-  description?: string;
+  summary?: string;
+  items: string[];
 }
 
 interface GoogleAnalytics {
@@ -268,94 +309,6 @@ interface Hotjar {
    * Snippet Version
    */
   snippetVersion?: number;
-}
-
-interface Blog {
-  /**
-   * medium | dev
-   */
-  source?: string;
-
-  /**
-   * Username
-   */
-  username?: string;
-
-  /**
-   * How many articles to display
-   *
-   * Max is 10
-   */
-  limit?: number;
-}
-
-interface CustomTheme {
-  /**
-   * Primary color
-   */
-  primary?: string;
-
-  /**
-   * Secondary color
-   */
-  secondary?: string;
-
-  /**
-   * Accent color
-   */
-  accent?: string;
-
-  /**
-   * Neutral color
-   */
-  neutral?: string;
-
-  /**
-   * Base color of page
-   */
-  'base-100'?: string;
-
-  /**
-   * Border radius of rounded-box
-   */
-  '--rounded-box'?: string;
-
-  /**
-   * Border radius of rounded-btn
-   */
-  '--rounded-btn'?: string;
-}
-
-interface ThemeConfig {
-  /**
-   * Default theme
-   */
-  defaultTheme?: string;
-
-  /**
-   * Hides the switch in the navbar
-   */
-  disableSwitch?: boolean;
-
-  /**
-   * Should use the prefers-color-scheme media-query
-   */
-  respectPrefersColorScheme?: boolean;
-
-  /**
-   * Hide the ring in Profile picture
-   */
-  displayAvatarRing?: boolean;
-
-  /**
-   * Available themes
-   */
-  themes?: Array<string>;
-
-  /**
-   * Custom theme
-   */
-  customTheme?: CustomTheme;
 }
 
 interface Config {
@@ -385,9 +338,14 @@ interface Config {
   social?: Social;
 
   /**
-   * Skill list
+   * Hero and authored intro content
    */
-  skills?: Array<string>;
+  personal?: Personal;
+
+  /**
+   * Curated capability groups
+   */
+  capabilities?: Array<CapabilityGroup>;
 
   /**
    * Experience list
@@ -405,11 +363,6 @@ interface Config {
   educations?: Array<Education>;
 
   /**
-   * Publication list
-   */
-  publications?: Array<Publication>;
-
-  /**
    * Resume
    */
   resume?: Resume;
@@ -423,16 +376,6 @@ interface Config {
    * Hotjar config
    */
   hotjar?: Hotjar;
-
-  /**
-   * Blog config
-   */
-  blog?: Blog;
-
-  /**
-   * Theme config
-   */
-  themeConfig?: ThemeConfig;
 
   /**
    * Custom footer

@@ -2,6 +2,26 @@ export interface SanitizedGithub {
   username: string;
 }
 
+export interface SanitizedProjectMedia {
+  type: 'video' | 'image' | 'embed';
+  asset?: string;
+  src?: string;
+  alt?: string;
+  poster?: string;
+}
+
+export interface SanitizedGitHubManualProject {
+  repo: string;
+  label?: string;
+  featured: boolean;
+  eyebrow?: string;
+  summary?: string;
+  impact?: string;
+  stack: string[];
+  ctaLabel?: string;
+  media?: SanitizedProjectMedia;
+}
+
 export interface SanitizedGitHubProjects {
   display: boolean;
   header: string;
@@ -16,7 +36,7 @@ export interface SanitizedGitHubProjects {
     source?: 'api' | 'pinned';
   };
   manual: {
-    projects: Array<string>;
+    projects: SanitizedGitHubManualProject[];
   };
 }
 
@@ -24,7 +44,14 @@ export interface SanitizedExternalProject {
   title: string;
   description?: string;
   imageUrl?: string;
-  link: string;
+  link?: string;
+  featured: boolean;
+  eyebrow?: string;
+  summary?: string;
+  impact?: string;
+  stack: string[];
+  media?: SanitizedProjectMedia;
+  ctaLabel?: string;
 }
 
 export interface SanitizedExternalProjects {
@@ -91,16 +118,7 @@ export interface SanitizedEducation {
   degree?: string;
   from: string;
   to: string;
-  link?: string; // Added link property
-}
-
-export interface SanitizedPublication {
-  title: string;
-  conferenceName?: string;
-  journalName?: string;
-  authors?: string;
   link?: string;
-  description?: string;
 }
 
 export interface SanitizedGoogleAnalytics {
@@ -112,30 +130,26 @@ export interface SanitizedHotjar {
   snippetVersion: number;
 }
 
-export interface SanitizedBlog {
-  display: boolean;
-  source: string;
-  username: string;
-  limit: number;
+export interface SanitizedPersonalCta {
+  label: string;
+  href: string;
 }
 
-export interface SanitizedCustomTheme {
-  primary: string;
-  secondary: string;
-  accent: string;
-  neutral: string;
-  'base-100': string;
-  '--rounded-box': string;
-  '--rounded-btn': string;
+export interface SanitizedPersonal {
+  name: string;
+  headline: string;
+  subheadline?: string;
+  intro?: string;
+  location?: string;
+  availability?: string;
+  primaryCta?: SanitizedPersonalCta;
+  secondaryCta?: SanitizedPersonalCta;
 }
 
-export interface SanitizedThemeConfig {
-  defaultTheme: string;
-  disableSwitch: boolean;
-  respectPrefersColorScheme: boolean;
-  displayAvatarRing: boolean;
-  themes: Array<string>;
-  customTheme: SanitizedCustomTheme;
+export interface SanitizedCapability {
+  title: string;
+  summary?: string;
+  items: string[];
 }
 
 export interface SanitizedConfig {
@@ -143,16 +157,14 @@ export interface SanitizedConfig {
   projects: SanitizedProjects;
   seo: SanitizedSEO;
   social: SanitizedSocial;
+  personal: SanitizedPersonal;
+  capabilities: SanitizedCapability[];
   resume: SanitizedResume;
-  skills: Array<string>;
   experiences: Array<SanitizedExperience>;
   educations: Array<SanitizedEducation>;
   certifications: Array<SanitizedCertification>;
-  publications: Array<SanitizedPublication>;
   googleAnalytics: SanitizedGoogleAnalytics;
   hotjar: SanitizedHotjar;
-  blog: SanitizedBlog;
-  themeConfig: SanitizedThemeConfig;
   footer?: string;
   enablePWA: boolean;
 }

@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import CONFIG from './gitprofile.config';
 import { createHtmlPlugin } from 'vite-plugin-html';
-import { visualizer } from 'rollup-plugin-visualizer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -28,10 +27,10 @@ export default defineConfig({
             },
             includeAssets: ['logo.png'],
             manifest: {
-              name: 'Portfolio',
-              short_name: 'Portfolio',
-              description: 'Personal Portfolio',
-              theme_color: '#000000',
+              name: 'Kaushik Naik Guguloth Portfolio',
+              short_name: 'KNG Portfolio',
+              description: 'Portfolio of Kaushik Naik Guguloth',
+              theme_color: '#f5f1e8',
               icons: [
                 {
                   src: 'logo.png',
@@ -43,10 +42,6 @@ export default defineConfig({
           }),
         ]
       : []),
-    visualizer({
-      open: true,
-      filename: 'bundle-analysis.html',
-    }),
   ],
   define: {
     CONFIG: CONFIG,
