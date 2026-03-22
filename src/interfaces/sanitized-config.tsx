@@ -121,15 +121,6 @@ export interface SanitizedEducation {
   link?: string;
 }
 
-export interface SanitizedPublication {
-  title: string;
-  conferenceName?: string;
-  journalName?: string;
-  authors?: string;
-  link?: string;
-  description?: string;
-}
-
 export interface SanitizedGoogleAnalytics {
   id?: string;
 }
@@ -139,40 +130,9 @@ export interface SanitizedHotjar {
   snippetVersion: number;
 }
 
-export interface SanitizedBlog {
-  display: boolean;
-  source: string;
-  username: string;
-  limit: number;
-}
-
-export interface SanitizedCustomTheme {
-  primary: string;
-  secondary: string;
-  accent: string;
-  neutral: string;
-  'base-100': string;
-  '--rounded-box': string;
-  '--rounded-btn': string;
-}
-
-export interface SanitizedThemeConfig {
-  defaultTheme: string;
-  disableSwitch: boolean;
-  respectPrefersColorScheme: boolean;
-  displayAvatarRing: boolean;
-  themes: Array<string>;
-  customTheme: SanitizedCustomTheme;
-}
-
 export interface SanitizedPersonalCta {
   label: string;
   href: string;
-}
-
-export interface SanitizedPersonalMetric {
-  value: string;
-  label: string;
 }
 
 export interface SanitizedPersonal {
@@ -184,7 +144,6 @@ export interface SanitizedPersonal {
   availability?: string;
   primaryCta?: SanitizedPersonalCta;
   secondaryCta?: SanitizedPersonalCta;
-  metrics: SanitizedPersonalMetric[];
 }
 
 export interface SanitizedCapability {
@@ -201,15 +160,11 @@ export interface SanitizedConfig {
   personal: SanitizedPersonal;
   capabilities: SanitizedCapability[];
   resume: SanitizedResume;
-  skills: Array<string>;
   experiences: Array<SanitizedExperience>;
   educations: Array<SanitizedEducation>;
   certifications: Array<SanitizedCertification>;
-  publications: Array<SanitizedPublication>;
   googleAnalytics: SanitizedGoogleAnalytics;
   hotjar: SanitizedHotjar;
-  blog: SanitizedBlog;
-  themeConfig: SanitizedThemeConfig;
   footer?: string;
   enablePWA: boolean;
 }

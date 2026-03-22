@@ -19,7 +19,6 @@ const CONFIG = {
       label: 'LinkedIn',
       href: 'https://www.linkedin.com/in/g-k-n/',
     },
-    metrics: [],
   },
   capabilities: [
     {
@@ -235,16 +234,6 @@ const CONFIG = {
     fileUrl:
       'https://drive.google.com/drive/folders/1i5USQb2h_LFvm5znHTaxgIt7V_RVlQ_U',
   },
-  skills: [
-    'TypeScript',
-    'React',
-    'Node.js',
-    'Python',
-    'PyTorch',
-    'C/C++',
-    'Java',
-    'SQL',
-  ],
   experiences: [
     {
       company: 'Attention.Ad',
@@ -281,28 +270,6 @@ const CONFIG = {
       link: 'https://engineering.unt.edu/cse/index.html',
     },
   ],
-  themeConfig: {
-    defaultTheme: 'procyon',
-    disableSwitch: true,
-    respectPrefersColorScheme: false,
-    displayAvatarRing: false,
-    themes: [],
-    customTheme: {
-      primary: '#2f6b66',
-      secondary: '#f1ece2',
-      accent: '#b85c38',
-      neutral: '#1c1f1d',
-      'base-100': '#f5f1e8',
-      'base-200': '#efe7d9',
-      'base-300': '#e2d8c7',
-      '--rounded-box': '1.25rem',
-      '--rounded-btn': '999px',
-      '--rounded-badge': '999px',
-      '--animation-btn': '0.2s',
-      '--animation-input': '0.2s',
-      '--border-btn': '1px solid #2f6b66',
-    },
-  },
   footer: 'Designed and built by GKN',
   enablePWA: true,
 };

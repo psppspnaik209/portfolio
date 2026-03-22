@@ -17,7 +17,6 @@ import {
   SanitizedGitHubManualProject,
   SanitizedProjectMedia,
 } from '../interfaces/sanitized-config';
-import { Profile } from '../interfaces/profile';
 import { GithubProject } from '../interfaces/github-project';
 import ErrorPage from './error-page';
 import HeadTagEditor from './head-tag-editor';
@@ -154,7 +153,7 @@ const GitProfile = ({ config }: { config: Config }) => {
   );
   const [configError, setConfigError] = useState<CustomError | null>(null);
   const [loadingRepos, setLoadingRepos] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
   const [githubProjects, setGithubProjects] = useState<GithubProject[]>([]);
   const [githubError, setGithubError] = useState<string | null>(null);
   const [showSecretAvatar, setShowSecretAvatar] = useState(false);
@@ -256,13 +255,7 @@ const GitProfile = ({ config }: { config: Config }) => {
 
       const data = profileResponse.data;
 
-      setProfile({
-        avatar: data.avatar_url,
-        name: data.name || sanitizedConfig.personal.name,
-        bio: data.bio || '',
-        location: data.location || sanitizedConfig.personal.location || '',
-        company: data.company || '',
-      });
+      setProfileAvatar(data.avatar_url || null);
 
       if (!sanitizedConfig.projects.github.display) {
         setGithubProjects([]);
@@ -277,7 +270,7 @@ const GitProfile = ({ config }: { config: Config }) => {
         setGithubError(getGithubErrorMessage(repoError));
       }
     } catch (error) {
-      setProfile(null);
+      setProfileAvatar(null);
       setGithubProjects([]);
       setGithubError(getGithubErrorMessage(error));
     } finally {
@@ -292,14 +285,6 @@ const GitProfile = ({ config }: { config: Config }) => {
     }
 
     setConfigError(null);
-
-    if ('themeConfig' in sanitizedConfig) {
-      document.documentElement.setAttribute(
-        'data-theme',
-        sanitizedConfig.themeConfig.defaultTheme,
-      );
-    }
-
     if ('hotjar' in sanitizedConfig) {
       setupHotjar(sanitizedConfig.hotjar);
     }
@@ -402,7 +387,7 @@ const GitProfile = ({ config }: { config: Config }) => {
   const websiteLink = sanitizedConfig.social.website || undefined;
   const githubProfileLink = `https://github.com/${sanitizedConfig.github.username}`;
   const visibleAvatar =
-    showSecretAvatar && profile?.avatar ? SECRET_AVATAR : profile?.avatar;
+    showSecretAvatar && profileAvatar ? SECRET_AVATAR : profileAvatar;
 
   return (
     <HelmetProvider>

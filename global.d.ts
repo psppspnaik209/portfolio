@@ -275,11 +275,6 @@ interface PersonalCta {
   href: string;
 }
 
-interface PersonalMetric {
-  value: string;
-  label: string;
-}
-
 interface Personal {
   name?: string;
   headline?: string;
@@ -289,22 +284,12 @@ interface Personal {
   availability?: string;
   primaryCta?: PersonalCta;
   secondaryCta?: PersonalCta;
-  metrics?: PersonalMetric[];
 }
 
 interface CapabilityGroup {
   title: string;
   summary?: string;
   items: string[];
-}
-
-interface Publication {
-  title: string;
-  conferenceName?: string;
-  journalName?: string;
-  authors?: string;
-  link?: string;
-  description?: string;
 }
 
 interface GoogleAnalytics {
@@ -324,94 +309,6 @@ interface Hotjar {
    * Snippet Version
    */
   snippetVersion?: number;
-}
-
-interface Blog {
-  /**
-   * medium | dev
-   */
-  source?: string;
-
-  /**
-   * Username
-   */
-  username?: string;
-
-  /**
-   * How many articles to display
-   *
-   * Max is 10
-   */
-  limit?: number;
-}
-
-interface CustomTheme {
-  /**
-   * Primary color
-   */
-  primary?: string;
-
-  /**
-   * Secondary color
-   */
-  secondary?: string;
-
-  /**
-   * Accent color
-   */
-  accent?: string;
-
-  /**
-   * Neutral color
-   */
-  neutral?: string;
-
-  /**
-   * Base color of page
-   */
-  'base-100'?: string;
-
-  /**
-   * Border radius of rounded-box
-   */
-  '--rounded-box'?: string;
-
-  /**
-   * Border radius of rounded-btn
-   */
-  '--rounded-btn'?: string;
-}
-
-interface ThemeConfig {
-  /**
-   * Default theme
-   */
-  defaultTheme?: string;
-
-  /**
-   * Hides the switch in the navbar
-   */
-  disableSwitch?: boolean;
-
-  /**
-   * Should use the prefers-color-scheme media-query
-   */
-  respectPrefersColorScheme?: boolean;
-
-  /**
-   * Hide the ring in Profile picture
-   */
-  displayAvatarRing?: boolean;
-
-  /**
-   * Available themes
-   */
-  themes?: Array<string>;
-
-  /**
-   * Custom theme
-   */
-  customTheme?: CustomTheme;
 }
 
 interface Config {
@@ -451,11 +348,6 @@ interface Config {
   capabilities?: Array<CapabilityGroup>;
 
   /**
-   * Skill list
-   */
-  skills?: Array<string>;
-
-  /**
    * Experience list
    */
   experiences?: Array<Experience>;
@@ -471,11 +363,6 @@ interface Config {
   educations?: Array<Education>;
 
   /**
-   * Publications list
-   */
-  publications?: Array<Publication>;
-
-  /**
    * Resume
    */
   resume?: Resume;
@@ -489,16 +376,6 @@ interface Config {
    * Hotjar config
    */
   hotjar?: Hotjar;
-
-  /**
-   * Blog config
-   */
-  blog?: Blog;
-
-  /**
-   * Theme config
-   */
-  themeConfig?: ThemeConfig;
 
   /**
    * Custom footer
