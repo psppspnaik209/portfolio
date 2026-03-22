@@ -1,4 +1,9 @@
-import { useCallback, useState } from 'react';
+import {
+  type CSSProperties,
+  type ReactElement,
+  useCallback,
+  useState,
+} from 'react';
 import { hotjar } from 'react-hotjar';
 import { LOCAL_STORAGE_KEY_NAME } from '../constants';
 import { DEFAULT_CUSTOM_THEME } from '../constants/default-custom-theme';
@@ -142,7 +147,7 @@ export const getSanitizedConfig = (
           header: config?.projects?.external?.header || 'Additional Work',
           projects:
             config?.projects?.external?.projects
-              ?.filter((project) => project.title && project.link)
+              ?.filter((project) => project.title)
               .map(sanitizeExternalProject) || [],
         },
       },
@@ -244,7 +249,7 @@ export const getSanitizedConfig = (
       footer: config?.footer,
       enablePWA: config?.enablePWA ?? true,
     };
-  } catch (error) {
+  } catch {
     return {};
   }
 };
@@ -278,16 +283,16 @@ export const getInitialTheme = (themeConfig: SanitizedThemeConfig): string => {
 export const skeleton = ({
   widthCls = null,
   heightCls = null,
-  style = {} as React.CSSProperties,
+  style = {} as CSSProperties,
   shape = 'rounded-full',
   className = null,
 }: {
   widthCls?: string | null;
   heightCls?: string | null;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   shape?: string;
   className?: string | null;
-}): JSX.Element => {
+}): ReactElement => {
   const classNames = ['bg-base-300', 'animate-pulse', shape];
   if (className) {
     classNames.push(className);

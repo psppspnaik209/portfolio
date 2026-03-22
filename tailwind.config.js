@@ -1,5 +1,3 @@
-import CONFIG from './gitprofile.config';
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -14,7 +12,7 @@ export default {
       animation: {
         spotlight: 'spotlight 2s ease 0.75s 1 forwards',
         'shiny-text': 'shiny-text 8s infinite',
-        'border-beam': 'border-beam calc(var(--duration)*1) infinite linear',
+        'border-beam': 'border-beam calc(var(--duration) * 1) infinite linear',
         'meteor-effect': 'meteor 5s linear infinite',
       },
       keyframes: {
@@ -30,15 +28,15 @@ export default {
         },
         'shiny-text': {
           '0%, 90%, 100%': {
-            'background-position': 'calc(-100% - var(--shimmer-width)) 0',
+            backgroundPosition: 'calc(-100% - var(--shimmer-width)) 0',
           },
           '30%, 60%': {
-            'background-position': 'calc(100% + var(--shimmer-width)) 0',
+            backgroundPosition: 'calc(100% + var(--shimmer-width)) 0',
           },
         },
         'border-beam': {
           '100%': {
-            'offset-distance': '100%',
+            offsetDistance: '100%',
           },
         },
         meteor: {
@@ -51,13 +49,5 @@ export default {
         },
       },
     },
-  },
-  plugins: [require('daisyui')],
-  daisyui: {
-    logs: false,
-    themes: [
-      ...CONFIG.themeConfig.themes,
-      { procyon: CONFIG.themeConfig.customTheme },
-    ],
   },
 };

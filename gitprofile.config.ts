@@ -5,15 +5,12 @@ const CONFIG = {
   base: '/portfolio/',
   personal: {
     name: 'Kaushik Naik Guguloth',
-    headline:
-      'Full-stack engineer building AI systems that hold up in real product environments.',
+    headline: 'I build software that feels clear, useful, and solid to use.',
     subheadline:
-      'I turn ML-heavy ideas into usable software, from fast React surfaces and TypeScript services to Python-driven model workflows.',
+      'My work spans web apps, mobile prototypes, desktop tools, and the backend systems that support them.',
     intro:
-      'I am a Computer Science student at the University of North Texas graduating in May 2026. My work sits at the intersection of product engineering, applied AI, and developer tooling, with an emphasis on shipping software that is fast, clear, and operationally sound.',
-    location: 'Denton, Texas',
-    availability:
-      'Open to 2026 software engineering, AI product, and platform roles.',
+      'I am a Computer Science student at the University of North Texas graduating in 2026. I like building products that solve practical problems, especially when they need thoughtful UI, clean implementation, and a bit of systems thinking behind the scenes.',
+    availability: 'Open to software engineering roles in 2026.',
     primaryCta: {
       label: 'View Resume',
       href: 'https://drive.google.com/drive/folders/1i5USQb2h_LFvm5znHTaxgIt7V_RVlQ_U',
@@ -22,44 +19,63 @@ const CONFIG = {
       label: 'LinkedIn',
       href: 'https://www.linkedin.com/in/g-k-n/',
     },
-    metrics: [
-      { value: '3.9 GPA', label: 'UNT Computer Science' },
-      { value: '2026', label: 'Graduation target' },
-      { value: 'AI + full-stack', label: 'Primary focus' },
-    ],
+    metrics: [],
   },
   capabilities: [
     {
-      title: 'Applied AI',
+      title: 'Programming Languages',
       summary:
-        'Building useful systems on top of ML, LLM, and vision workflows rather than demos that stop at the prototype stage.',
+        'Languages I reach for across product work, systems work, and experiments.',
       items: [
-        'PyTorch',
-        'scikit-learn',
-        'LangChain',
-        'Transfer learning',
-        'LLM workflows',
-        'Reinforcement learning',
+        'C/C++',
+        'C#',
+        'Python',
+        'Java',
+        'Swift',
+        'Kotlin',
+        'SQL',
+        'Rust',
+        'Dart',
       ],
     },
     {
-      title: 'Product Engineering',
+      title: 'Web & Frameworks',
       summary:
-        'Shipping interfaces, APIs, and operational glue that make ambitious ideas usable by real people.',
+        'Frameworks and platforms I use to ship interfaces, APIs, and desktop experiences.',
       items: [
         'TypeScript',
+        'JavaScript',
         'React',
         'Node.js',
-        'REST APIs',
-        'Stripe',
-        'Dashboard design',
+        '.NET',
+        'WinUI 3',
+        'HTML/CSS',
+        'Flutter',
       ],
     },
     {
-      title: 'Systems Thinking',
+      title: 'AI & Machine Learning',
       summary:
-        'Comfortable moving across lower-level implementation details, architecture decisions, debugging, and delivery tradeoffs.',
-      items: ['C/C++', 'Java', 'SQL', 'Rust', 'Git', 'Computer networks'],
+        'Areas I use when a product needs classification, language, or model-driven interaction.',
+      items: [
+        'PyTorch/TensorFlow',
+        'Deep Learning',
+        'Reinforcement Learning',
+        'LLM Prompt Engineering',
+      ],
+    },
+    {
+      title: 'Developer Tools & Platforms',
+      summary: 'Tools I use to build, debug, document, and ship work.',
+      items: [
+        'Git',
+        'Visual Studio',
+        'AWS',
+        'Docker',
+        'Figma',
+        'Mermaid',
+        'UML',
+      ],
     },
   ],
   projects: {
@@ -83,15 +99,22 @@ const CONFIG = {
             featured: true,
             eyebrow: 'Accessibility product',
             summary:
-              'An accessibility-first communication experience designed to make note taking, captioning, and classroom collaboration easier to navigate.',
+              'A cross-platform accessibility app built to help people with hearing impairments catch what is happening around them in real time.',
             impact:
-              'Helped shape the product experience, demo narrative, and implementation direction for a capstone application centered on inclusive communication.',
-            stack: ['Flutter', 'Dart', 'Accessibility UX', 'Mobile'],
+              'Built as part of Team STARK, Senscribe combines real-time sound classification, speech-to-text, text-to-speech, name recognition, trigger-word alerts, sound direction cues, and on-device conversation summaries inside a high-contrast mobile UI.',
+            stack: [
+              'Flutter',
+              'Dart',
+              'Speech-to-text',
+              'Text-to-speech',
+              'On-device AI',
+              'Accessibility',
+            ],
             ctaLabel: 'View Repository',
             media: {
-              type: 'video',
-              asset: 'senscribe',
-              alt: 'Senscribe demo video',
+              type: 'embed',
+              src: 'https://www.youtube.com/embed/zRVEkm9QCYE?rel=0&modestbranding=1',
+              alt: 'Senscribe demo',
             },
           },
           {
@@ -100,50 +123,57 @@ const CONFIG = {
             featured: true,
             eyebrow: 'Windows utility',
             summary:
-              'A focused desktop utility for file protection and quick locking workflows, built with a bias toward clarity over complexity.',
+              'A Windows file utility focused on fast locking workflows and a straightforward, no-fuss interface.',
             impact:
-              'Designed a narrow-purpose Windows tool with straightforward ergonomics, crisp feedback, and a practical security-oriented use case.',
+              'Built around a small surface area and clear desktop behavior, with the goal of making a repetitive security task feel quick instead of heavy.',
             stack: ['C#', '.NET', 'Windows', 'Desktop UX'],
             ctaLabel: 'Open on GitHub',
             media: {
-              type: 'video',
-              asset: 'fflocker',
-              alt: 'FFLocker demo video',
+              type: 'embed',
+              src: 'https://www.youtube.com/embed/8XnIJNrXXPs?rel=0&modestbranding=1',
+              alt: 'FFLocker demo',
+            },
+          },
+          {
+            repo: 'psppspnaik209/flutter_gen_ai_demo',
+            label: 'Flutter Local GenAI',
+            featured: true,
+            eyebrow: 'Mobile AI demo',
+            summary:
+              'A Flutter prototype showing how a small language model can run locally on a mobile device instead of relying on a hosted backend.',
+            impact:
+              'The project focuses on packaging local AI on-device, working around model size constraints, and proving that mobile-first GenAI can feel immediate without sending every request to the cloud.',
+            stack: ['Flutter', 'Dart', 'On-device AI', 'Phi-3.5', 'Mobile'],
+            ctaLabel: 'View Repository',
+            media: {
+              type: 'embed',
+              src: 'https://www.youtube.com/embed/8zgdKdnkcPU?rel=0&modestbranding=1',
+              alt: 'Flutter Local GenAI demo',
             },
           },
           {
             repo: 'psppspnaik209/MicMuteNetPublic',
             label: 'MicMuteNet',
-            featured: true,
-            eyebrow: 'Productivity tool',
+            featured: false,
+            eyebrow: 'Utility app',
             summary:
-              'A lightweight microphone control utility that removes friction from calls, recordings, and quick switching between work contexts.',
+              'A lightweight microphone control utility built to remove friction from day-to-day call and recording setups.',
             impact:
-              'Built around fast interaction loops and a minimal footprint, with the goal of making a single repetitive workflow feel invisible.',
+              'A compact desktop-focused tool designed around quick toggles, low overhead, and a single job done well.',
             stack: ['C#', 'Windows APIs', 'Desktop utility'],
-            ctaLabel: 'Open on GitHub',
-            media: {
-              type: 'video',
-              asset: 'micmutenet',
-              alt: 'MicMuteNet demo video',
-            },
+            ctaLabel: 'View Repository',
           },
           {
-            repo: 'psppspnaik209/flutter_gen_ai_demo',
-            label: 'Flutter GenAI Demo',
+            repo: 'psppspnaik209/FinderPath26',
+            label: 'FinderPath26',
             featured: false,
-            eyebrow: 'Mobile AI prototype',
+            eyebrow: 'macOS menu bar utility',
             summary:
-              'A mobile prototype exploring how generative AI interactions feel in a constrained, on-device style product experience.',
+              'A macOS 12+ menu bar utility that overlays an editable path field directly into Finder’s toolbar pathname region.',
             impact:
-              'Used to test latency, interface guidance, and how AI affordances translate to a mobile-first interaction model.',
-            stack: ['Flutter', 'Dart', 'GenAI', 'Mobile UX'],
+              'Tracks the front Finder window with Accessibility APIs, syncs the visible path, navigates on Return, reverts on Escape, and can run with an optional status bar icon.',
+            stack: ['Swift', 'macOS', 'Accessibility APIs', 'Menu bar utility'],
             ctaLabel: 'View Repository',
-            media: {
-              type: 'video',
-              asset: 'flutterGenAi',
-              alt: 'Flutter GenAI demo video',
-            },
           },
         ],
       },
@@ -153,7 +183,6 @@ const CONFIG = {
       projects: [
         {
           title: 'Amazon DeepRacer Simulation',
-          link: 'https://github.com/psppspnaik209',
           featured: false,
           eyebrow: 'Reinforcement learning experiment',
           summary:
@@ -161,13 +190,11 @@ const CONFIG = {
           impact:
             'Explored reinforcement learning tradeoffs, simulation tuning, and model behavior in a constrained racing context using AWS tooling.',
           stack: ['Python', 'AWS DeepRacer', 'Reinforcement learning'],
-          ctaLabel: 'GitHub Profile',
           imageUrl:
             'https://i.ibb.co/KxQqVH3V/screen-shot-2019-11-27-at-1-13-05-pm.webp',
         },
         {
           title: 'City & Disaster Simulation',
-          link: 'https://github.com/psppspnaik209',
           featured: false,
           eyebrow: 'C++ systems simulation',
           summary:
@@ -175,7 +202,6 @@ const CONFIG = {
           impact:
             'Built efficient data structures and modular simulation logic to reason about complex interactions between environmental and economic systems.',
           stack: ['C++', 'Simulation design', 'Data structures'],
-          ctaLabel: 'GitHub Profile',
           imageUrl: 'https://i.ibb.co/MxzQqzdD/windsimulation.jpg',
         },
       ],
@@ -222,7 +248,7 @@ const CONFIG = {
   experiences: [
     {
       company: 'Attention.Ad',
-      position: 'Full Stack Developer Intern',
+      position: 'Full Stack Developer',
       from: 'Jun 2025',
       to: 'Aug 2025',
       companyLink: 'https://www.attention.ad/',
@@ -234,7 +260,7 @@ const CONFIG = {
       position: 'AI/ML Engineer',
       from: 'Jan 2025',
       to: 'May 2025',
-      companyLink: '',
+      companyLink: 'https://indowelshcompany.com/',
       description:
         'Designed ML systems for analytics, forecasting, and automation using Python, PyTorch, and scikit-learn, improving operational efficiency by 20%. Built an LLM-based support chatbot with LangChain and vector search, and developed a computer vision defect detection workflow with transfer learning. Partnered with backend engineers on FastAPI services and production-minded deployment patterns.',
     },
@@ -249,10 +275,9 @@ const CONFIG = {
   educations: [
     {
       institution: 'University of North Texas',
-      degree:
-        'Bachelor of Science in Computer Science, ABET accredited, GPA 3.9',
-      from: 'Aug 2023',
-      to: 'May 2026',
+      degree: 'Bachelor of Science in Computer Science',
+      from: '',
+      to: '2026',
       link: 'https://engineering.unt.edu/cse/index.html',
     },
   ],
@@ -278,7 +303,7 @@ const CONFIG = {
       '--border-btn': '1px solid #2f6b66',
     },
   },
-  footer: 'Designed and engineered by Kaushik Naik Guguloth.',
+  footer: 'Designed and built by GKN',
   enablePWA: true,
 };
 

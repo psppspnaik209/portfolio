@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { type ReactElement, useState } from 'react';
 import { FALLBACK_IMAGE } from '../../constants';
 import { Profile } from '../../interfaces/profile';
 import { skeleton } from '../../utils';
@@ -26,7 +26,7 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
   loading,
   avatarRing,
   resumeFileUrl,
-}): JSX.Element => {
+}): ReactElement => {
   const [_a, _sA] = useState(false);
   const _click = () => _sA(!_a);
 

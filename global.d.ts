@@ -6,7 +6,7 @@ interface Github {
 }
 
 interface ProjectMedia {
-  type: 'video' | 'image';
+  type: 'video' | 'image' | 'embed';
   asset?: string;
   src?: string;
   alt?: string;
@@ -104,7 +104,7 @@ interface ExternalProjects {
     title: string;
     description?: string;
     imageUrl?: string;
-    link: string;
+    link?: string;
     featured?: boolean;
     eyebrow?: string;
     summary?: string;

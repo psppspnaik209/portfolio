@@ -3,7 +3,7 @@ export interface SanitizedGithub {
 }
 
 export interface SanitizedProjectMedia {
-  type: 'video' | 'image';
+  type: 'video' | 'image' | 'embed';
   asset?: string;
   src?: string;
   alt?: string;
@@ -44,7 +44,7 @@ export interface SanitizedExternalProject {
   title: string;
   description?: string;
   imageUrl?: string;
-  link: string;
+  link?: string;
   featured: boolean;
   eyebrow?: string;
   summary?: string;

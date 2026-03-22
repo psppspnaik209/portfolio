@@ -7,18 +7,6 @@ import { GithubProject } from '../../interfaces/github-project';
 import Modal from '../modal'; // Import the new Modal component
 import { MagicCard } from '../ui/magic-card';
 import { Meteors } from '../ui/meteors';
-import FFLockerVideo from '../../assets/demo/FFLocker.mp4';
-import MicMuteNetVideo from '../../assets/demo/MicMuteNet.mp4';
-import SenscribeVideo from '../../assets/demo/Senscribe.MP4';
-import FlutterGenAiVideo from '../../assets/demo/flutter_gen_ai.webm';
-
-const getVideoPath = (projectName: string) => {
-  if (projectName.includes('FFLocker')) return FFLockerVideo;
-  if (projectName.includes('MicMuteNet')) return MicMuteNetVideo;
-  if (projectName.includes('Capstone')) return SenscribeVideo;
-  if (projectName.includes('flutter_gen_ai')) return FlutterGenAiVideo;
-  return null;
-};
 
 const GithubProjectCard = ({
   header,
@@ -249,29 +237,6 @@ const GithubProjectCard = ({
                 </span>
               )}
             </div>
-
-            {/* Video Demo */}
-            {getVideoPath(modalProject.name) && (
-              <div className="rounded-lg overflow-hidden border border-white/10 shadow-lg">
-                <video
-                  src={getVideoPath(modalProject.name) as string}
-                  ref={(ref) => {
-                    if (ref) {
-                      if (modalProject.name.includes('Capstone')) {
-                        ref.muted = false;
-                        ref.volume = 0.1;
-                      } else {
-                        ref.muted = true;
-                      }
-                    }
-                  }}
-                  controls
-                  autoPlay
-                  loop
-                  className="w-full max-h-[55vh] object-contain bg-black/50"
-                />
-              </div>
-            )}
 
             {/* View on GitHub Button */}
             <motion.a

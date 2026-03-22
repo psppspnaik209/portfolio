@@ -4,8 +4,13 @@ import axios from 'axios';
 import { formatDistance } from 'date-fns';
 import { HelmetProvider } from 'react-helmet-async';
 import { CustomError, INVALID_CONFIG_ERROR } from '../constants/errors';
-import '../assets/index.css';
-import { getLanguageColor, getSanitizedConfig, setupHotjar } from '../utils';
+import '../styles/index.css';
+import {
+  getLanguageColor,
+  getSanitizedConfig,
+  setupHotjar,
+  useCopyToClipboard,
+} from '../utils';
 import {
   SanitizedConfig,
   SanitizedExternalProject,
@@ -16,17 +21,9 @@ import { Profile } from '../interfaces/profile';
 import { GithubProject } from '../interfaces/github-project';
 import ErrorPage from './error-page';
 import HeadTagEditor from './head-tag-editor';
-import FFLockerVideo from '../assets/demo/FFLocker.mp4';
-import MicMuteNetVideo from '../assets/demo/MicMuteNet.mp4';
-import SenscribeVideo from '../assets/demo/Senscribe.MP4';
-import FlutterGenAiVideo from '../assets/demo/flutter_gen_ai.webm';
+import YouTubePlayer from './youtube-player';
 
-const MEDIA_ASSETS: Record<string, string> = {
-  fflocker: FFLockerVideo,
-  micmutenet: MicMuteNetVideo,
-  senscribe: SenscribeVideo,
-  flutterGenAi: FlutterGenAiVideo,
-};
+const SECRET_AVATAR = ['https://i.im', 'gur.com/AMn', 'SXrQ.png'].join('');
 
 const navItems = [
   { id: 'featured-work', label: 'Featured Work' },
@@ -61,7 +58,7 @@ const toAbsoluteLinkedIn = (value?: string) => {
   return `https://www.linkedin.com/in/${value}/`;
 };
 
-const toMailtoLinks = (email?: string | string[]) => {
+const toEmailList = (email?: string | string[]) => {
   if (!email) {
     return [];
   }
@@ -69,7 +66,6 @@ const toMailtoLinks = (email?: string | string[]) => {
   const list = Array.isArray(email) ? email : [email];
   return list.map((address) => ({
     label: address,
-    href: `mailto:${address}`,
   }));
 };
 
@@ -90,15 +86,7 @@ const resolveMediaSource = (media?: SanitizedProjectMedia) => {
     return undefined;
   }
 
-  if (media.src) {
-    return media.src;
-  }
-
-  if (media.asset) {
-    return MEDIA_ASSETS[media.asset];
-  }
-
-  return undefined;
+  return media.src;
 };
 
 const fallbackRepoLink = (repo: string) => `https://github.com/${repo}`;
@@ -169,6 +157,9 @@ const GitProfile = ({ config }: { config: Config }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [githubProjects, setGithubProjects] = useState<GithubProject[]>([]);
   const [githubError, setGithubError] = useState<string | null>(null);
+  const [showSecretAvatar, setShowSecretAvatar] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
+  const { copy } = useCopyToClipboard();
 
   const getGithubProjects = useCallback(
     async (publicRepoCount: number): Promise<GithubProject[]> => {
@@ -316,6 +307,22 @@ const GitProfile = ({ config }: { config: Config }) => {
     void loadData();
   }, [sanitizedConfig, loadData]);
 
+  const handleCopyEmail = useCallback(
+    async (email: string) => {
+      const didCopy = await copy(email);
+
+      if (!didCopy) {
+        return;
+      }
+
+      setCopiedEmail(email);
+      window.setTimeout(() => {
+        setCopiedEmail((current) => (current === email ? null : current));
+      }, 1500);
+    },
+    [copy],
+  );
+
   if (!('personal' in sanitizedConfig) || configError) {
     return (
       <HelmetProvider>
@@ -381,7 +388,7 @@ const GitProfile = ({ config }: { config: Config }) => {
       .map((project) => ({
         ...project,
         type: 'external' as const,
-        href: project.link,
+        href: project.link || '#',
       })),
   ];
 
@@ -389,22 +396,13 @@ const GitProfile = ({ config }: { config: Config }) => {
     (project) => !project.featured,
   );
 
-  const heroMetrics =
-    sanitizedConfig.personal.metrics.length > 0
-      ? sanitizedConfig.personal.metrics
-      : [
-          {
-            value: sanitizedConfig.personal.location || 'United States',
-            label: 'Location',
-          },
-          { value: 'Portfolio', label: 'Custom build' },
-        ];
-
-  const emailLinks = toMailtoLinks(sanitizedConfig.social.email);
+  const emailLinks = toEmailList(sanitizedConfig.social.email);
   const phoneLink = toPhoneLink(sanitizedConfig.social.phone);
   const linkedInLink = toAbsoluteLinkedIn(sanitizedConfig.social.linkedin);
   const websiteLink = sanitizedConfig.social.website || undefined;
   const githubProfileLink = `https://github.com/${sanitizedConfig.github.username}`;
+  const visibleAvatar =
+    showSecretAvatar && profile?.avatar ? SECRET_AVATAR : profile?.avatar;
 
   return (
     <HelmetProvider>
@@ -417,7 +415,7 @@ const GitProfile = ({ config }: { config: Config }) => {
               href="#top"
               className="font-accent text-xs font-semibold uppercase tracking-[0.22em] text-[var(--ink)]"
             >
-              KNG / Portfolio
+              GKN / Portfolio
             </a>
             <nav
               className="hidden items-center gap-2 md:flex"
@@ -436,10 +434,10 @@ const GitProfile = ({ config }: { config: Config }) => {
           </div>
         </header>
 
-        <main className="mx-auto flex w-full max-w-7xl flex-col gap-24 px-5 pb-16 pt-10 md:px-8 md:pt-16">
+        <main className="mx-auto flex w-full max-w-7xl flex-col gap-20 px-5 pb-16 pt-10 md:px-8 md:pt-16">
           <motion.section
             id="top"
-            className="grid gap-8 md:gap-12 lg:grid-cols-[1.35fr_0.85fr]"
+            className="grid gap-8 md:gap-12 lg:grid-cols-[1.18fr_0.82fr]"
             {...sectionMotion(!!prefersReducedMotion)}
           >
             <div className="space-y-8">
@@ -482,29 +480,13 @@ const GitProfile = ({ config }: { config: Config }) => {
                   </a>
                 ) : null}
               </div>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                {heroMetrics.map((metric) => (
-                  <div
-                    key={`${metric.label}-${metric.value}`}
-                    className="metric-card rounded-[1.35rem] p-4"
-                  >
-                    <p className="font-display text-2xl font-semibold text-[var(--ink)]">
-                      {metric.value}
-                    </p>
-                    <p className="mt-1 font-accent text-[11px] uppercase tracking-[0.16em] text-[var(--ink-muted)]">
-                      {metric.label}
-                    </p>
-                  </div>
-                ))}
-              </div>
             </div>
 
-            <div className="space-y-5">
+            <div>
               <div className="surface-strong editorial-frame rounded-[2rem] p-6 md:p-7">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="section-kicker mb-3">Profile Snapshot</p>
+                    <p className="section-kicker mb-3">Profile</p>
                     <p className="font-display text-2xl font-semibold text-[var(--ink)]">
                       {sanitizedConfig.personal.name}
                     </p>
@@ -512,10 +494,15 @@ const GitProfile = ({ config }: { config: Config }) => {
                       {sanitizedConfig.personal.availability}
                     </p>
                   </div>
-                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[1.6rem] border border-[var(--line)] bg-[var(--paper-strong)]">
-                    {profile?.avatar ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowSecretAvatar((current) => !current)}
+                    className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[1.6rem] border border-[var(--line)] bg-[var(--paper-strong)]"
+                    aria-label="Toggle profile easter egg"
+                  >
+                    {visibleAvatar ? (
                       <img
-                        src={profile.avatar}
+                        src={visibleAvatar}
                         alt={sanitizedConfig.personal.name}
                         className="h-full w-full object-cover"
                       />
@@ -528,77 +515,79 @@ const GitProfile = ({ config }: { config: Config }) => {
                           .join('')}
                       </div>
                     )}
-                  </div>
+                  </button>
                 </div>
 
-                <div className="mt-8 grid gap-4">
-                  <div className="flex items-center gap-3 text-sm text-[var(--ink-muted)]">
-                    <span className="accent-dot" />
-                    <span>{sanitizedConfig.personal.location}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-3">
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <a
+                    href={githubProfileLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border border-[var(--line)] bg-white/55 px-4 py-2 font-accent text-[11px] uppercase tracking-[0.15em] text-[var(--ink)]"
+                  >
+                    GitHub
+                  </a>
+                  {linkedInLink ? (
                     <a
-                      href={githubProfileLink}
+                      href={linkedInLink}
                       target="_blank"
                       rel="noreferrer"
                       className="rounded-full border border-[var(--line)] bg-white/55 px-4 py-2 font-accent text-[11px] uppercase tracking-[0.15em] text-[var(--ink)]"
                     >
-                      GitHub
+                      LinkedIn
                     </a>
-                    {linkedInLink ? (
-                      <a
-                        href={linkedInLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rounded-full border border-[var(--line)] bg-white/55 px-4 py-2 font-accent text-[11px] uppercase tracking-[0.15em] text-[var(--ink)]"
+                  ) : null}
+                  {websiteLink ? (
+                    <a
+                      href={websiteLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-full border border-[var(--line)] bg-white/55 px-4 py-2 font-accent text-[11px] uppercase tracking-[0.15em] text-[var(--ink)]"
+                    >
+                      Website
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </motion.section>
+
+          <motion.section
+            className="space-y-8"
+            {...sectionMotion(!!prefersReducedMotion, 0.03)}
+          >
+            <SectionHeader
+              eyebrow="Capabilities"
+              title="Tools I reach for"
+              body="A quick overview of the languages, frameworks, and platforms I use most often."
+            />
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {sanitizedConfig.capabilities.map((capability) => (
+                <div
+                  key={capability.title}
+                  className="surface rounded-[1.7rem] p-5"
+                >
+                  <h2 className="font-display text-xl font-semibold text-[var(--ink)]">
+                    {capability.title}
+                  </h2>
+                  {capability.summary ? (
+                    <p className="mt-3 text-sm leading-7 text-[var(--ink-muted)]">
+                      {capability.summary}
+                    </p>
+                  ) : null}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {capability.items.map((item) => (
+                      <span
+                        key={item}
+                        className="rounded-full border border-[var(--line)] bg-white/50 px-3 py-1.5 font-accent text-[11px] uppercase tracking-[0.12em] text-[var(--ink-muted)]"
                       >
-                        LinkedIn
-                      </a>
-                    ) : null}
-                    {websiteLink ? (
-                      <a
-                        href={websiteLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rounded-full border border-[var(--line)] bg-white/55 px-4 py-2 font-accent text-[11px] uppercase tracking-[0.15em] text-[var(--ink)]"
-                      >
-                        Website
-                      </a>
-                    ) : null}
+                        {item}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              </div>
-
-              <div className="surface rounded-[2rem] p-6">
-                <p className="section-kicker mb-4">Capabilities</p>
-                <div className="space-y-5">
-                  {sanitizedConfig.capabilities.map((capability) => (
-                    <div
-                      key={capability.title}
-                      className="border-t border-[var(--line)] pt-5 first:border-t-0 first:pt-0"
-                    >
-                      <h2 className="font-display text-xl font-semibold text-[var(--ink)]">
-                        {capability.title}
-                      </h2>
-                      {capability.summary ? (
-                        <p className="mt-2 text-sm leading-7 text-[var(--ink-muted)]">
-                          {capability.summary}
-                        </p>
-                      ) : null}
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {capability.items.map((item) => (
-                          <span
-                            key={item}
-                            className="rounded-full border border-[var(--line)] bg-white/50 px-3 py-1.5 font-accent text-[11px] uppercase tracking-[0.12em] text-[var(--ink-muted)]"
-                          >
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </motion.section>
 
@@ -609,8 +598,8 @@ const GitProfile = ({ config }: { config: Config }) => {
           >
             <SectionHeader
               eyebrow="Selected Projects"
-              title="Case studies, not just repository tiles."
-              body="A tighter set of projects that show how I think about product clarity, technical constraints, and shipping software that earns its place."
+              title="Selected projects"
+              body="A few projects that show the kind of work I enjoy: clear interfaces, practical features, and implementation details that hold together."
             />
 
             <div className="grid gap-6">
@@ -618,13 +607,19 @@ const GitProfile = ({ config }: { config: Config }) => {
                 const mediaSource =
                   resolveMediaSource(project.media) ||
                   ('imageUrl' in project ? project.imageUrl : undefined);
+                const isEmbed = project.media?.type === 'embed' && mediaSource;
                 const isVideo = project.media?.type === 'video' && mediaSource;
                 const liveStats =
                   project.type === 'github' ? project.liveProject : undefined;
+                const hasLiveStats =
+                  !!liveStats &&
+                  (liveStats.stargazers_count > 0 || liveStats.forks_count > 0);
                 const projectTitle =
                   project.type === 'github'
                     ? project.label || project.repo
                     : project.title;
+                const playbackProfile =
+                  projectTitle === 'Senscribe' ? 'senscribe' : 'muted';
                 const projectBody =
                   project.summary ||
                   (project.type === 'external'
@@ -636,31 +631,44 @@ const GitProfile = ({ config }: { config: Config }) => {
                     key={`${project.type}-${project.type === 'github' ? project.repo : project.title}`}
                     className="surface-strong project-card overflow-hidden rounded-[2rem]"
                   >
-                    <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
+                    <div className="grid gap-0 lg:grid-cols-[0.88fr_1.12fr]">
                       <div
-                        className={`media-panel min-h-[280px] ${
+                        className={`media-panel flex min-h-0 items-center justify-center p-4 md:p-6 ${
                           index % 2 === 1 ? 'lg:order-2' : ''
                         }`}
                       >
                         {mediaSource ? (
-                          isVideo ? (
-                            <video
-                              src={mediaSource}
-                              poster={project.media?.poster}
-                              preload="metadata"
-                              autoPlay={!prefersReducedMotion}
-                              loop={!prefersReducedMotion}
-                              muted
-                              playsInline
-                              controls={!!prefersReducedMotion}
-                              className="h-full min-h-[280px] w-full"
-                            />
+                          isEmbed ? (
+                            <div className="aspect-[16/10] w-full overflow-hidden rounded-[1.4rem] border border-black/10 bg-[#111315] shadow-[0_18px_40px_rgba(15,17,18,0.14)]">
+                              <YouTubePlayer
+                                url={mediaSource}
+                                title={projectTitle}
+                                playbackProfile={playbackProfile}
+                                className="h-full w-full"
+                              />
+                            </div>
+                          ) : isVideo ? (
+                            <div className="aspect-[16/10] w-full overflow-hidden rounded-[1.4rem] border border-black/10 bg-[#111315] shadow-[0_18px_40px_rgba(15,17,18,0.14)]">
+                              <video
+                                src={mediaSource}
+                                poster={project.media?.poster}
+                                preload="metadata"
+                                autoPlay={!prefersReducedMotion}
+                                loop={!prefersReducedMotion}
+                                muted
+                                playsInline
+                                controls={!!prefersReducedMotion}
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
                           ) : (
-                            <img
-                              src={mediaSource}
-                              alt={project.media?.alt || projectTitle}
-                              className="h-full min-h-[280px] w-full"
-                            />
+                            <div className="aspect-[16/10] w-full overflow-hidden rounded-[1.4rem] border border-black/10 bg-white shadow-[0_18px_40px_rgba(15,17,18,0.12)]">
+                              <img
+                                src={mediaSource}
+                                alt={project.media?.alt || projectTitle}
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
                           )
                         ) : (
                           <div className="media-fallback flex h-full min-h-[280px] items-end p-8">
@@ -679,7 +687,7 @@ const GitProfile = ({ config }: { config: Config }) => {
                             <span className="eyebrow-badge rounded-full px-3 py-1.5 font-accent text-[11px] uppercase tracking-[0.16em]">
                               {project.eyebrow || 'Project'}
                             </span>
-                            {liveStats ? (
+                            {hasLiveStats ? (
                               <span className="font-accent text-[11px] uppercase tracking-[0.16em] text-[var(--ink-muted)]">
                                 {liveStats.stargazers_count} stars /{' '}
                                 {liveStats.forks_count} forks
@@ -740,7 +748,7 @@ const GitProfile = ({ config }: { config: Config }) => {
             <SectionHeader
               eyebrow="Repository View"
               title={sanitizedConfig.projects.github.header}
-              body="A compact view of the underlying codebase work. Featured case studies above carry the narrative; this section keeps the implementation footprint visible."
+              body="A few repositories behind the work above, plus smaller projects that are easier to show in code than in a hero section."
             />
 
             {githubError ? (
@@ -841,15 +849,17 @@ const GitProfile = ({ config }: { config: Config }) => {
                         ))}
                       </div>
                     ) : null}
-                    <a
-                      href={project.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-5 inline-flex items-center gap-2 font-accent text-[11px] uppercase tracking-[0.16em] text-[var(--ink)]"
-                    >
-                      {project.ctaLabel || 'View More'}
-                      <span aria-hidden="true">↗</span>
-                    </a>
+                    {project.link ? (
+                      <a
+                        href={project.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-5 inline-flex items-center gap-2 font-accent text-[11px] uppercase tracking-[0.16em] text-[var(--ink)]"
+                      >
+                        {project.ctaLabel || 'View More'}
+                        <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : null}
                   </article>
                 ))}
               </div>
@@ -863,8 +873,8 @@ const GitProfile = ({ config }: { config: Config }) => {
           >
             <SectionHeader
               eyebrow="Professional Work"
-              title="Experience shaped by outcomes, not filler."
-              body="I am most effective when I can move between product questions and implementation details, especially in systems that mix data, UI, APIs, and operational constraints."
+              title="Professional work"
+              body="The roles below reflect the work I like most: building features end to end, tightening rough product edges, and making technical systems easier to use."
             />
 
             <div className="surface-strong rounded-[2rem] p-6 md:p-8">
@@ -936,7 +946,9 @@ const GitProfile = ({ config }: { config: Config }) => {
                         {education.degree}
                       </h3>
                       <p className="text-sm text-[var(--ink-muted)]">
-                        {education.from} to {education.to}
+                        {education.from
+                          ? `${education.from} to ${education.to}`
+                          : education.to}
                       </p>
                       {education.link ? (
                         <a
@@ -1000,18 +1012,38 @@ const GitProfile = ({ config }: { config: Config }) => {
                     ) : null}
 
                     {emailLinks.map((item, index) => (
-                      <a
-                        key={item.href}
-                        href={item.href}
-                        className="contact-row block py-3 text-sm text-[var(--ink-muted)]"
+                      <div
+                        key={item.label}
+                        className="contact-row py-3 text-sm text-[var(--ink-muted)]"
                       >
-                        <span className="block font-accent text-[11px] uppercase tracking-[0.16em] text-[var(--ink)]">
-                          Email {emailLinks.length > 1 ? index + 1 : ''}
-                        </span>
-                        <span className="mt-1 block break-all">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="block font-accent text-[11px] uppercase tracking-[0.16em] text-[var(--ink)]">
+                            Email {emailLinks.length > 1 ? index + 1 : ''}
+                          </span>
+                          <span
+                            className="font-accent text-[10px] uppercase tracking-[0.14em] text-[var(--teal)]"
+                            aria-live="polite"
+                          >
+                            {copiedEmail === item.label
+                              ? 'Email copied'
+                              : 'Click to copy'}
+                          </span>
+                        </div>
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => void handleCopyEmail(item.label)}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault();
+                              void handleCopyEmail(item.label);
+                            }
+                          }}
+                          className="selectable-copy mt-1 block break-all text-[var(--ink-muted)]"
+                        >
                           {item.label}
                         </span>
-                      </a>
+                      </div>
                     ))}
 
                     {linkedInLink ? (
@@ -1066,13 +1098,11 @@ const GitProfile = ({ config }: { config: Config }) => {
                   <div>
                     <p className="section-kicker mb-4">Current Focus</p>
                     <p className="font-display text-2xl font-semibold text-[var(--ink)]">
-                      Building practical software around AI, automation, and
-                      developer workflows.
+                      Building useful software across web, mobile, and desktop.
                     </p>
                     <p className="mt-4 text-sm leading-7 text-[var(--ink-muted)]">
-                      I care about interaction clarity, solid implementation
-                      details, and making technically ambitious work feel simple
-                      on the surface.
+                      I like products that feel calm and well put together, even
+                      when the work behind them is fairly technical.
                     </p>
                   </div>
 
