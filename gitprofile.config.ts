@@ -5,14 +5,14 @@ const CONFIG = {
   base: '/portfolio/',
   personal: {
     name: 'Kaushik Naik Guguloth',
-    headline: 'I build software that feels clear, useful, and solid to use.',
-    subheadline:
-      'My work spans web apps, mobile prototypes, desktop tools, and the backend systems that support them.',
+    headline: 'Full-stack engineer. I ship software end-to-end.',
+    subheadline: undefined,
     intro:
-      'I am a Computer Science student at the University of North Texas graduating in 2026. I like building products that solve practical problems, especially when they need thoughtful UI, clean implementation, and a bit of systems thinking behind the scenes.',
-    availability: 'Open to software engineering roles in 2026.',
+      "Computer Science, UNT '26. I write production TypeScript and Python for the web, C# for Windows, Swift for macOS, and Flutter/Dart for mobile — and I glue the ML and backend behind them together.",
+    location: 'Denton, TX',
+    availability: 'Open to work',
     primaryCta: {
-      label: 'View Resume',
+      label: 'Resume',
       href: 'https://drive.google.com/drive/folders/1i5USQb2h_LFvm5znHTaxgIt7V_RVlQ_U',
     },
     secondaryCta: {
@@ -22,65 +22,49 @@ const CONFIG = {
   },
   capabilities: [
     {
-      title: 'Programming Languages',
-      summary:
-        'Languages I reach for across product work, systems work, and experiments.',
-      items: [
-        'C/C++',
-        'C#',
-        'Python',
-        'Java',
-        'Swift',
-        'Kotlin',
-        'SQL',
-        'Rust',
-        'Dart',
-      ],
-    },
-    {
-      title: 'Web & Frameworks',
-      summary:
-        'Frameworks and platforms I use to ship interfaces, APIs, and desktop experiences.',
+      title: 'Languages',
       items: [
         'TypeScript',
-        'JavaScript',
+        'Python',
+        'C#',
+        'C / C++',
+        'Swift',
+        'Kotlin',
+        'Java',
+        'Dart',
+        'Rust',
+        'SQL',
+      ],
+    },
+    {
+      title: 'Frameworks & Platforms',
+      items: [
         'React',
         'Node.js',
-        '.NET',
-        'WinUI 3',
-        'HTML/CSS',
+        '.NET / WinUI 3',
         'Flutter',
-      ],
-    },
-    {
-      title: 'AI & Machine Learning',
-      summary:
-        'Areas I use when a product needs classification, language, or model-driven interaction.',
-      items: [
-        'PyTorch/TensorFlow',
-        'Deep Learning',
-        'Reinforcement Learning',
-        'LLM Prompt Engineering',
-      ],
-    },
-    {
-      title: 'Developer Tools & Platforms',
-      summary: 'Tools I use to build, debug, document, and ship work.',
-      items: [
-        'Git',
-        'Visual Studio',
+        'FastAPI',
         'AWS',
         'Docker',
-        'Figma',
-        'Mermaid',
-        'UML',
+      ],
+    },
+    {
+      title: 'ML & AI',
+      items: [
+        'PyTorch',
+        'TensorFlow',
+        'LangChain',
+        'Vector search',
+        'Transfer learning',
+        'Reinforcement learning',
+        'On-device LLMs',
       ],
     },
   ],
   projects: {
     github: {
       display: true,
-      header: 'Code Portfolio',
+      header: 'More on GitHub',
       mode: 'manual',
       automatic: {
         sortBy: 'updated',
@@ -96,17 +80,17 @@ const CONFIG = {
             repo: 'S-T-A-R-K-Projects/Capstone-Project',
             label: 'Senscribe',
             featured: true,
-            eyebrow: 'Accessibility product',
+            eyebrow: 'Capstone · Accessibility',
             summary:
-              'A cross-platform accessibility app built to help people with hearing impairments catch what is happening around them in real time.',
+              'A cross-platform mobile app that gives people with hearing impairments real-time awareness of the sounds around them — classifying environmental sounds, transcribing speech, recognizing names, flagging trigger words, and cueing sound direction on a high-contrast UI.',
             impact:
-              'Built as part of Team STARK, Senscribe combines real-time sound classification, speech-to-text, text-to-speech, name recognition, trigger-word alerts, sound direction cues, and on-device conversation summaries inside a high-contrast mobile UI.',
+              'Built with Team STARK. On-device models keep latency low and the experience private; the app also summarizes ongoing conversations and speaks back with text-to-speech when the user needs it.',
             stack: [
               'Flutter',
               'Dart',
+              'On-device AI',
               'Speech-to-text',
               'Text-to-speech',
-              'On-device AI',
               'Accessibility',
             ],
             ctaLabel: 'View Repository',
@@ -120,11 +104,11 @@ const CONFIG = {
             repo: 'psppspnaik209/FFLocker',
             label: 'FFLocker',
             featured: true,
-            eyebrow: 'Windows utility',
+            eyebrow: 'Windows utility · C# / .NET',
             summary:
-              'A Windows file utility focused on fast locking workflows and a straightforward, no-fuss interface.',
+              'A Windows file-locking utility built around one job done well: lock or unlock files from a right-click in under a second.',
             impact:
-              'Built around a small surface area and clear desktop behavior, with the goal of making a repetitive security task feel quick instead of heavy.',
+              'No bloat, no background services, no "premium" upsell. It is a small .NET binary with a focused UI, the way desktop utilities used to ship.',
             stack: ['C#', '.NET', 'Windows', 'Desktop UX'],
             ctaLabel: 'Open on GitHub',
             media: {
@@ -137,12 +121,12 @@ const CONFIG = {
             repo: 'psppspnaik209/flutter_gen_ai_demo',
             label: 'Flutter Local GenAI',
             featured: true,
-            eyebrow: 'Mobile AI demo',
+            eyebrow: 'Mobile AI · Flutter',
             summary:
-              'A Flutter prototype showing how a small language model can run locally on a mobile device instead of relying on a hosted backend.',
+              'A Flutter prototype running a quantized Phi-3.5 model fully on-device — no server, no API key, no round-trip to the cloud.',
             impact:
-              'The project focuses on packaging local AI on-device, working around model size constraints, and proving that mobile-first GenAI can feel immediate without sending every request to the cloud.',
-            stack: ['Flutter', 'Dart', 'On-device AI', 'Phi-3.5', 'Mobile'],
+              'Most of the work was the boring-but-important stuff: getting the ONNX Runtime to behave reliably on-device without crashing, keeping memory in check, and proving mobile-first GenAI can feel immediate instead of laggy.',
+            stack: ['Flutter', 'Dart', 'Phi-3.5', 'On-device AI', 'Mobile'],
             ctaLabel: 'View Repository',
             media: {
               type: 'embed',
@@ -154,62 +138,54 @@ const CONFIG = {
             repo: 'psppspnaik209/MicMuteNetPublic',
             label: 'MicMuteNet',
             featured: false,
-            eyebrow: 'Utility app',
+            eyebrow: 'Windows utility',
             summary:
-              'A lightweight microphone control utility built to remove friction from day-to-day call and recording setups.',
-            impact:
-              'A compact desktop-focused tool designed around quick toggles, low overhead, and a single job done well.',
-            stack: ['C#', 'Windows APIs', 'Desktop utility'],
+              'System-tray mic toggle for Windows. One tray icon, one hotkey, no overhead.',
+            stack: ['C#', 'Windows APIs'],
             ctaLabel: 'View Repository',
           },
           {
             repo: 'psppspnaik209/FinderPath26',
             label: 'FinderPath26',
             featured: false,
-            eyebrow: 'macOS menu bar utility',
+            eyebrow: 'macOS utility · Swift',
             summary:
-              'A macOS 12+ menu bar utility that overlays an editable path field directly into Finder’s toolbar pathname region.',
-            impact:
-              'Tracks the front Finder window with Accessibility APIs, syncs the visible path, navigates on Return, reverts on Escape, and can run with an optional status bar icon.',
-            stack: ['Swift', 'macOS', 'Accessibility APIs', 'Menu bar utility'],
+              'A macOS 12+ menu bar utility that overlays an editable path field into Finder’s toolbar — tracks the front window via Accessibility APIs, navigates on Return, reverts on Escape.',
+            stack: ['Swift', 'macOS', 'Accessibility APIs'],
             ctaLabel: 'View Repository',
           },
         ],
       },
     },
     external: {
-      header: 'Additional Work',
+      header: 'Other work',
       projects: [
         {
-          title: 'Amazon DeepRacer Simulation',
+          title: 'Amazon DeepRacer',
           featured: false,
-          eyebrow: 'Reinforcement learning experiment',
+          eyebrow: 'Reinforcement learning',
           summary:
-            'Trained an autonomous racing agent in the Amazon DeepRacer environment, iterating on reward design and training behavior to improve lap consistency.',
-          impact:
-            'Explored reinforcement learning tradeoffs, simulation tuning, and model behavior in a constrained racing context using AWS tooling.',
-          stack: ['Python', 'AWS DeepRacer', 'Reinforcement learning'],
+            'Trained an autonomous racing agent on AWS DeepRacer; iterated on reward shaping and training runs to get consistent and fast lap times.',
+          stack: ['Python', 'AWS DeepRacer', 'RL'],
           imageUrl:
             'https://i.ibb.co/KxQqVH3V/screen-shot-2019-11-27-at-1-13-05-pm.webp',
         },
         {
           title: 'City & Disaster Simulation',
           featured: false,
-          eyebrow: 'C++ systems simulation',
+          eyebrow: 'C++ systems',
           summary:
-            'A city growth simulation that models zoning, pollution spread, disasters, and resource allocation with an emphasis on structured state management.',
-          impact:
-            'Built efficient data structures and modular simulation logic to reason about complex interactions between environmental and economic systems.',
-          stack: ['C++', 'Simulation design', 'Data structures'],
+            'A turn-based city simulator modeling zoning, pollution spread, disasters, and resource flow — written in modern C++ with an emphasis on clean state management and structured data layouts.',
+          stack: ['C++', 'Simulation', 'Data structures'],
           imageUrl: 'https://i.ibb.co/MxzQqzdD/windsimulation.jpg',
         },
       ],
     },
   },
   seo: {
-    title: 'Kaushik Naik Guguloth | AI and Full-Stack Engineer',
+    title: 'Kaushik Naik Guguloth — Full-stack engineer',
     description:
-      'Portfolio of Kaushik Naik Guguloth, a University of North Texas computer science student building applied AI systems, TypeScript products, and developer-focused software.',
+      'Portfolio of Kaushik Naik Guguloth — full-stack engineer shipping TypeScript, C#, Swift, and on-device AI. CS at UNT, graduating 2026.',
     imageURL: '',
   },
   social: {
@@ -237,21 +213,44 @@ const CONFIG = {
   experiences: [
     {
       company: 'Attention.Ad',
-      position: 'Full Stack Developer',
+      position: 'Full-Stack Engineer',
       from: 'Jun 2025',
       to: 'Aug 2025',
       companyLink: 'https://www.attention.ad/',
-      description:
-        'Built a social broadcasting workflow in TypeScript and Node.js that amplified Clanker-minted ERC-20 tokens on Base using the Twitter/X API. Shipped a real-time analytics dashboard for token telemetry, trading activity, fee earnings, and leaderboard ranking. Integrated Stripe and Alchemy, then exposed resilient REST APIs with idempotent webhooks, retry logic, and structured logging.',
+      highlights: [
+        'Built a TypeScript/Node service that auto-broadcasts Clanker-minted ERC-20 tokens on Base through the Twitter/X API.',
+        'Shipped a real-time analytics dashboard for on-chain telemetry — trading volume, cumulative fee earnings, and leaderboard rankings.',
+        'Integrated Stripe and Alchemy; exposed REST APIs with idempotent webhooks, retries, and structured logging behind the tokenization backend.',
+      ],
+      stack: [
+        'TypeScript',
+        'Node.js',
+        'Base / Alchemy',
+        'Stripe',
+        'Twitter API',
+      ],
+      note: 'Site and features may have been updated since my tenure.',
     },
     {
       company: 'Indo Welsh Company',
-      position: 'AI/ML Engineer',
+      position: 'AI / ML Engineer',
       from: 'Jan 2025',
       to: 'May 2025',
       companyLink: 'https://indowelshcompany.com/',
-      description:
-        'Designed ML systems for analytics, forecasting, and automation using Python, PyTorch, and scikit-learn, improving operational efficiency by 20%. Built an LLM-based support chatbot with LangChain and vector search, and developed a computer vision defect detection workflow with transfer learning. Partnered with backend engineers on FastAPI services and production-minded deployment patterns.',
+      highlights: [
+        'Deployed local/on-prem LLM inference workloads — started in Docker on single servers, then migrated to Kubernetes for repeatable releases and scaling.',
+        'Built a RAG support assistant with LangChain and a vector store, served through FastAPI with request validation, timeouts, retries, and structured logging.',
+        'Added monitoring for deployed model services — health checks, performance metrics, and basic deployment automation.',
+        'Benchmarked and tuned local inference (model selection, context limits, caching/batching) to balance latency, cost, and response quality.',
+      ],
+      stack: [
+        'Python',
+        'Docker',
+        'Kubernetes',
+        'LangChain',
+        'FastAPI',
+        'Vector search',
+      ],
     },
   ],
   certifications: [
@@ -264,13 +263,13 @@ const CONFIG = {
   educations: [
     {
       institution: 'University of North Texas',
-      degree: 'Bachelor of Science in Computer Science',
+      degree: 'B.S. Computer Science',
       from: '',
       to: '2026',
       link: 'https://engineering.unt.edu/cse/index.html',
     },
   ],
-  footer: 'Designed and built by GKN',
+  footer: '© Built by TNBB',
   enablePWA: true,
 };
 
