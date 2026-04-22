@@ -253,6 +253,9 @@ interface Experience {
   to: string;
   companyLink?: string;
   description?: string;
+  highlights?: string[];
+  stack?: string[];
+  note?: string;
 }
 
 interface Certification {
