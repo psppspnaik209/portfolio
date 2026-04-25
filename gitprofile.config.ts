@@ -96,7 +96,7 @@ const CONFIG = {
             ctaLabel: 'View Repository',
             media: {
               type: 'embed',
-              src: 'https://www.youtube.com/embed/zRVEkm9QCYE?rel=0&modestbranding=1',
+              src: 'https://www.youtube.com/embed/z16rOocf61Q?rel=0&modestbranding=1',
               alt: 'Senscribe demo',
             },
           },
