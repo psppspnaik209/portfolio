@@ -31,8 +31,8 @@ const SECRET_AVATAR = ['https://i.im', 'gur.com/AMn', 'SXrQ.png'].join('');
 
 const navItems = [
   { id: 'top', label: 'Home' },
-  { id: 'work', label: 'Work' },
   { id: 'experience', label: 'Experience' },
+  { id: 'work', label: 'Work' },
   { id: 'stack', label: 'Stack' },
   { id: 'contact', label: 'Contact' },
 ];
@@ -644,12 +644,112 @@ const GitProfileInner = ({ config }: { config: Config }) => {
 
           <div className="my-24 divider-line" />
 
+          {/* ============================ EXPERIENCE ============================ */}
+          <section id="experience" className="scroll-mt-28">
+            <Reveal>
+              <p className="section-kicker">01 / Experience</p>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--ink)] md:text-5xl">
+                Where I&apos;ve worked.
+              </h2>
+            </Reveal>
+
+            <div
+              className="exp-list mt-14 flex flex-col gap-14"
+              data-hover-active={hoveredExperience !== null}
+              onMouseLeave={() => setHoveredExperience(null)}
+            >
+              {sanitizedConfig.experiences.map((experience, idx) => (
+                <Reveal
+                  key={`${experience.company}-${experience.from}`}
+                  delay={0.04 * idx}
+                >
+                  <article
+                    className="exp-item grid gap-6 border-t border-[var(--line)] pt-8 md:grid-cols-[180px_1fr] md:gap-14"
+                    data-hovered={hoveredExperience === idx}
+                    onMouseEnter={() => setHoveredExperience(idx)}
+                  >
+                    <span className="exp-dot" aria-hidden="true" />
+
+                    <div>
+                      <p className="font-mono text-[12px] uppercase tracking-[0.18em] text-[var(--ink-muted)]">
+                        {experience.from} → {experience.to}
+                      </p>
+                      {experience.company ? (
+                        experience.companyLink ? (
+                          <a
+                            href={experience.companyLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="link-hover mt-3 inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]"
+                          >
+                            {experience.company}{' '}
+                            <span aria-hidden="true">↗</span>
+                          </a>
+                        ) : (
+                          <p className="mt-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                            {experience.company}
+                          </p>
+                        )
+                      ) : null}
+                    </div>
+
+                    <div>
+                      <h3 className="exp-role font-display text-2xl font-semibold tracking-[-0.02em] text-[var(--ink)] transition-colors duration-200">
+                        {experience.position}
+                      </h3>
+
+                      {experience.highlights &&
+                      experience.highlights.length > 0 ? (
+                        <ul className="mt-5 space-y-3">
+                          {experience.highlights.map((highlight, i) => (
+                            <li
+                              key={i}
+                              className="flex gap-3 text-[15px] leading-7 text-[var(--ink)]"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className="mt-[10px] h-[6px] w-[6px] flex-shrink-0 rounded-full bg-[var(--accent)]"
+                              />
+                              <span>{highlight}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : experience.description ? (
+                        <p className="mt-5 text-[15px] leading-7 text-[var(--ink)]">
+                          {experience.description}
+                        </p>
+                      ) : null}
+
+                      {experience.stack && experience.stack.length > 0 ? (
+                        <div className="mt-6 flex flex-wrap gap-2">
+                          {experience.stack.map((item) => (
+                            <span key={item} className="stack-chip">
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {experience.note ? (
+                        <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--ink-subtle)]">
+                          {experience.note}
+                        </p>
+                      ) : null}
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+
+          <div className="my-24 divider-line" />
+
           {/* ============================== WORK ============================== */}
           <section id="work" className="scroll-mt-28">
             <Reveal>
               <div className="flex items-baseline justify-between gap-6">
                 <div>
-                  <p className="section-kicker">01 / Selected work</p>
+                  <p className="section-kicker">02 / Selected work</p>
                   <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--ink)] md:text-5xl">
                     Things I&apos;ve shipped.
                   </h2>
@@ -845,108 +945,6 @@ const GitProfileInner = ({ config }: { config: Config }) => {
               </Reveal>
             ) : null}
           </section>
-
-          <div className="my-24 divider-line" />
-
-          {/* ============================ EXPERIENCE ============================ */}
-          <section id="experience" className="scroll-mt-28">
-            <Reveal>
-              <p className="section-kicker">02 / Experience</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] text-[var(--ink)] md:text-5xl">
-                Where I&apos;ve worked.
-              </h2>
-            </Reveal>
-
-            <div
-              className="exp-list mt-14 flex flex-col gap-14"
-              data-hover-active={hoveredExperience !== null}
-              onMouseLeave={() => setHoveredExperience(null)}
-            >
-              {sanitizedConfig.experiences.map((experience, idx) => (
-                <Reveal
-                  key={`${experience.company}-${experience.from}`}
-                  delay={0.04 * idx}
-                >
-                  <article
-                    className="exp-item grid gap-6 border-t border-[var(--line)] pt-8 md:grid-cols-[180px_1fr] md:gap-14"
-                    data-hovered={hoveredExperience === idx}
-                    onMouseEnter={() => setHoveredExperience(idx)}
-                  >
-                    <span className="exp-dot" aria-hidden="true" />
-
-                    <div>
-                      <p className="font-mono text-[12px] uppercase tracking-[0.18em] text-[var(--ink-muted)]">
-                        {experience.from} → {experience.to}
-                      </p>
-                      {experience.company ? (
-                        experience.companyLink ? (
-                          <a
-                            href={experience.companyLink}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="link-hover mt-3 inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]"
-                          >
-                            {experience.company}{' '}
-                            <span aria-hidden="true">↗</span>
-                          </a>
-                        ) : (
-                          <p className="mt-3 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                            {experience.company}
-                          </p>
-                        )
-                      ) : null}
-                    </div>
-
-                    <div>
-                      <h3 className="exp-role font-display text-2xl font-semibold tracking-[-0.02em] text-[var(--ink)] transition-colors duration-200">
-                        {experience.position}
-                      </h3>
-
-                      {experience.highlights &&
-                      experience.highlights.length > 0 ? (
-                        <ul className="mt-5 space-y-3">
-                          {experience.highlights.map((highlight, i) => (
-                            <li
-                              key={i}
-                              className="flex gap-3 text-[15px] leading-7 text-[var(--ink)]"
-                            >
-                              <span
-                                aria-hidden="true"
-                                className="mt-[10px] h-[6px] w-[6px] flex-shrink-0 rounded-full bg-[var(--accent)]"
-                              />
-                              <span>{highlight}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : experience.description ? (
-                        <p className="mt-5 text-[15px] leading-7 text-[var(--ink)]">
-                          {experience.description}
-                        </p>
-                      ) : null}
-
-                      {experience.stack && experience.stack.length > 0 ? (
-                        <div className="mt-6 flex flex-wrap gap-2">
-                          {experience.stack.map((item) => (
-                            <span key={item} className="stack-chip">
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-
-                      {experience.note ? (
-                        <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--ink-subtle)]">
-                          {experience.note}
-                        </p>
-                      ) : null}
-                    </div>
-                  </article>
-                </Reveal>
-              ))}
-            </div>
-          </section>
-
-          <div className="my-24 divider-line" />
 
           {/* ============================== STACK ============================== */}
           <section id="stack" className="scroll-mt-28">
@@ -1296,6 +1294,12 @@ const GitProfileInner = ({ config }: { config: Config }) => {
             <div className="flex flex-wrap items-center gap-5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--ink-muted)]">
               <a href="#top" className="link-hover hover:text-[var(--ink)]">
                 Top
+              </a>
+              <a
+                href="#experience"
+                className="link-hover hover:text-[var(--ink)]"
+              >
+                Experience
               </a>
               <a href="#work" className="link-hover hover:text-[var(--ink)]">
                 Work
