@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useMagnetic, useScrollProgress, useTheme } from '../hooks';
+import { Theme, useMagnetic, useScrollProgress, useTheme } from '../hooks';
 
 /* -------------------------------------------------------------------------- */
 /*                                  Magnetic                                  */
@@ -54,8 +54,19 @@ export const ScrollProgress = () => {
 /*                                 ThemeToggle                                */
 /* -------------------------------------------------------------------------- */
 
-export const ThemeToggle = ({ className = '' }: { className?: string }) => {
-  const { theme, toggle } = useTheme();
+export const ThemeToggle = ({
+  className = '',
+  theme: controlledTheme,
+  onToggle,
+}: {
+  className?: string;
+  theme?: Theme;
+  onToggle?: () => void;
+}) => {
+  const { theme: localTheme, toggle: localToggle } = useTheme();
+  const theme = controlledTheme ?? localTheme;
+  const toggle = onToggle ?? localToggle;
+
   return (
     <button
       type="button"

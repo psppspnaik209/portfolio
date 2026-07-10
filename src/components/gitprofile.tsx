@@ -60,6 +60,29 @@ const resolveMediaSource = (media?: SanitizedProjectMedia) =>
 
 const fallbackRepoLink = (repo: string) => `https://github.com/${repo}`;
 
+const monthAbbreviations: Record<string, string> = {
+  january: 'Jan',
+  february: 'Feb',
+  march: 'Mar',
+  april: 'Apr',
+  may: 'May',
+  june: 'Jun',
+  july: 'Jul',
+  august: 'Aug',
+  september: 'Sep',
+  october: 'Oct',
+  november: 'Nov',
+  december: 'Dec',
+};
+
+const abbreviateMonth = (value: string) => {
+  const normalizedValue = value.trim();
+  if (!normalizedValue) return '';
+
+  const [month, ...rest] = normalizedValue.split(/\s+/);
+  return [monthAbbreviations[month.toLowerCase()] || month, ...rest].join(' ');
+};
+
 const getRepoKey = (project: GithubProject) =>
   (project.full_name || project.name).toLowerCase();
 
@@ -132,10 +155,14 @@ const TopNav = ({
   activeId,
   onOpenPalette,
   isMac,
+  theme,
+  onToggleTheme,
 }: {
   activeId: string | null;
   onOpenPalette: () => void;
   isMac: boolean;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
 }) => {
   return (
     <header className="site-nav">
@@ -160,6 +187,7 @@ const TopNav = ({
                   key={item.id}
                   href={`#${item.id}`}
                   data-active={isActive}
+                  aria-current={isActive ? 'page' : undefined}
                   className="nav-item"
                 >
                   {isActive && (
@@ -206,9 +234,25 @@ const TopNav = ({
               {isMac ? '⌘' : 'Ctrl'} K
             </kbd>
           </button>
-          <ThemeToggle />
+          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         </div>
       </div>
+
+      <nav className="mobile-nav md:hidden" aria-label="Primary navigation">
+        <div className="mobile-nav-track">
+          {navItems.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              data-active={activeId === item.id}
+              aria-current={activeId === item.id ? 'page' : undefined}
+              className="mobile-nav-item"
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </nav>
     </header>
   );
 };
@@ -423,7 +467,14 @@ const GitProfileInner = ({ config }: { config: Config }) => {
       })),
   ];
 
-  const otherRepos = repositoryCards.filter((p) => !p.featured);
+  const configuredOtherRepoKeys = new Set(
+    manualProjects
+      .filter((project) => !project.featured)
+      .map((project) => project.repo.toLowerCase()),
+  );
+  const otherRepos = repositoryCards.filter((project) =>
+    configuredOtherRepoKeys.has(project.repo.toLowerCase()),
+  );
   const additionalWork = sanitizedConfig.projects.external.projects.filter(
     (p) => !p.featured,
   );
@@ -532,11 +583,16 @@ const GitProfileInner = ({ config }: { config: Config }) => {
     <HelmetProvider>
       <div className="site-shell min-h-screen">
         <HeadTagEditor googleAnalyticsId={sanitizedConfig.googleAnalytics.id} />
+        <a className="skip-link" href="#top">
+          Skip to content
+        </a>
 
         <TopNav
           activeId={activeSection}
           onOpenPalette={() => setPaletteOpen(true)}
           isMac={isMac}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
 
         <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pb-24 md:px-8">
@@ -546,16 +602,6 @@ const GitProfileInner = ({ config }: { config: Config }) => {
 
             <div className="relative z-10 flex flex-col gap-10 md:flex-row md:items-start md:justify-between md:gap-14">
               <div className="min-w-0 flex-1">
-                <Reveal>
-                  <p className="status-line inline-flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--ink-muted)]">
-                    <span className="status-dot" aria-hidden="true" />
-                    <span>
-                      {sanitizedConfig.personal.availability ||
-                        'Available for roles'}
-                    </span>
-                  </p>
-                </Reveal>
-
                 <Reveal delay={0.08}>
                   <h1 className="mt-7 max-w-4xl font-display text-5xl font-semibold leading-[0.94] tracking-[-0.04em] text-[var(--ink)] md:text-7xl">
                     {sanitizedConfig.personal.headline}
@@ -609,36 +655,51 @@ const GitProfileInner = ({ config }: { config: Config }) => {
                 </Reveal>
               </div>
 
-              {visibleAvatar ? (
-                <Reveal delay={0.12} className="order-first md:order-last">
-                  <button
-                    type="button"
-                    onClick={() => setShowSecretAvatar((v) => !v)}
-                    className="avatar-btn"
-                    aria-label="Toggle profile picture"
-                    aria-pressed={showSecretAvatar}
-                  >
-                    <span className="avatar-frame">
-                      <AnimatePresence initial={false}>
-                        <motion.img
-                          key={showSecretAvatar ? 'secret' : 'real'}
-                          src={visibleAvatar}
-                          alt={sanitizedConfig.personal.name}
-                          className="avatar-img"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{
-                            duration: 0.45,
-                            ease: [0.22, 1, 0.36, 1],
-                          }}
-                          draggable={false}
-                        />
-                      </AnimatePresence>
-                    </span>
-                  </button>
-                </Reveal>
-              ) : null}
+              <Reveal
+                delay={0.12}
+                className="order-first shrink-0 md:order-last"
+              >
+                <aside className="hero-aside" aria-label="Profile links">
+                  {visibleAvatar ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowSecretAvatar((v) => !v)}
+                      className="avatar-btn"
+                      aria-label="Toggle profile picture"
+                      aria-pressed={showSecretAvatar}
+                    >
+                      <span className="avatar-frame">
+                        <AnimatePresence initial={false}>
+                          <motion.img
+                            key={showSecretAvatar ? 'secret' : 'real'}
+                            src={visibleAvatar}
+                            alt={sanitizedConfig.personal.name}
+                            className="avatar-img"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: 0.45,
+                              ease: [0.22, 1, 0.36, 1],
+                            }}
+                            draggable={false}
+                          />
+                        </AnimatePresence>
+                      </span>
+                    </button>
+                  ) : null}
+                  <div className="hero-overview">
+                    <a
+                      href={githubProfileLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="hero-overview-link"
+                    >
+                      GitHub <span aria-hidden="true">↗</span>
+                    </a>
+                  </div>
+                </aside>
+              </Reveal>
             </div>
           </section>
 
@@ -672,7 +733,8 @@ const GitProfileInner = ({ config }: { config: Config }) => {
 
                     <div>
                       <p className="font-mono text-[12px] uppercase tracking-[0.18em] text-[var(--ink-muted)]">
-                        {experience.from} → {experience.to}
+                        {abbreviateMonth(experience.from)} →{' '}
+                        {abbreviateMonth(experience.to)}
                       </p>
                       {experience.company ? (
                         experience.companyLink ? (
@@ -946,6 +1008,8 @@ const GitProfileInner = ({ config }: { config: Config }) => {
             ) : null}
           </section>
 
+          <div className="my-24 divider-line" />
+
           {/* ============================== STACK ============================== */}
           <section id="stack" className="scroll-mt-28">
             <Reveal>
@@ -1006,7 +1070,7 @@ const GitProfileInner = ({ config }: { config: Config }) => {
                 ) : null}
 
                 {otherRepos.length > 0 ? (
-                  <ul className="mt-10 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+                  <ul className="mt-10 divide-y divide-[var(--line)]">
                     {otherRepos.map((project, idx) => (
                       <li key={project.repo}>
                         <Reveal delay={0.03 * idx} y={8}>

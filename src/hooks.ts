@@ -50,7 +50,10 @@ export const useScrollSpy = (
     if (sectionIds.length === 0) return;
 
     const handle = () => {
-      const scrollY = window.scrollY + offset;
+      // A viewport-relative probe keeps the final section active even when
+      // there is not enough page height left to scroll its heading to the top.
+      const scrollY =
+        window.scrollY + Math.max(offset, window.innerHeight * 0.4);
       let current: string | null = null;
       for (const id of sectionIds) {
         const el = document.getElementById(id);
