@@ -113,8 +113,7 @@ export const getSanitizedConfig = (
             },
             source:
               (config?.projects?.github?.automatic?.source as
-                | 'api'
-                | 'pinned') || 'api',
+                'api' | 'pinned') || 'api',
           },
           manual: {
             projects:
