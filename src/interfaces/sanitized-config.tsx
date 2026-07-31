@@ -1,0 +1,173 @@
+export interface SanitizedGithub {
+  username: string;
+}
+
+export interface SanitizedProjectMedia {
+  type: 'video' | 'image' | 'embed';
+  asset?: string;
+  src?: string;
+  alt?: string;
+  poster?: string;
+}
+
+export interface SanitizedGitHubManualProject {
+  repo: string;
+  label?: string;
+  featured: boolean;
+  eyebrow?: string;
+  summary?: string;
+  impact?: string;
+  stack: string[];
+  ctaLabel?: string;
+  media?: SanitizedProjectMedia;
+}
+
+export interface SanitizedGitHubProjects {
+  display: boolean;
+  header: string;
+  mode: string;
+  automatic: {
+    sortBy: string;
+    limit: number;
+    exclude: {
+      forks: boolean;
+      projects: Array<string>;
+    };
+    source?: 'api' | 'pinned';
+  };
+  manual: {
+    projects: SanitizedGitHubManualProject[];
+  };
+}
+
+export interface SanitizedExternalProject {
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  link?: string;
+  featured: boolean;
+  eyebrow?: string;
+  summary?: string;
+  impact?: string;
+  stack: string[];
+  media?: SanitizedProjectMedia;
+  ctaLabel?: string;
+}
+
+export interface SanitizedExternalProjects {
+  header: string;
+  projects: SanitizedExternalProject[];
+}
+
+export interface SanitizedProjects {
+  github: SanitizedGitHubProjects;
+  external: SanitizedExternalProjects;
+}
+
+export interface SanitizedSEO {
+  title?: string;
+  description?: string;
+  imageURL?: string;
+}
+
+export interface SanitizedSocial {
+  linkedin?: string;
+  x?: string;
+  mastodon?: string;
+  researchGate?: string;
+  facebook?: string;
+  instagram?: string;
+  reddit?: string;
+  threads?: string;
+  youtube?: string;
+  udemy?: string;
+  dribbble?: string;
+  behance?: string;
+  medium?: string;
+  dev?: string;
+  stackoverflow?: string;
+  website?: string;
+  skype?: string;
+  telegram?: string;
+  phone?: string;
+  email?: string | string[];
+}
+
+export interface SanitizedResume {
+  fileUrl?: string;
+}
+
+export interface SanitizedExperience {
+  company?: string;
+  position?: string;
+  from: string;
+  to: string;
+  companyLink?: string;
+  description?: string;
+  highlights?: string[];
+  stack?: string[];
+  note?: string;
+}
+
+export interface SanitizedCertification {
+  body?: string;
+  name?: string;
+  year?: string;
+  link?: string;
+}
+
+export interface SanitizedEducation {
+  institution?: string;
+  degree?: string;
+  from: string;
+  to: string;
+  link?: string;
+}
+
+export interface SanitizedGoogleAnalytics {
+  id?: string;
+}
+
+export interface SanitizedHotjar {
+  id?: string;
+  snippetVersion: number;
+}
+
+export interface SanitizedPersonalCta {
+  label: string;
+  href: string;
+}
+
+export interface SanitizedPersonal {
+  name: string;
+  headline: string;
+  subheadline?: string;
+  intro?: string;
+  location?: string;
+  availability?: string;
+  primaryCta?: SanitizedPersonalCta;
+  secondaryCta?: SanitizedPersonalCta;
+}
+
+export interface SanitizedCapability {
+  title: string;
+  summary?: string;
+  items: string[];
+}
+
+export interface SanitizedConfig {
+  github: SanitizedGithub;
+  projects: SanitizedProjects;
+  seo: SanitizedSEO;
+  social: SanitizedSocial;
+  personal: SanitizedPersonal;
+  capabilities: SanitizedCapability[];
+  resume: SanitizedResume;
+  experiences: Array<SanitizedExperience>;
+  educations: Array<SanitizedEducation>;
+  certifications: Array<SanitizedCertification>;
+  googleAnalytics: SanitizedGoogleAnalytics;
+  hotjar: SanitizedHotjar;
+  footer?: string;
+  enablePWA: boolean;
+}
