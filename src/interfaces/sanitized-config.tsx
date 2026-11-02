@@ -122,6 +122,7 @@ export interface SanitizedEducation {
   from: string;
   to: string;
   link?: string;
+  coursework?: string[];
 }
 
 export interface SanitizedGoogleAnalytics {

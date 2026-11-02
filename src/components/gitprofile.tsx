@@ -843,7 +843,7 @@ const GitProfileInner = ({ config }: { config: Config }) => {
                     ? project.label || project.repo
                     : project.title;
                 const playbackProfile =
-                  projectTitle === 'Senscribe' ? 'senscribe' : 'muted';
+                  projectTitle === 'SenScribe' ? 'senscribe' : 'muted';
                 const projectBody =
                   project.summary ||
                   (project.type === 'external'
@@ -1254,8 +1254,21 @@ const GitProfileInner = ({ config }: { config: Config }) => {
                           </p>
                         )}
                         <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--ink-muted)]">
-                          Graduating {education.to}
+                          {education.from
+                            ? `${abbreviateMonth(education.from)} — ${abbreviateMonth(education.to)}`
+                            : `Graduated ${education.to}`}
                         </p>
+                        {education.coursework &&
+                        education.coursework.length > 0 ? (
+                          <>
+                            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--ink-subtle)]">
+                              Relevant coursework
+                            </p>
+                            <p className="mt-1 text-[13px] leading-6 text-[var(--ink-muted)]">
+                              {education.coursework.join(' · ')}
+                            </p>
+                          </>
+                        ) : null}
                       </div>
                     ))}
                   </div>

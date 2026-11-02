@@ -271,6 +271,7 @@ interface Education {
   from: string;
   to: string;
   link?: string;
+  coursework?: string[];
 }
 
 interface PersonalCta {
