@@ -1,0 +1,6 @@
+dist
+dist-ssr
+node_modules
+.vite
+bundle-analysis.html
+bun.lock
